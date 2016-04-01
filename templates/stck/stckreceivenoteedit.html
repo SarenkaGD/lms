@@ -1,7 +1,7 @@
 {include file="header.html"}
 {include file="calendar_js.html"}
 <H1>{$layout.pagetitle}</H1>
-<P><FORM METHOD="POST" ACTION="?m=stckreceivenoteedit&id={$receivenoteedit.id}" NAME="receivenoteedit">
+<P><FORM METHOD="POST" ACTION="?m=stckreceivenoteedit&id={$receivenoteedit.id}" ID="receivenoteedit" NAME="receivenoteedit">
 <INPUT type="submit" class="hiddenbtn">
 <TABLE CLASS="lmsbox">
 	<thead>
@@ -92,7 +92,7 @@
 <p>{include file="stck/stckreceivenoteproductaddbox.html"}</p>
 <SCRIPT type="text/javascript">
 <!--
-new AutoSuggest(document.getElementById('receivenoteedit'),document.getElementById('sinput'),'?m=quicksearch&ajax=1&mode=supplier&source=rne&sid={$receivenoteedit.id}&what=',1);
+new AutoSuggest(document.getElementById('receivenoteedit'), document.getElementById('sinput'),'?m=quicksearch&ajax=1&mode=supplier&source=rne&sid={$receivenoteedit.id}&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 var cal3 = new calendar(document.forms['receivenoteedit'].elements['receivenoteedit[datesettlement]']);
 cal3.time_comp = false;
 var cal4 = new calendar(document.forms['receivenoteedit'].elements['receivenoteedit[datesale]']);

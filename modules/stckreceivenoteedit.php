@@ -21,6 +21,7 @@ unset($quantities['direction']);
 unset($quantities['total']);
 
 $receivenoteedit = $LMSST->ReceiveNoteGetInfoById($_GET['id']);
+$osid = $receivenoteedit['supplierid'];
 
 if (ctype_digit($_GET['sid'])) {
         $receivenoteedit['supplierid'] = $_GET['sid'];
@@ -29,10 +30,16 @@ if (ctype_digit($_GET['sid'])) {
 
 if (isset($_POST['receivenoteedit'])) {
 	$receivenoteedit = $_POST['receivenoteedit'];
+	$receivenoteedit['osid'] = $osid;
 	$receivenoteedit['id'] = $_GET['id'];
 	
 	if ($receivenoteedit['supplierid'] == '' || !ctype_digit($receivenoteedit['supplierid']))
 		$error['supplier'] = trans('Incorrect supplier!');
+	
+	if (!$LMS->CustomerExists($receivenoteedit['supplierid']))
+		$error['supplier'] = trans('Incorrect supplier!');
+	else
+		$receivenoteedit['sname'] = $LMS->GetCustomerName($receivenoteedit['supplierid']);
 
 	if ($receivenoteedit['datesettlement'] == '' || !isset($receivenoteedit['datesettlement']))
 		$error['datesettlement'] = trans('Settlement date can`t be empty!');
@@ -88,6 +95,8 @@ if (isset($_POST['receivenoteedit'])) {
 		if ($id = $LMSST->ReceiveNoteEdit($receivenoteedit)) {
 			$SESSION->redirect('?m=stckreceivenoteinfo&id='.$id);
 		}
+		else
+			$error['supplier'] = trans('Unknown error!');
 	}
 }
 
@@ -105,15 +114,15 @@ if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 	$itemdata['warehousename'] = $LMSST->WarehouseGetNameById($itemdata['warehouse']);
 
 	if (!ctype_digit($itemdata['pid']))
-	$error['product'] = 'Product not in databse';
+	$error['product'] = trans('Product not in databse');
 
 	if (!ctype_digit($itemdata['count']) || $itemdata['count'] < 1)
-	$error['count'] = 'Incorrect ammount!';
+	$error['count'] = trans('Incorrect ammount!');
 
 	$itemdata['unitname'] = $LMSST->QuantityGetNameById($itemdata['unit']);
 
 	if (!preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $itemdata['price']['net']) && !preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $itemdata['price']['gross']))
-	$error['price'] = 'Wrong or missing price!';
+		$error['price'] = trans('Wrong or missing price!');
 
 	$itemdata['price']['tax'] = isset($itemdata['price']['taxid']) ? $taxeslist[$itemdata['price']['taxid']]['label'] : '';
 
