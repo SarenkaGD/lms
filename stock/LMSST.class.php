@@ -697,7 +697,9 @@ class LMSST {
 			$position['comment'],
 			$position['id']
 			))) {
-			$this->DB->Execute('UPDATE cash SET value = ?, taxid = ? WHERE stockid = ? AND value > 0', array((string) $position['pricebuygross'], $position['taxid'], $position['id']));
+			$cid = $this->DB->GetOne('SELECT cashid FROM stck_cashassignments WHERE stockid = ? AND rnitem = ?', array($position['id'], 1));
+			//$this->DB->Execute('UPDATE cash SET value = ?, taxid = ? WHERE stockid = ? AND value > 0', array((string) $position['pricebuygross'], $position['taxid'], $position['id']));
+			$this->DB->Execute('UPDATE cash set value = ?, taxid = ? WHERE id = ?', array((string) $position['pricebuygross'], $position['taxid'], $cid));
 			$docid = $this->DB->GetOne('SELECT enterdocumentid FROM stck_stock WHERE id = ?', array($position['id']));
 			$this->ReceiveNoteUpdateValue($docid);
 			if ($position['leavedate']) {
@@ -959,7 +961,8 @@ class LMSST {
 	}
 
 	function ReceiveNoteEdit($rn) {
-		//print_r($rn);
+		return false;
+		/*print_r($rn);
 		if ($this->DB->Execute('UPDATE stck_receivenotes SET supplierid = ?, number = ?, datesettlement = ?, datesale = ?, deadline = ?, paytype = ?, comment = ?, moddate = ?NOW?, modid = ? WHERE id = ?', array(
 			$rn['supplierid'],
 			$rn['number'],
@@ -971,7 +974,7 @@ class LMSST {
 			$this->AUTH->id,
 			$rn['id']))) {
 			return $rn['id'];
-		}
+		}*/
 	}
 
 	function ReceiveNoteAccount($id) {
