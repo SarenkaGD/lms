@@ -1,6 +1,12 @@
 <?php
 $this->DB->BeginTrans();
 
+$this->DB->Execute('UPDATE cash
+		SET stockid = NULL
+		WHERE stockid NOT IN (
+			SELECT id FROM stck_stock
+		)');
+
 $this->DB->Execute('CREATE TABLE stck_cashassignments(
 		id int not null auto_increment,
 		cashid int not null,
@@ -8,13 +14,23 @@ $this->DB->Execute('CREATE TABLE stck_cashassignments(
 		rnitem bool not null default 0,
 		PRIMARY KEY(id),
 		INDEX (cashid),
+		INDEX (stockid),
 		FOREIGN KEY (cashid)
 			REFERENCES cash (id)
-			ON UPDATE CASCADE ON DELETE CASCADE
+			ON UPDATE CASCADE ON DELETE CASCADE,
+		FOREIGN KEY (stockid)
+			REFERENCES stck_stock(id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
 	) ENGINE=InnoDB');
 
 $this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid)
 	SELECT id, stockid FROM cash where stockid is not null');
+
+$this->DB->Execute('UPDATE invoicecontents
+	SET stockid = NULL
+	WHERE stockid NOT IN (
+    		SELECT id FROM stck_stock
+    	)');
 
 $this->DB->Execute('CREATE TABLE stck_invoicecontentsassignments(
 	id int not null auto_increment,
@@ -23,9 +39,13 @@ $this->DB->Execute('CREATE TABLE stck_invoicecontentsassignments(
 	stockid int not null,
 	PRIMARY KEY(id),
 	INDEX (icdocid,icitemid),
+	INDEX (stockid),
 	FOREIGN KEY (icdocid,icitemid)
 		REFERENCES invoicecontents(docid, itemid)
-		ON UPDATE CASCADE ON DELETE CASCADE
+		ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY (stockid)
+		REFERENCES stck_stock(id)
+		ON UPDATE CASCADE ON DELETE RESTRICT
 	) ENGINE=InnoDB');
 
 $this->DB->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
