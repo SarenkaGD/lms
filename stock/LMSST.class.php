@@ -827,7 +827,7 @@ class LMSST {
 					'value' => $product['price']['gross'],
 					'taxid' => $product['price']['taxid'],
 					'customerid' => $receivenote['doc']['supplierid'],
-					'comment' => $product['product'],
+					'comment' => $product['product'].' (S/N: '.$product['serial'].')',
 					));
 				$bid = $this->DB->GetLastInsertID();
 				$this->BalanceAddStockID($sid, $bid, 1);
@@ -961,10 +961,8 @@ class LMSST {
 	}
 
 	function ReceiveNoteEdit($rn) {
-		return false;
-		/*print_r($rn);
-		if ($this->DB->Execute('UPDATE stck_receivenotes SET supplierid = ?, number = ?, datesettlement = ?, datesale = ?, deadline = ?, paytype = ?, comment = ?, moddate = ?NOW?, modid = ? WHERE id = ?', array(
-			$rn['supplierid'],
+		print_r($rn);
+		if ($this->DB->Execute('UPDATE stck_receivenotes SET number = ?, datesettlement = ?, datesale = ?, deadline = ?, paytype = ?, comment = ?, moddate = ?NOW?, modid = ? WHERE id = ?', array(
 			$rn['number'],
 			$rn['datesettlement'],
 			$rn['datesale'],
@@ -973,8 +971,12 @@ class LMSST {
 			$rn['comment'],
 			$this->AUTH->id,
 			$rn['id']))) {
+			if ($rn['osid'] != $rn['supplierid']) {
+				return false;
+			}
 			return $rn['id'];
-		}*/
+		}
+		return false;
 	}
 
 	function ReceiveNoteAccount($id) {
@@ -1005,9 +1007,9 @@ class LMSST {
 	}*/
 
 	function BalanceAddStockID($stock, $balance, $rnitem = NULL) {
-		if ($this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid, rnitem) VALUES(?, ?, ?)', array($stock, $balance, $rnitem)))
+		if ($this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid, rnitem) VALUES(?, ?, ?)', array($balance, $stock, $rnitem))) {
 			return true;
-
+		}
 		return false;
 	}
 }
