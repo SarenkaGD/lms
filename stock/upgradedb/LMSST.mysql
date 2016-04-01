@@ -312,6 +312,10 @@ INSERT INTO `stck_types` (`id`, `def`, `name`, `quantitycheck`, `creationdate`, 
 INSERT INTO `stck_types` (`id`, `def`, `name`, `quantitycheck`, `creationdate`, `moddate`, `creatorid`, `modid`, `deleted`) VALUES
 (2, 0, 'Usługa', 0, 0, 0, 0, 0, 0);
 
+--
+-- Nowe zmienne do uiconfig
+--
+
 INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
 ('phpui','custom_accesstable','stock/accesstable.php','0'),
 ('phpui','custom_menu','stock/menu.php','0'),
@@ -320,3 +324,10 @@ INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
 ('phpui','productlist_pagelimit','100','0'),
 ('phpui','receivenotelist_pagelimit','100','0'),
 ('phpui','stock','1','0');
+
+-- 
+-- Zmiany w db LMS
+--
+
+ALTER TABLE invoicecontents ENGINE=InnoDB
+ALTER TABLE cash ENGINE=InnoDB
