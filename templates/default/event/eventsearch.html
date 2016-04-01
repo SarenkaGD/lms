@@ -76,7 +76,8 @@
 			</SELECT>
 		</TD>
 	</TR>
-{*	<TR>
+{*
+	<TR>
 		<TD width="1%">
 			<IMG src="img/access.gif" alt="">
 		</TD>
@@ -87,7 +88,8 @@
 			<INPUT type="checkbox" name="event[private]" value="1" {tip text="Select event's status"}{if $event.private}CHECKED{/if}> {trans("private")}
 		</TD>
 	</TR>
-*}	<TR>
+*}
+	<TR>
 		<TD width="1%">
 			<IMG src="img/customer.gif" alt="">
 		</TD>
@@ -105,9 +107,8 @@
 		<TD width="1%" valign="top">
 			<B>{trans("User:")}</B>
 		</TD>
-		<TD width="98%" nowrap>
+		<TD style="width: 98%;" class="multiselect nobr">
 			<SELECT name="event[userid][]" id="userid" multiple>
-				{*<OPTION value="">{trans("- select user -")}</OPTION>*}
 				{section name=userlist loop=$userlist}
 				<OPTION value="{$userlist[userlist].id}">{$userlist[userlist].name}</OPTION>
 				{/section}
