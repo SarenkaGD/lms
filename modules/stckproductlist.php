@@ -1,5 +1,4 @@
 <?php
-$CONFIG['phpui']['short_pagescroller'] = 1;
 $layout['pagetitle'] = trans('Product list');
 
 if(!isset($_GET['o']))
@@ -45,13 +44,13 @@ unset($grouplist['direction']);
 unset($grouplist['order']);
 
 if(!isset($_GET['page']))
-        $SESSION->restore('sglp', $_GET['page']);
+        $SESSION->restore('splp', $_GET['page']);
 
 $page = (! $_GET['page'] ? 1 : $_GET['page']);
-$pagelimit = (! $CONFIG['phpui']['productlist_pagelimit'] ? $listdata['total'] : $CONFIG['phpui']['productlist_pagelimit']);
+$pagelimit = (!ConfigHelper::getConfig('phpui.productlist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.productlist_pagelimit'));
 $start = ($page - 1) * $pagelimit;
 
-$SESSION->save('swlp', $page);
+$SESSION->save('splp', $page);
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 

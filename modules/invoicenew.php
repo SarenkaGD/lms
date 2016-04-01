@@ -300,7 +300,12 @@ switch($action)
 			break;
 
 		$DB->BeginTrans();
-		$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
+		//Added for STCK by Sarenka MAXCON
+		if (ConfigHelper::getConfig('phpui.stock'))
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions','stck_stockassigments','stck_stock'));
+		else
+			 $DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
+		//END STCK
 
 		if(!$invoice['number'])
 			$invoice['number'] = $LMS->GetNewDocumentNumber(DOC_INVOICE, $invoice['numberplanid'], $invoice['cdate']);
@@ -332,6 +337,17 @@ switch($action)
 
 		$contents = $hook_data['contents'];
 		$invoice = $hook_data['invoice'];
+
+		//Added for STCK by Sarenka MAXCON
+		if (ConfigHelper::getConfig('phpui.stock')) {
+			foreach($contents as $ct) {
+				if ($ct['stckproductid']) {
+					$LMSST->StockSell($iid, $ct['stckproductid'], $ct['valuebrutto'], $invoice['cdate']);
+					}
+			}
+		}
+		//END STCK
+
 
 		// usuwamy wczesniejsze zobowiazania bez faktury
 		foreach ($contents as $item)
@@ -417,6 +433,9 @@ $SMARTY->assign('invoice', $invoice);
 $SMARTY->assign('tariffs', $LMS->GetTariffs());
 $SMARTY->assign('numberplanlist', $LMS->GetNumberPlans(DOC_INVOICE, date('Y/m', $invoice['cdate'])));
 $SMARTY->assign('taxeslist', $taxeslist);
-$SMARTY->display('invoice/invoicenew.html');
-
+if (ConfigHelper::getConfig('phpui.stock')) {
+	$SMARTY->display('stck/invoicenew.stck.html');
+} else {
+	$SMARTY->display('invoice/invoicenew.html');
+}
 ?>

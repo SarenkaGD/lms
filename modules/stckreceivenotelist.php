@@ -42,7 +42,10 @@ if ($_GET['action'] == 'filter') {
 	$SESSION->restore('stckrnl', $filter);
 }
 
-$receivenotelist = $LMSST->ReceiveNoteList($o, $sprn, $filter['cid'], $filter['stckrnn']);
+$pagelimit = (!ConfigHelper::getConfig('phpui.receivenotelist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.receivenotelist_pagelimit'));
+$page = (! $_GET['page'] ? (floor($listdata['total']/$pagelimit)) : $_GET['page']);
+
+$receivenotelist = $LMSST->ReceiveNoteList($o, $pagelimit, $page, $sprn, $filter['cid'], $filter['stckrnn']);
 $listdata['total'] = $receivenotelist['total'];
 $listdata['direction'] = $receivenotelist['direction'];
 $listdata['order'] = $receivenotelist['order'];
@@ -58,8 +61,8 @@ foreach ($receivenotelist as $k => $v)
 if(!isset($_GET['page']))
         $SESSION->restore('srnlp', $_GET['page']);
 
-$page = (! $_GET['page'] ? 1 : $_GET['page']);
-$pagelimit = (! $CONFIG['phpui']['receivenotelist_pagelimit'] ? $listdata['total'] : $CONFIG['phpui']['receivenotelist_pagelimit']);
+//$pagelimit = (!ConfigHelper::getConfig('phpui.receivenotelist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.receivenotelist_pagelimit'));
+//$page = (! $_GET['page'] ? (floor($listdata['total']/$pagelimit)) : $_GET['page']);
 $start = ($page - 1) * $pagelimit;
 
 $SESSION->save('srnlp', $page);

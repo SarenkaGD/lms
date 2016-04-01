@@ -69,7 +69,7 @@ if (!empty($_POST['qs'])) {
 } elseif(!empty($_GET['what'])) {
 	$search = urldecode(trim($_GET['what']));
 	$mode = $_GET['mode'];
-}
+} 
 
 $sql_search = $DB->Escape("%$search%");
 
@@ -454,6 +454,28 @@ switch ($mode) {
 			$target = '?m=customerinfo&id=' . $cid;
 		}
 	break;
+//Added for STCK by Sarenka - MAXCON
+	case 'supplier':
+		if (ConfigHelper::getConfig('phpui.stock'))
+			require_once('stock/quicksearch-supplier.php');
+	break;
+	case 'product':
+		if (ConfigHelper::getConfig('phpui.stock'))
+			require_once('stock/quicksearch-product.php');
+	break;
+	case 'productinv':
+		if (ConfigHelper::getConfig('phpui.stock'))
+			require_once('stock/quicksearch-productinv.php');
+	break;
+	case 'productprice':
+		 if (ConfigHelper::getConfig('phpui.stock'))
+		 	require_once('stock/quicksearch-productprice.php');
+	break;
+	case 'productwarranty':
+		if (ConfigHelper::getConfig('phpui.stock'))
+			require_once('stock/quicksearch-productwarranty.php');
+	break;
+//END STCK
 }
 
 $quicksearch = $LMS->executeHook('quicksearch_after_submit',

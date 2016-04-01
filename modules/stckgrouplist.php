@@ -20,10 +20,10 @@ if(!isset($_GET['page']))
         $SESSION->restore('sglp', $_GET['page']);
 
 $page = (! $_GET['page'] ? 1 : $_GET['page']);
-$pagelimit = (! $CONFIG['phpui']['grouplist_pagelimit'] ? $listdata['total'] : $CONFIG['phpui']['grouplist_pagelimit']);
+$pagelimit = (!ConfigHelper::getConfig('phpui.grouplist_pagelimit')? 100 : ConfigHelper::getConfig('phpui.grouplist_pagelimit'));
 $start = ($page - 1) * $pagelimit;
 
-$SESSION->save('swlp', $page);
+$SESSION->save('sglp', $page);
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 

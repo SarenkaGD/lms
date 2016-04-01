@@ -9,6 +9,7 @@ else
 $SESSION->save('swlo', $o);
 
 $warehouselist = $LMSST->WarehouseGetList($o);
+
 $listdata['total'] = $warehouselist['total'];
 $listdata['direction'] = $warehouselist['direction'];
 $listdata['order'] = $warehouselist['order'];
@@ -19,8 +20,9 @@ unset($warehouselist['order']);
 if(!isset($_GET['page']))
         $SESSION->restore('swlp', $_GET['page']);
 
-$page = (! $_GET['page'] ? 1 : $_GET['page']);
-$pagelimit = (! $CONFIG['phpui']['warehouselist_pagelimit'] ? $listdata['total'] : $CONFIG['phpui']['warehouselist_pagelimit']);
+$page = (!$_GET['page'] ? 1 : $_GET['page']);
+
+$pagelimit = (!ConfigHelper::getConfig('phpui.warehouselist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.warehouselist_pagelimit'));
 $start = ($page - 1) * $pagelimit;
 
 $SESSION->save('swlp', $page);

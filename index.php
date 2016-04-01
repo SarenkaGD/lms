@@ -25,7 +25,7 @@
  */
 
 // REPLACE THIS WITH PATH TO YOUR CONFIG FILE
-$CONFIG_FILE = DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'lms' . DIRECTORY_SEPARATOR . 'lms.ini';
+$CONFIG_FILE = DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'lms' . DIRECTORY_SEPARATOR . 'lms2.ini';
 
 // PLEASE DO NOT MODIFY ANYTHING BELOW THIS LINE UNLESS YOU KNOW
 // *EXACTLY* WHAT ARE YOU DOING!!!
@@ -77,7 +77,7 @@ $composer_autoload_path = VENDOR_DIR . DIRECTORY_SEPARATOR . 'autoload.php';
 if (file_exists($composer_autoload_path)) {
     require_once $composer_autoload_path;
 } else {
-    die("Composer autoload not found. Run 'composer install' command from LMS directory and try again. More informations at https://getcomposer.org/");
+    die($composer_autoload_path."Composer autoload not found. Run 'composer install' command from LMS directory and try again. More informations at https://getcomposer.org/");
 }
 
 // Do some checks and load config defaults
@@ -204,6 +204,11 @@ $SMARTY->assignByRef('_language', $LMS->lang);
 
 $error = NULL; // initialize error variable needed for (almost) all modules
 
+//Load stock module class and defs
+if (ConfigHelper::getConfig('phpui.stock')) {
+	require('stock/LMSST.php');
+	//$LMSST = new LMSST($DB, $AUTH, $CONFIG, $LMS);
+}
 // Load menu
 
 if(!$layout['popup'])

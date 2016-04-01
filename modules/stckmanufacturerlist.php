@@ -20,10 +20,10 @@ if(!isset($_GET['page']))
         $SESSION->restore('smlp', $_GET['page']);
 
 $page = (! $_GET['page'] ? 1 : $_GET['page']);
-$pagelimit = (! $CONFIG['phpui']['manufacturerlist_pagelimit'] ? $listdata['total'] : $CONFIG['phpui']['manufacturerlist_pagelimit']);
+$pagelimit = (!ConfigHelper::getConfig('phpui.manufacturerlist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.manufacturerlist_pagelimit'));
 $start = ($page - 1) * $pagelimit;
 
-$SESSION->save('swlp', $page);
+$SESSION->save('smlp', $page);
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 

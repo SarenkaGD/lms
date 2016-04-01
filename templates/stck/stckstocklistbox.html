@@ -2,16 +2,33 @@
 <script type="text/javascript" src="/stock/js/jquery.simplemodal.js"></script>
 <link href="/stock/js/jquery.simplemodal.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="/stock/js/common.js"></script>
+<SCRIPT TYPE="text/javascript">
+<!--
+function filter() {
+	document.stckslb.action="?m=stckproductinfo&id={$productinfo.id}&ssp={$ssp}";
+	document.stckslb.target="";
+	document.stckslb.submit();
+}
+-->
+</SCRIPT>
 <TABLE CELLPADDING="3" width="100%">
+	<FORM NAME="stckslb" METHOD="post" ACTION="?m=stckproductinfo&amp;id={$productinfo.id}&amp;ssp={$ssp}">
 	<TR CLASS="dark">
-		<TD COLSPAN="10" ALIGN="right" CLASS="fleftu frightu">
+		<TD CLASS="ftl"></TD>
+		<TD CLASS="ftop"><INPUT TYPE="text" NAME="filter[sn]" VALUE="{$filter.sn}"></td>
+		<td CLASS="ftop"><a href="javascript:filter()">&raquo;&raquo;&raquo;</a></td>
+		<TD COLSPAN="7" CLASS="ftr"></TD>
+	</TR>
+	</FORM>
+	<TR CLASS="dark">
+		<TD COLSPAN="10" ALIGN="right" CLASS="fleft fright">
 			<A HREF="?m={$module}&amp;ssp={!$ssp}"{if $ssp} CLASS="bold"{/if}>{t}Show sold positions{/t}</A>
 		</TD>
 	<TR CLASS="dark" {tip text="Click on column name to change sorting order"}>
 		<TD CLASS="fleftu" width="30%">
 			<IMG src="img/producer.gif" ALT="">&nbsp;<A href="?m={$module}&o=name{if $listdata.direction eq "asc" && $listdata.order eq "name"},desc{/if}"><B>{t}Name:{/t}</B></A> {if $listdata.order eq "name"}<IMG src="img/{if $listdata.direction eq "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}<BR>
 		</TD>
-		<TD CLASS="fbt" width="1%" align="left" valign="top" NOWRAP>
+		<TD CLASS="fbt" width="1%" align="center" valign="top" NOWRAP>
 			{t}Serial number:{/t}
 		</TD>
 		<TD CLASS="fbt" width="1%" align="left" valign="top" NOWRAP>
@@ -26,12 +43,6 @@
 		<TD CLASS="fbt" width="1%" align="left" valign="top" NOWRAP>
 			<A href="?m={$module}&o=creationdate{if $listdata.direction eq "asc" && $listdata.order eq "creationdate"},desc{/if}">{t}Creation date:{/t}</A> {if $listdata.order eq "creationdate"}<IMG src="img/{if $listdata.direction eq "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
 		</TD>
-<!--		<TD CLASS="fbt" width="1%" align="center" valign="top">
-			<A href="?m=stckproductlist&o=quant{if $listdata.direction eq "asc" && $listdata.order eq "quant"},desc{/if}">{t}Quantity in unit:{/t}</A> {if $listdata.order eq "quant"}<IMG src="img/{if $listdata.direction eq "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
-		</TD>
-		<TD CLASS="fbt" width="1%" align="right" valign="top" NOWRAP>
-			{t}In stock:{/t}
-		</TD>-->
 		<TD CLASS="fbt" width="1%" align="right" valign="top" NOWRAP>
 			{t}Net Value:{/t}
 		</TD>
@@ -59,7 +70,7 @@
 			<IMG src="img/producer.gif" ALT=""> <a name="{$productlist[pl].id}"><B>{$productlist[pl].pname}</B></A><BR>
 			{$productlist[pl].comment}
 		</TD>
-		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[pl].productid}';" align="left" VALIGN="TOP" NOWRAP>
+		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[pl].productid}';" align="right" VALIGN="TOP" NOWRAP>
 			{$productlist[pl].serialnumber}
 		</TD>
 		<TD WIDTH="1%" onClick="return self.location.href='?m=stckwarehouseinfo&id={$productlist[pl].wid}';" align="left" VALIGN="TOP" NOWRAP>

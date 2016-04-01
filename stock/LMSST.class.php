@@ -11,14 +11,19 @@ class LMSST {
 	var $AUTH;
 	var $CONFIG;
 	var $LMS;
+	var $_version = 1.1;
+	var $dbschversion;
 
 	function LMSST(&$DB, &$AUTH, &$CONFIG, &$LMS) {
 		$this->DB = &$DB;
 		$this->AUTH = &$AUTH;
 		$this->CONFIG = &$CONFIG;
 		$this->LMS = &$LMS;
+		$this->dbschversion = $this->UpgradeDB();
+		//print_r($this);
 	}
 	
+	/* MODULE SYSTEM FUNCTIONS */
 	function SetDefault($table, $id) {
 		$this->DB->Execute("ALTER TABLE ".$table." SET def = 0 WHERE def = 1");
 		$this->DB->Execute("ALTER TABLE ".$table." SET def = 1 WHERE id = ?", array($id));
@@ -29,6 +34,38 @@ class LMSST {
 						FROM `stck_receivenotes`
 						WHERE paid IS NULL");
 		return $stats;
+	}
+
+	private function UpgradeDB() {
+		$lastupgrade = NULL;
+		if ($dbversion = $this->DB->GetOne('SELECT keyvalue
+			FROM stck_dbinfo
+			WHERE keytype = ?', array('stck_dbversion'))) {
+			echo("IS stck_dbinfo");
+		} else { //no stck_dbinfo - check if previouse lms-stck tables exists or stck_dbinfo not filled
+			// save current errors
+			$err_tmp = $this->errors;
+			$this->errors = array();
+
+			$dbinfo = $this->DB->GetOne('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?', array(ConfigHelper::getConfig('database.database'), 'stck_dbinfo'));
+			// check if any previous tables exists in this database
+			$old_stck = $this->DB->GetOne('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?', array(ConfigHelper::getConfig('database.database'), 'stck_stock'));
+			echo("DBINFO: ".$dbinfo." OLD_STCK: ".$old_stck);
+			if (!$dbinfo && $old_stck) {
+				echo "THERE WAS STOCK, BUT IT`s OLD!";
+			} elseif (!$dbinfo && !$old_stck) {
+				$schema = 'LMSST.mysql';
+				if (!$sql = file_get_contents(STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . $schema))
+					die ('Could not open database schema file ' . STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . $schema);
+			
+				if (!$this->MultiExecute($sql))    // execute
+					die ('Could not load database schema!');
+
+			} else // database might be installed so don't miss any error
+				$this->errors = array_merge($err_tmp, $this->errors);
+
+		}
+		return STCK_DBVERSION;
 	}
 	
 	/* WAREHOUSE */
@@ -665,7 +702,7 @@ class LMSST {
 		}
 	}
 
-	function StockProductList($order, $prodid = NULL, $ssp, $docid = NULL, $warehouseid = NULL, $manufacturerid = NULL, $groupid = NULL) {
+	function StockProductList($order, $prodid = NULL, $ssp, $docid = NULL, $warehouseid = NULL, $manufacturerid = NULL, $groupid = NULL, $sn = NULL) {
 		list($order,$direction) = sscanf($order, '%[^,],%s');
 		$totalpcs = 0;
 		$totalvn = 0;
@@ -694,6 +731,9 @@ class LMSST {
 			break;
 		}
 
+		if ($sn)
+			$sn = $this->DB->Escape("%$sn%");
+
 		if ($spl = $this->DB->GetAll('SELECT s.*,
 			s.pricebuynet as valuenet, s.pricebuygross as valuegross,
 			w.name as wname, w.id as wid,
@@ -716,6 +756,7 @@ class LMSST {
 			.($warehouseid ? ' AND s.warehouseid = '.$warehouseid : '')
 			.($manufacturerid ? ' AND m.id = '.$manufacturerid : '')
 			.($groupid ? ' AND p.groupid = '.$groupid : '')
+			.($sn ? ' AND LOWER(serialnumber) ?LIKE? LOWER('.$sn.')' : '')
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
 			foreach($spl as $p) {
 				$totalpcs += $p['count'];
@@ -799,7 +840,7 @@ class LMSST {
 		}
 	}
 
-	function ReceiveNoteList($order='name,asc', $sprn = 0, $supplierid = NULL, $docnumber = NULL) {
+	function ReceiveNoteList($order='name,asc', $pagelimit = 100, $page, $sprn = 0, $supplierid = NULL, $docnumber = NULL) {
 		list($order,$direction) = sscanf($order, '%[^,],%s');
 
 		($direction=='desc') ? $direction = 'desc' : $direction = 'asc';
@@ -844,6 +885,7 @@ class LMSST {
 			.($docnumber ? ' AND rn.number LIKE '.$docnumber : '')
 			.($sprn ? '' : ' AND rn.paid IS NULL')
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
+			
 			$rnl['total'] = sizeof($rnl);
 			$rnl['order'] = $order;
 			$rnl['direction'] = $direction;

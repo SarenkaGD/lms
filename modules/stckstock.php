@@ -59,13 +59,13 @@ unset($grouplist['order']);
 
 
 if(!isset($_GET['page']))
-        $SESSION->restore('splp', $_GET['page']);
+        $SESSION->restore('sslp', $_GET['page']);
 
 $page = (! $_GET['page'] ? 1 : $_GET['page']);
-$pagelimit = (! $CONFIG['phpui']['productlist_pagelimit'] ? $listdata['total'] : $CONFIG['phpui']['productlist_pagelimit']);
+$pagelimit = (!ConfigHelper::getConfig('phpui.productlist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.productlist_pagelimit'));
 $start = ($page - 1) * $pagelimit;
 
-$SESSION->save('splp', $page);
+$SESSION->save('sslp', $page);
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 $SMARTY->assign('error', $error);

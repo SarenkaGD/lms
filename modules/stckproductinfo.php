@@ -48,7 +48,14 @@ else
 
 $SESSION->save('spiplssp', $ssp);
 
-$productlist = $LMSST->StockProductList($o, $productinfo['id'], $ssp);
+if (isset($_POST['filter'])) {
+	if ($_POST['filter']['sn'])
+		$filter['sn'] = $_POST['filter']['sn'];
+	else
+		$filter['sn'] = NULL;
+}
+
+$productlist = $LMSST->StockProductList($o, $productinfo['id'], $ssp, NULL, NULL, NULL, NULL, $filter['sn']);
 $listdata['total'] = $productlist['total'];
 $listdata['totalvn'] = $productlist['totalvn'];
 $listdata['totalvg'] = $productlist['totalvg'];
@@ -72,6 +79,7 @@ $start = ($page - 1) * $pagelimit;
 
 $SESSION->save('smipl', $page);
 
+$SMARTY->assign('filter', $filter);
 $SMARTY->assign('page',$page);
 $SMARTY->assign('pagelimit',$pagelimit);
 $SMARTY->assign('start',$start);
