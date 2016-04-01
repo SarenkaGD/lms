@@ -5,6 +5,7 @@ $this->DB->Execute('CREATE TABLE stck_cashassignments(
 		id int not null auto_increment,
 		cashid int not null,
 		stockid int not null,
+		rnitem bool not null default 0,
 		PRIMARY KEY(id),
 		INDEX (cashid),
 		FOREIGN KEY (cashid)
@@ -29,6 +30,13 @@ $this->DB->Execute('CREATE TABLE stck_invoicecontentsassignments(
 
 $this->DB->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
         SELECT docid, itemid, stockid FROM invoicecontents where stockid > 0');
+
+$this->DB->Execute('UPDATE stck_cashassignments SET rnitem = 1
+	WHERE cashid IN (SELECT c.id
+	FROM cash c
+	LEFT JOIN stck_stock ss ON ss.id = c.stockid
+	WHERE value > 0 AND stockid > 0 AND docid = 0 AND itemid = 0 AND ss.pricebuygross = c.value
+	ORDER BY id DESC)');
 
 $this->DB->Execute('DROP TABLE stck_stockassigments');
 
