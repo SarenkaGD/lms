@@ -11,7 +11,7 @@ $this->DB->Execute('CREATE TABLE `stck_dbinfo` (
   PRIMARY KEY (`keytype`)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8');
 
-$this->DB->Execute('INSERT INTO stck_dbinfo VALUES(?, ?)', array('dbversion', '20160401'));
+$this->DB->Execute('INSERT INTO stck_dbinfo VALUES(?, ?)', array('dbversion', '2016040100'));
 
 $this->DB->CommitTrans();
 ?>

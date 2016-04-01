@@ -1,9 +1,4 @@
 <?php
-/*
-STOCK ASSIGMENTS
-1 - stock - cash
-2 - stock - invoicecontents
-*/
 
 class LMSST {
 
@@ -703,7 +698,7 @@ class LMSST {
 			$position['comment'],
 			$position['id']
 			))) {
-			$this->DB->Execute('UPDATE cash SET value = ?, taxid = ? WHERE stockid = ?', array((string) $position['pricebuygross'], $position['taxid'], $position['id']));
+			$this->DB->Execute('UPDATE cash SET value = ?, taxid = ? WHERE stockid = ? AND value > 0', array((string) $position['pricebuygross'], $position['taxid'], $position['id']));
 			$docid = $this->DB->GetOne('SELECT enterdocumentid FROM stck_stock WHERE id = ?', array($position['id']));
 			$this->ReceiveNoteUpdateValue($docid);
 			if ($position['leavedate']) {
@@ -995,7 +990,7 @@ class LMSST {
 
 	/* BALANCE */
 
-	function BalanceAddStockID($stock, $balance) {
+/*	function BalanceAddStockID($stock, $balance) {
 		if ($this->DB->Execute('UPDATE cash SET stockid = ? WHERE id = ?', array($stock, $balance)))
 			if ($this->DB->Execute('INSERT INTO stck_stockassigments (type, stockid, assigmentid) VALUES(?, ?, ?)', array(
 				1,
@@ -1004,6 +999,13 @@ class LMSST {
 				)))
 				return true;
 			return false;
+		return false;
+	}*/
+
+	function BalanceAddStockID($stock, $balance) {
+		if ($this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid) VALUES(?, ?)')) {
+			return true;
+		}
 		return false;
 	}
 }

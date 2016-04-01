@@ -567,6 +567,7 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             $item['vdiscount'] = str_replace(',', '.', $item['vdiscount']);
             $item['taxid'] = isset($item['taxid']) ? $item['taxid'] : 0;
 
+//Added for STCK by SARENKA - MAXCON - stckproductid
             $args = array(
                 $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_DOC] => $iid,
                 'itemid' => $itemid,
@@ -583,7 +584,11 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             $this->db->Execute('INSERT INTO invoicecontents (docid, itemid,
 				value, taxid, prodid, content, count, pdiscount, vdiscount, description, tariffid) 
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
-            if ($this->syslog) {
+            
+	    $this->db->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
+	    			VALUES(?, ?, ?)', array($iid, $itemid, $item['stckproductid']));
+
+	    if ($this->syslog) {
                 $args[$SYSLOG_RESOURCE_KEYS[SYSLOG_RES_CUST]] = $invoice['customer']['id'];
                 $this->syslog->AddMessage(SYSLOG_RES_INVOICECONT, SYSLOG_OPER_ADD, $args, array($SYSLOG_RESOURCE_KEYS[SYSLOG_RES_CUST], $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_DOC],
                     $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_TAX], $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_TARIFF]));
