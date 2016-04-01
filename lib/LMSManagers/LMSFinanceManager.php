@@ -567,7 +567,6 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             $item['vdiscount'] = str_replace(',', '.', $item['vdiscount']);
             $item['taxid'] = isset($item['taxid']) ? $item['taxid'] : 0;
 
-//Added for STCK by SARENKA - MAXCON - stckproductid
             $args = array(
                 $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_DOC] => $iid,
                 'itemid' => $itemid,
@@ -585,7 +584,9 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
 				value, taxid, prodid, content, count, pdiscount, vdiscount, description, tariffid) 
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
             
-	    $this->db->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
+	    //Added for lms-stck by Sarenka - MAXCON
+	    if (ConfigHelper::getConfig('phpui.stock'))
+	    	$this->db->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
 	    			VALUES(?, ?, ?)', array($iid, $itemid, $item['stckproductid']));
 
 	    if ($this->syslog) {
@@ -603,6 +604,14 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                 'docid' => $iid,
                 'itemid' => $itemid
             ));
+
+	    //Added for lms-sstck by Sarenka = MAXCON
+	    error_log("STOCK: ".ConfigHelper::getConfig('phpui.stock'));
+	    if (ConfigHelper::getConfig('phpui.stock')) {
+	    	$icid = $this->db->GetLastInsertID('cash');
+		error_log("Dodaje cash: $icid stock: ".$item['stckproductid']);
+		$this->db->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stckproductid']));
+	    }
         }
 
         return $iid;
