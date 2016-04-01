@@ -2,7 +2,7 @@ Modu³ magazynu handlowego dla LMS
 
 demo: http://sarenka.mojasiec.com/lms/ l: demo h: demo
 
-autor - Krzysztof Michalski k.michalski@maxcon.pl poprawki - Grzegorz Cichowski gcichowski@gmail.com
+autor - Krzysztof Michalski k.michalski(at)maxcon.pl poprawki - Grzegorz Cichowski gcichowski(at)gmail.com
 
 Trzeba najpierw wprowadziæ grupy produktów, producentów i produkty.
 Dostawce towaru wprowadzamy jako klienta w naszej bazie.
@@ -12,8 +12,15 @@ Rozliczenie dokumentu przyjêcia powoduje oznaczenie dokumentu jako zap³aconego, 
 Sprzeda¿ produktów odbywa sie poprzez edycjê pozycji i wpisanie daty i ceny sprzeda¿y lub poprzez wystawienie klientowi faktury na t± konkretn± sztukê (modu³ wyposa¿ony w wybór pozycji z magazynu w czasie wystawiania dokumentu sprzeda¿y).
 
 Znane problemy:
-- edycja dokuemntu przyjêcia
+- edycja dokuementu przyjêcia
 - obs³uga dokuemntów koryguj±cych
+- brak ob¶³ugi pozycji o ilo¶ci sztuk > 1
+
+TODO:
+- szybkie zaznaczenia produktu jako sprzedanego
+- status gearancji w karcie informacji o pozycji magazynowej
+- mo¿liwo¶æ dodania producenta i grupy z poziomu dodawania nowej pozycji magazynowej
+- przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokuemntu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
 
 Plany na przysz³o¶æ:
 - wsparcie dla drukarek fiskalnych
