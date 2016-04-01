@@ -1,20 +1,19 @@
-modul MAGAZYN dla LMS
+Modu³ magazynu handlowego dla LMS
 
-demo: http://sarenka.mojasiec.com/lms/
-l: demo
-h: demo
-Demo aktualnie nieaktualne :)
+demo: http://sarenka.mojasiec.com/lms/ l: demo h: demo
 
-autor - Krzysztof Michalski k.michalski@maxcon.pl
-poprawki - Grzegorz Cichowski gcichowski@gmail.com
+autor - Krzysztof Michalski k.michalski@maxcon.pl poprawki - Grzegorz Cichowski gcichowski@gmail.com
 
+Trzeba najpierw wprowadziæ grupy produktów, producentów i produkty.
+Dostawce towaru wprowadzamy jako klienta w naszej bazie.
+Produkty do magazynu wprowadza sie poprzez dokument przyjêcia.
+Po zapisaniu dokumentu przyjecia na magazyn wchodz± produkty a u dostawcy pojawia sie nadp³ata.
+Rozliczenie dokumentu przyjêcia powoduje oznaczenie dokumentu jako zap³aconego, a u dostawcy pojawia siê ta kwota jako rozliczona
+Sprzeda¿ produktów odbywa sie poprzez edycjê pozycji i wpisanie daty i ceny sprzeda¿y lub poprzez wystawienie klientowi faktury na t± konkretn± sztukê (modu³ wyposa¿ony w wybór pozycji z magazynu w czasie wystawiania dokumentu sprzeda¿y).
 
+Znane problemy:
+- edycja dokuemntu przyjêcia
+- obs³uga dokuemntów koryguj±cych
 
-1. Trzeba najpierw wprowadzic grupy produktow, producentow i produkty.
-2. Dostawce towaru wprowadzamy jako klienta w naszej bazie
-3. Produkty do magazynu wprowadza sie poprzez dokument przyjecia
-4. Po zapisaniu dokumentu przyjecia na magazyn wchodza produkty a u dostawcy pojawia sie nadplata
-5. rozliczneie dokumentu przyjecia powoduje oznaczenie dokumentu jako zaplaconego, a u dostawcy pojawia sie ta kwota jako rozliczona
-6. sprzedaz produktow odbywa sie poprzez edycje pozycji i wpisanie daty i ceny sprzedazy, lub poprzez wystawienie klientowi faktury na te konkretna sztuke
-
-Przy wystawianiu nowych faktur system podpowiada produkt znajdujacy sie na magazynie
+Plany na przysz³o¶æ:
+- wsparcie dla drukarek fiskalnych
