@@ -266,11 +266,6 @@ DROP TABLE IF EXISTS `stck_vpstock`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `stck_vpstock` AS (select `s`.`id` AS `id`,`s`.`warehouseid` AS `warehouseid`,`s`.`groupid` AS `groupid`,`s`.`productid` AS `productid`,`s`.`supplierid` AS `supplierid`,`s`.`enterdocumentid` AS `enterdocumentid`,`s`.`quitdocumentid` AS `quitdocumentid`,`s`.`creationdate` AS `creationdate`,`s`.`bdate` AS `bdate`,`s`.`moddate` AS `moddate`,`s`.`leavedate` AS `leavedate`,`s`.`creatorid` AS `creatorid`,`s`.`modid` AS `modid`,`s`.`serialnumber` AS `serialnumber`,`s`.`warranty` AS `warranty`,`s`.`pricebuynet` AS `pricebuynet`,`s`.`taxid` AS `taxid`,`s`.`pricebuygross` AS `pricebuygross`,`s`.`pricesell` AS `pricesell`,`s`.`deleted` AS `deleted`,`s`.`comment` AS `comment`,`p`.`id` AS `pid`,`p`.`name` AS `pname`,`p`.`manufacturerid` AS `manufacturerid`,`p`.`comment` AS `pcomment`,`p`.`deleted` AS `pdeleted`,`g`.`id` AS `gid`,`g`.`name` AS `gname`,`g`.`comment` AS `gcomment`,`g`.`deleted` AS `gdeleted` from ((`stck_stock` `s` left join `stck_products` `p` on((`p`.`id` = `s`.`productid`))) left join `stck_groups` `g` on((`g`.`id` = `p`.`id`))));
 
---
--- Struktura widoku `stck_vstockcount`
---
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `stck_vstockcount` AS (select `s`.`productid` AS `productid`,count(`s`.`id`) AS `scount` from `stck_stock` `s` where isnull(`s`.`pricesell`) group by `s`.`productid`);
 
 --
 -- Ograniczenia dla zrzutów tabel

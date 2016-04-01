@@ -36,23 +36,52 @@ class LMSST {
 		return $stats;
 	}
 
-	private function UpgradeDB() {
+	private function UpgradeDB($dbver = STCK_DBVERSION, $stckdir = NULL) {
 		$lastupgrade = NULL;
 		if ($dbversion = $this->DB->GetOne('SELECT keyvalue
 			FROM stck_dbinfo
-			WHERE keytype = ?', array('stck_dbversion'))) {
-			echo("IS stck_dbinfo");
+			WHERE keytype = ?', array('dbversion'))) {
+			if ($dbver > $dbversion) {
+				set_time_limit(0);
+
+				$lastupgrade = $dbversion;
+
+				if (is_null($stckdir))
+					$stckdir = STCK_DIR;
+
+				$filename_prefix = ConfigHelper::getConfig('database.database') == LMSDB::POSTGRESQL ? 'postgres' : 'mysql';
+
+				$pendingupgrades = array();
+				$upgradelist = getdir($stckdir . DIRECTORY_SEPARATOR . 'upgradedb', '^' . $filename_prefix . '\.[0-9]{10}\.php$');
+			
+				if (!empty($upgradelist))
+					foreach ($upgradelist as $upgrade) {
+						$upgradeversion = preg_replace('/^' . $filename_prefix . '\.([0-9]{10})\.php$/', '\1', $upgrade);
+						
+						if ($upgradeversion > $dbversion && $upgradeversion <= $dbver)
+							$pendingupgrades[] = $upgradeversion;
+					}
+
+				if (!empty($pendingupgrades)) {
+					sort($pendingupgrades);
+					foreach ($pendingupgrades as $upgrade) {
+						include($stckdir . DIRECTORY_SEPARATOR . 'upgradedb' . DIRECTORY_SEPARATOR . $filename_prefix . '.' . $upgrade . '.php');
+						if (empty($this->DB->errors))
+							$lastupgrade = $upgrade;
+						else
+							break;
+					}
+				}
+
+			}
 		} else { //no stck_dbinfo - check if previouse lms-stck tables exists or stck_dbinfo not filled
-			// save current errors
-			$err_tmp = $this->errors;
-			$this->errors = array();
 
 			$dbinfo = $this->DB->GetOne('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?', array(ConfigHelper::getConfig('database.database'), 'stck_dbinfo'));
 			// check if any previous tables exists in this database
 			$old_stck = $this->DB->GetOne('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?', array(ConfigHelper::getConfig('database.database'), 'stck_stock'));
-			echo("DBINFO: ".$dbinfo." OLD_STCK: ".$old_stck);
 			if (!$dbinfo && $old_stck) {
-				echo "THERE WAS STOCK, BUT IT`s OLD!";
+				include(STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'mysql-init.php');
+				$this->UpgradeDB();
 			} elseif (!$dbinfo && !$old_stck) {
 				$schema = 'LMSST.mysql';
 				if (!$sql = file_get_contents(STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . $schema))
@@ -61,8 +90,7 @@ class LMSST {
 				if (!$this->MultiExecute($sql))    // execute
 					die ('Could not load database schema!');
 
-			} else // database might be installed so don't miss any error
-				$this->errors = array_merge($err_tmp, $this->errors);
+			}
 
 		}
 		return STCK_DBVERSION;
