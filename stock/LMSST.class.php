@@ -75,11 +75,11 @@ class LMSST {
 			// check if any previous tables exists in this database
 			$old_stck = $this->DB->GetOne('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?', array(ConfigHelper::getConfig('database.database'), 'stck_stock'));
 			if (!$dbinfo && $old_stck) {
-				include(STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'mysql-init.php');
+				include(STCK_DIR . DIRECTORY_SEPARATOR . 'upgradedb' . DIRECTORY_SEPARATOR . 'mysql-init.php');
 				$this->UpgradeDB();
 			} elseif (!$dbinfo && !$old_stck) {
 				$schema = 'LMSST.mysql';
-				if (!$sql = file_get_contents(STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . $schema))
+				if (!$sql = file_get_contents(STCK_DIR . DIRECTORY_SEPARATOR . 'upgradedb' . DIRECTORY_SEPARATOR . $schema))
 					die ('Could not open database schema file ' . STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . $schema);
 			
 				if (!$this->MultiExecute($sql))    // execute
@@ -640,11 +640,10 @@ class LMSST {
 	/* STOCK */
 
 	function StockSell($number, $id, $price, $date) {
-		$this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $id));
-		/*if ($this->DB->_error) {
-			$this->DB->RollbackTrans();
-			exit;
-		}*/
+		if ($this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $id)))
+			return true;
+		else
+			return false;
 	}
 
 	function StockUnSell($id) {
@@ -829,7 +828,7 @@ class LMSST {
 					'comment' => $product['product'],
 					));
 				$bid = $this->DB->GetLastInsertID();
-				$this->BalanceAddStockID($sid, $bid);
+				$this->BalanceAddStockID($sid, $bid, 1);
 			}
 			if ($receivenote['doc']['paytype'] == 1) {
 			/*	$this->LMS->AddBalance(array(
@@ -859,7 +858,7 @@ class LMSST {
 				'comment' => $product['product'],
 			));
 			$bid = $this->DB->GetLastInsertID();
-			$this->BalanceAddStockID($sid, $bid);
+			$this->BalanceAddStockID($sid, $bid, 1);
 		}
 	}
 
@@ -1002,10 +1001,10 @@ class LMSST {
 		return false;
 	}*/
 
-	function BalanceAddStockID($stock, $balance) {
-		if ($this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid) VALUES(?, ?)')) {
+	function BalanceAddStockID($stock, $balance, $rnitem = NULL) {
+		if ($this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid, rnitem) VALUES(?, ?, ?)', array($stock, $balance, $rnitem)))
 			return true;
-		}
+
 		return false;
 	}
 }
