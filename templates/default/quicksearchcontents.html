@@ -20,8 +20,8 @@
 //	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('rtinput'), '?m=quicksearch&ajax=1&mode=ticket&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 //	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('accountinput'), '?m=quicksearch&ajax=1&mode=account&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('documentinput'), '?m=quicksearch&ajax=1&mode=document&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
-	 new AutoSuggest(document.getElementById('quicksearch'),document.getElementById('stckpriceinput'),'?m=quicksearch&ajax=1&mode=productprice&what=',1);
-	 new AutoSuggest(document.getElementById('quicksearch'),document.getElementById('stckwarrantyinput'),'?m=quicksearch&ajax=1&mode=productwarranty&what=',1);
+	 new AutoSuggest(document.getElementById('quicksearch'),document.getElementById('stckpriceinput'),'?m=quicksearch&ajax=1&mode=productprice&what=',{ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
+	 new AutoSuggest(document.getElementById('quicksearch'),document.getElementById('stckwarrantyinput'),'?m=quicksearch&ajax=1&mode=productwarranty&what=',{ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 //-->
 </script>
 {/block}
