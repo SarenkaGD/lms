@@ -85,8 +85,9 @@ if (isset($_POST['receivenoteedit'])) {
 		$receivenoteedit['number'] = strtoupper($receivenoteedit['number']);
 
 	if (!$error) {
-		$id = $LMSST->ReceiveNoteEdit($receivenoteedit);
-		$SESSION->redirect('?m=stckreceivenoteinfo&id='.$id);
+		if ($id = $LMSST->ReceiveNoteEdit($receivenoteedit)) {
+			$SESSION->redirect('?m=stckreceivenoteinfo&id='.$id);
+		}
 	}
 }
 
@@ -96,9 +97,10 @@ $SESSION->restore('rnepl', $rnepl);
 
 if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 	$itemdata = $_POST['rnepl']['product'];
-
+	$itemdata['serial'] = $_POST['receivenote']['product']['serial'];
+	
 	if (!ctype_digit($itemdata['warehouse']))
-	$error['warehouse'] = 'Incorrect warehouse!';
+		$error['warehouse'] = 'Incorrect warehouse!';
 
 	$itemdata['warehousename'] = $LMSST->WarehouseGetNameById($itemdata['warehouse']);
 
@@ -158,9 +160,9 @@ if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 } elseif (isset($_GET['action']) && ctype_digit($_GET['posid'])) {
 	switch($_GET['action']) {
 		case 'del':
-			$rnepl['doc']['net'] -= $rnepl['product'][$_GET['id']]['price']['net'];
-			$rnepl['doc']['gross'] -= $rnepl['product'][$_GET['id']]['price']['gross'];
-			unset($rnepl['product'][$_GET['id']]);
+			$rnepl['doc']['net'] -= $rnepl['product'][$_GET['posid']]['price']['net'];
+			$rnepl['doc']['gross'] -= $rnepl['product'][$_GET['posid']]['price']['gross'];
+			unset($rnepl['product'][$_GET['posid']]);
 			$SESSION->remove('rnepl');
 			$SESSION->save('rnepl', $rnepl);
 			break;

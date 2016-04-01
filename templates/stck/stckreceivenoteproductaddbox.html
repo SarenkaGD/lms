@@ -17,7 +17,7 @@
 					<td class="fbt">{t}Net Value:{/t}</td>
 					<td class="fbt">{t}Tax:{/t}</td>
 					<td class="fbt">{t}Gross Value:{/t}</td>
-					<td class="frightu">{t}Serial number{/t}</td>
+					<td class="frightu">{t}Serial number:{/t}</td>
 				</tr>
 				<TR CLASS="lucid">
 					<TD>
@@ -92,7 +92,7 @@
 	<tr class="dark" style="text-align: center;">
 		<td class="fleftu">{t}Warehouse{/t}</td>
 		<td class="fbt">{t}Product{/t}</td>
-		<td class="fbt">{t}Serial number{/t}</td>
+		<td class="fbt">{t}Serial number:{/t}</td>
 		<td class="fbt">{t}Amount:{/t}</td>
 		<!--<td class="fbt">{t}Packaging:{/t}</td>-->
 		<td class="fbt">{t}Net Value:{/t}</td>
@@ -106,6 +106,7 @@
 		<TD class="fleft" align="center">{$p.warehousename}</TD>
 		<TD>{$p.product}</TD>
 		<TD>
+			{$p.serial}
 			{foreach item=s from=$p.serial}
 				{$s}<br />
 			{/foreach}
