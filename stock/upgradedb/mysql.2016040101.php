@@ -5,13 +5,15 @@ $this->DB->Execute('CREATE TABLE stck_cashassignments(
 		id int not null auto_increment,
 		cashid int not null,
 		stockid int not null,
-		PRIMARY KEY(id)
-	) ENGINE=InnoDB  DEFAULT CHARSET=utf8');
+		PRIMARY KEY(id),
+		INDEX (cashid),
+		FOREIGN KEY (cashid)
+			REFERENCES cash (id)
+			ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB');
 
 $this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid)
 	SELECT id, stockid FROM cash where stockid is not null');
-
-$this->DB->Execute('ALTER TABLE invoicecontents ENGINE=InnoDB;');
 
 $this->DB->Execute('CREATE TABLE stck_invoicecontentsassignments(
 	id int not null auto_increment,
@@ -23,7 +25,7 @@ $this->DB->Execute('CREATE TABLE stck_invoicecontentsassignments(
 	FOREIGN KEY (icdocid,icitemid)
 		REFERENCES invoicecontents(docid, itemid)
 		ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB  DEFAULT CHARSET=utf8');
+	) ENGINE=InnoDB');
 
 $this->DB->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
         SELECT docid, itemid, stockid FROM invoicecontents where stockid > 0');
