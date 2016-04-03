@@ -606,10 +606,8 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             ));
 
 	    //Added for lms-sstck by Sarenka = MAXCON
-	    error_log("STOCK: ".ConfigHelper::getConfig('phpui.stock'));
 	    if (ConfigHelper::getConfig('phpui.stock')) {
 	    	$icid = $this->db->GetLastInsertID('cash');
-		error_log("Dodaje cash: $icid stock: ".$item['stckproductid']);
 		$this->db->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stckproductid']));
 	    }
         }
