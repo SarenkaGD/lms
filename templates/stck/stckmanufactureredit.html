@@ -3,7 +3,8 @@
 <H1>{$layout.pagetitle}</H1>
 <P><FORM METHOD="POST" ACTION="?m=stckmanufactureredit&id={$manufactureredit.id}" NAME="manufactureredit">
 <INPUT type="submit" class="hiddenbtn">
-<TABLE WIDTH="100%" CELLPADDING="3">
+<TABLE CLASS="lmsbox">
+	<thead>
 	<TR CLASS="DARK" COLSPAN="2">
 		<TD WIDTH="1%" CLASS="fleftu" NOWRAP>
 			<IMG SRC="img/stck.png" ALT="">
@@ -13,6 +14,8 @@
 			<INPUT TYPE="TEXT" SIZE="23" NAME="manufactureredit[name]" VALUE="{$manufactureredit.name}" {tip trigger="name" bold=1}>
 		</TD>
 	</TR>
+	</thead>
+	<tbody>
 	<TR CLASS="LIGHT">
 		<TD WIDTH="1%" CLASS="fleft" NOWRAP><IMG SRC="img/info1.gif" ALT=""> <B>{t}Comment:{/t}</B></TD>
 		<TD CLASS="fright">
@@ -25,6 +28,7 @@
 			<A HREF="?m=stckmanufacturers">{t}Cancel{/t} <IMG SRC="img/cancel.gif" ALT=""></A><BR>
 		</TD>
 	</TR>
+	</tbody>
 </TABLE>
 </FORM></P>
 <SCRIPT type="text/javascript">

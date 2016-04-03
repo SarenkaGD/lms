@@ -1,5 +1,5 @@
 <!--// $Id: netdevinfobox.html,v 1.27 2010/03/09 09:23:00 alec Exp $ //-->
-<TABLE WIDTH="100%" CELLPADDING="3">
+<TABLE CLASS="lmsbox">
 	<TR class="dark">
 		<TD WIDTH="1%" CLASS="FLEFTU">
 			<IMG SRC="img/stck.png" ALT="">
@@ -117,7 +117,7 @@
 			<A HREF="?m=stckwarehouseedit&id={$warehouseinfo.id}&action=recover">{t}Restore{/t} <IMG SRC="img/recover.gif" ALT="[ {t}Restore{/t} ]"></A>
 			{else}
 			<A href="?m=stckwarehouseedit&id={$warehouseinfo.id}" ACCESSKEY="E">{t}Edit{/t} <IMG src="img/edit.gif" ALT="[ {t}Edit{/t} ]"></A>
-                        <A href="?m=stckwarehousedel&id={$warehouseinfo.id}" OnClick="return confirmLink(this, '{t name=$warehouseinfo.name}Are you sure, you want to remove warehouse \'$name\' from database?{/t}');">{t}Delete{/t} <img src="img/delete.gif" ALT=""></A>
+                        <A href="?m=stckwarehousedel&id={$warehouseinfo.id}" OnClick="return confirmLink(this, '{trans('Are you sure you want to remove warehouse $a?', $warehouseinfo.name)}');">{t}Delete{/t} <img src="img/delete.gif" ALT=""></A>
                 	{/if}
 		</TD>
         </TR>
