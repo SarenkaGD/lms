@@ -8,7 +8,6 @@ elseif (! $LMSST->ReceiveNoteExists($_GET['id']))
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
 $layout['pagetitle'] = trans('Edit receive note');
-$error = NULL;
 
 $taxeslist = $LMS->GetTaxes();
 $quantities = $LMSST->QuantityGetList();
@@ -22,6 +21,24 @@ unset($quantities['total']);
 
 $receivenoteedit = $LMSST->ReceiveNoteGetInfoById($_GET['id']);
 $osid = $receivenoteedit['supplierid'];
+
+$productlist = $LMSST->StockProductList($o, NULL, 1, $receivenoteedit['id']);
+/*$listdata['total'] = $productlist['total'];
+$listdata['totalvn'] = $productlist['totalvn'];
+$listdata['totalvg'] = $productlist['totalvg'];
+$listdata['totalpcs'] = $productlist['totalpcs'];
+$listdata['direction'] = $productlist['direction'];
+$listdata['order'] = $productlist['order'];
+unset($productlist['total']);
+unset($productlist['direction']);
+unset($productlist['order']);
+unset($productlist['totalpcs']);
+unset($productlist['totalvg']);
+unset($productlist['totalvn']);*/
+
+$rnepl = array();
+
+$SESSION->restore('rnepl', $rnepl);
 
 if (ctype_digit($_GET['sid'])) {
         $receivenoteedit['supplierid'] = $_GET['sid'];
@@ -92,7 +109,8 @@ if (isset($_POST['receivenoteedit'])) {
 		$receivenoteedit['number'] = strtoupper($receivenoteedit['number']);
 
 	if (!$error) {
-		if ($id = $LMSST->ReceiveNoteEdit($receivenoteedit)) {
+		if ($id = $LMSST->ReceiveNoteEdit($receivenoteedit, $productlist, $rnepl)) {
+			$SESSION->remove('rnepl');
 			$SESSION->redirect('?m=stckreceivenoteinfo&id='.$id);
 		}
 		else
@@ -100,10 +118,10 @@ if (isset($_POST['receivenoteedit'])) {
 	}
 }
 
-$rnepl = array();
+/*$rnepl = array();
 
 $SESSION->restore('rnepl', $rnepl);
-
+*/
 if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 	$itemdata = $_POST['rnepl']['product'];
 	$itemdata['serial'] = $_POST['receivenote']['product']['serial'];
@@ -196,13 +214,13 @@ if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 		$rnepl['doc']['supplierid'] = $receivenoteedit['supplierid'];
 		$rnepl['doc']['number'] = $receivenoteedit['id'];
 		$LMSST->ReceiveNotePositionAdd($rnepl);
-	//	$SESSION->remove('rnepl');
-	//	$SESSION->redirect('?m=stckreceivenoteedit&id='.$receivenoteedit['id']);
+		$SESSION->remove('rnepl');
+		$SESSION->redirect('?m=stckreceivenoteedit&id='.$receivenoteedit['id']);
 		break;
 	}
 }
 
-$productlist = $LMSST->StockProductList($o, NULL, 1, $receivenoteedit['id']);
+/*$productlist = $LMSST->StockProductList($o, NULL, 1, $receivenoteedit['id']);*/
 $listdata['total'] = $productlist['total'];
 $listdata['totalvn'] = $productlist['totalvn'];
 $listdata['totalvg'] = $productlist['totalvg'];

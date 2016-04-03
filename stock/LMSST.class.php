@@ -711,6 +711,15 @@ class LMSST {
 		return false;
 	}
 
+	function StockPositionChangeSupplier($id, $supplierid) {
+		if ($this->DB->Execute('UPDATE stck_stock SET supplierid = ?,  modid = ?, moddate = ?NOW? WHERE id = ?', array($supplierid, $this->AUTH->id, $id))) {
+			$cid = $this->DB->GetOne('SELECT cashid FROM stck_cashassignments WHERE stockid = ? AND rnitem = ?', array($id, 1));
+			$this->DB->Execute('UPDATE cash SET customerid = ? WHERE id = ?', array($supplierid, $cid));
+			return true;
+		}
+		return false;
+	}
+
 	function StockExists($id) {
 		switch($this->DB->GetOne('SELECT deleted FROM stck_stock WHERE id=?', array($id))) {
 			case '0':
@@ -844,9 +853,14 @@ class LMSST {
 		}
 	}
 
-	function ReceiveNotePositionAdd($rnel) {
+	function ReceiveNotePositionAdd($rnel, $transaction = NULL) {
 		$error = NULL;
+
+		if (!$transaction)
+			$this->DB->BeginTrans();
+
 		foreach($rnel['product'] as $product) {
+			echo("Dodaje produkt");
 			$product['group'] = $this->DB->GetOne('SELECT groupid FROM stck_products WHERE id = ?', array($product['pid']));
 			if ($rnel['doc']['number'] && !$product['docnumber'])
 				$product['docnumber'] = $rnel['doc']['number'];
@@ -862,6 +876,10 @@ class LMSST {
 			$bid = $this->DB->GetLastInsertID();
 			$this->BalanceAddStockID($sid, $bid, 1);
 		}
+		
+		if (!$transaction)
+			$this->DB->CommitTrans();
+		return true;
 	}
 
 	function ReceiveNoteList($order='name,asc', $pagelimit = 100, $page, $sprn = 0, $supplierid = NULL, $docnumber = NULL) {
@@ -960,8 +978,7 @@ class LMSST {
 		return false;
 	}
 
-	function ReceiveNoteEdit($rn) {
-		print_r($rn);
+	function ReceiveNoteEdit($rn, $productlist, $rnepl = NULL) {
 		if ($this->DB->Execute('UPDATE stck_receivenotes SET number = ?, datesettlement = ?, datesale = ?, deadline = ?, paytype = ?, comment = ?, moddate = ?NOW?, modid = ? WHERE id = ?', array(
 			$rn['number'],
 			$rn['datesettlement'],
@@ -972,7 +989,23 @@ class LMSST {
 			$this->AUTH->id,
 			$rn['id']))) {
 			if ($rn['osid'] != $rn['supplierid']) {
-				return false;
+				$this->DB->BeginTrans();
+				foreach ($productlist as $product) {
+					if (!$this->StockPositionChangeSupplier($product['id'], $rn['supplierid']))
+						return false;
+				}
+
+				if ($rnepl) {
+					$rnepl['doc']['supplierid'] = $rn['supplierid'];
+					$rnepl['doc']['number'] = $rn['id'];
+
+					if (!$this->ReceiveNotePositionAdd($rnepl, 1))
+						return false;
+
+				}
+				$this->DB->Execute('UPDATE stck_receivenotes SET supplierid = ? WHERE id = ?', array($rn['supplierid'], $rn['id']));
+				$this->DB->CommitTrans();
+				return $rn['id'];
 			}
 			return $rn['id'];
 		}

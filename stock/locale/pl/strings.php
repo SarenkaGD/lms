@@ -71,4 +71,5 @@ $_LANG['Sold:'] = 'Sprzedano:';
 $_LANG['Form already sent!'] = 'Formularz już został wysłany!';
 $_LANG['Wrong or missing price!'] = 'Cena niepoprawna!';
 $_LANG['Stock management'] = 'Zarządzanie magazynem';
+$_LANG['Unknown error!'] = 'Nieznany błąd!';
 ?>
