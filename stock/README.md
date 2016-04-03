@@ -14,14 +14,15 @@ Od  wersji 20160401 system wyposa¿ony w aktualizator dzia³aj±cy na wzór (zuep³ni
 
 Znane problemy:
 - edycja dokuementu przyjêcia
-- obs³uga dokuemntów koryguj±cych
-- brak ob¶³ugi pozycji o ilo¶ci sztuk > 1
+- obs³uga dokumentów koryguj±cych
+- brak obs³ugi pozycji o krotno¶ci > 1 w ramach jedenj pozycji magazynowej
 
 TODO:
 - szybkie zaznaczenia produktu jako sprzedanego
 - status gearancji w karcie informacji o pozycji magazynowej
 - mo¿liwo¶æ dodania producenta i grupy z poziomu dodawania nowej pozycji magazynowej
 - przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokuemntu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
+- kompletacja!
 
 Plany na przysz³o¶æ:
 - wsparcie dla drukarek fiskalnych
