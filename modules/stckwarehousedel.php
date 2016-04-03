@@ -30,16 +30,14 @@ if(! $LMSST->WarehouseExists($_GET['id']) || !ctype_digit($_GET['id'])) {
 
 $layout['pagetitle'] = trans('Deletion of Warehouse with ID: $0',sprintf('%04d',$_GET['id']));
 $SMARTY->assign('warehouseid',$_GET['id']);
-
-if($LMSST->WarehouseStockCount($_GET['id'])>0)
-{
+echo ($LMSST->WarehouseStockCount($_GET['id']));exit;
+if($LMSST->WarehouseStockCount($_GET['id'])>0) {
 	$body = '<P>'.trans('Warehouse with stock can\'t be deleted.').'</P>';
-}else{
-    if($_GET['is_sure']!=1)
-    {
+} else {
+    if($_GET['is_sure']!=1) {
 	    $body = '<P>'.trans('Are you sure, you want to delete this warehouse?').'</P>'; 
 	    $body .= '<P><A HREF="?m=stckwarehousedel&id='.$_GET['id'].'&is_sure=1">'.trans('Yes, I am sure.').'</A></P>';
-    }else{
+    } else {
 	    header('Location: ?m=stckwarehouselist');
 	    $body = '<P>'.trans('Warehouse has been deleted.').'</P>';
 	    $LMSST->WarehouseDel($_GET['id']);
@@ -47,6 +45,6 @@ if($LMSST->WarehouseStockCount($_GET['id'])>0)
 }
 	
 $SMARTY->assign('body',$body);
-$SMARTY->display('stck/dialog.html');
+$SMARTY->display('dialog.html');
 
 ?>
