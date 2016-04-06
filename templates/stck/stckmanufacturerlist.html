@@ -2,16 +2,29 @@
 <H1>{$layout.pagetitle}</H1>
 <TABLE CELLPADDING="3" width="100%">
 	<TR CLASS="dark" {tip text="Click on column name to change sorting order"}>
-		<TD CLASS="fleftu" width="97%">
+		<TD CLASS="ftl" width="97%">
 			<IMG src="img/producer.gif" ALT="">&nbsp;<A href="?m=stckmanufacturerlist&o=name{if $listdata.direction eq "asc" && $listdata.order eq "name"},desc{/if}"><B>{t}Name:{/t}</B></A> {if $listdata.order eq "name"}<IMG src="img/{if $listdata.direction eq "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}<BR>
 		</TD>
-		<TD CLASS="fbt" width="1%" align="right" valign="top">
+		<TD CLASS="ftop" width="1%" align="right" valign="top">
 			<A href="?m=stckmanufacturerlist&o=id{if $listdata.direction eq "asc" && $listdata.order eq "id"},desc{/if}">ID:</A> {if $listdata.order eq "id"}<IMG src="img/{if $listdata.direction eq "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
 		</TD>
-		<TD width="1%" class="frightu" align="right" nowrap>
+		<TD width="1%" class="ftr" align="right" nowrap>
 			<A href="?m=stckmanufactureradd">{t}New manufacturer{/t} <IMG src="img/save.gif" alt=""> </A>
 		</TD>
 
+	</TR>
+	<TR CLASS="dark">
+		<TD CLASS="flr" COLSPAN="3">
+			<TABLE width="100%">
+				<TR>
+					<TD style="padding: 3px;">
+						{foreach item=i from='A'|@range:'Z'}
+							<a href="?m=stckmanufacturerlist&amp;start={$i}" style="margin-right: 0.5%; padding: 2px 4px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; border: 1px solid #800000;" class="{if $listdata.start == $i}light{else}dark{/if}">{if $listdata.start == $i}<b>{/if}{$i}{if $listdata.start == $i}</b>{/if}</a> 
+						{/foreach}
+					</TD>
+				</TR>
+			</TABLE>
+		</TD>
 	</TR>
 	{if $listdata.total != 0}
 	<TR CLASS="dark">
