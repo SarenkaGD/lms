@@ -82,4 +82,12 @@ $_LANG['Are you sure you want to remove manufacturer $a?'] = 'Czy na pewno chces
 $_LANG['Are you sure you want to remove group $a?'] = 'Czy na pewno chcesz usunąć grupę $a?';
 $_LANG['Are you sure you want to remove warehouse $a?'] = 'Czy na pewno chcesz usunąć magazyn $a?';
 $_LANG['Warehouses with current stock cannot be removed!'] = 'Magazyn zawierające pozycje nie mogą być usunięte!';
+$_LANG['Warehouse with stock can\'t be deleted.'] = 'Magazyn zawierający pozycje nie może być usunięty!';
+$_LANG['Deleting warehouse with ID: $a'] = 'Usuwanie magazyn o ID: $a';
+$_LANG['Are you sure, you want to delete this warehouse?'] = 'Czy na pewno chcesz usunąć ten magazyn?';
+$_LANG['Warehouse has been deleted.'] = 'Magazyn został usunięty.';
+$_LANG['Warr:'] = 'Gwar:';
+$_LANG['Sell date:'] = 'Data sprzedaży:';
+$_LANG['Sell price:'] = 'Cena sprzedaży:';
+$_LANG['Stock position: $a'] = 'Pozycja magazynowa: $a';
 ?>
