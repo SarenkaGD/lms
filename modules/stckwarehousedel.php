@@ -28,9 +28,9 @@ if(! $LMSST->WarehouseExists($_GET['id']) || !ctype_digit($_GET['id'])) {
 	$SESSION->redirect('?m=stckwarehouselist');
 }		
 
-$layout['pagetitle'] = trans('Deletion of Warehouse with ID: $0',sprintf('%04d',$_GET['id']));
+$layout['pagetitle'] = trans('Deleting warehouse with ID: $a',sprintf('%04d',$_GET['id']));
 $SMARTY->assign('warehouseid',$_GET['id']);
-echo ($LMSST->WarehouseStockCount($_GET['id']));exit;
+
 if($LMSST->WarehouseStockCount($_GET['id'])>0) {
 	$body = '<P>'.trans('Warehouse with stock can\'t be deleted.').'</P>';
 } else {
