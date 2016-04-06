@@ -1,4 +1,15 @@
 <?php
+function check($str){
+        $c=strlen($str)==1 ? ord($str) : 0;    // get the ascii code if it is a single character
+	return ($c>=ord('A') && $c<=ord('Z'));  // it is a single character between a and z
+}
+
+if (!check($_GET['start']))
+	$listdata['start'] = NULL;
+else
+	$listdata['start'] = $_GET['start'];
+
+
 $layout['pagetitle'] = trans('Product groups');
 
 if(!isset($_GET['o']))
@@ -8,7 +19,7 @@ else
 
 $SESSION->save('sglo', $o);
 
-$grouplist = $LMSST->GroupGetList($o);
+$grouplist = $LMSST->GroupGetList($o, $listdata['start']);
 $listdata['total'] = $grouplist['total'];
 $listdata['direction'] = $grouplist['direction'];
 $listdata['order'] = $grouplist['order'];

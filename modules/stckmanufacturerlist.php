@@ -1,4 +1,15 @@
 <?php
+function check($str){
+	$c=strlen($str)==1 ? ord($str) : 0;    // get the ascii code if it is a single character
+      	echo "C: ".$c;
+	return ($c>=ord('A') && $c<=ord('Z'));  // it is a single character between a and z
+}
+
+if (!check($_GET['start']))
+	$listdata['start'] = NULL;
+else
+	$listdata['start'] = $_GET['start'];
+
 $layout['pagetitle'] = trans('Manufacturers');
 
 if(!isset($_GET['o']))
@@ -8,7 +19,7 @@ else
 
 $SESSION->save('smlo', $o);
 
-$manufacturerlist = $LMSST->ManufacturerGetList($o);
+$manufacturerlist = $LMSST->ManufacturerGetList($o, $listdata['start']);
 $listdata['total'] = $manufacturerlist['total'];
 $listdata['direction'] = $manufacturerlist['direction'];
 $listdata['order'] = $manufacturerlist['order'];
