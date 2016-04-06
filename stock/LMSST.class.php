@@ -227,7 +227,7 @@ class LMSST {
 
 		if ($mgl = $this->DB->GetAll('SELECT m.id, m.name, m.comment
 			FROM stck_manufacturers m WHERE m.deleted = 0'
-			.($start ? ' AND UPPER(m.name) LIKE \''.$start.'%\'' : '')
+			.($start ? ' AND UPPER(m.name) LIKE \''.$start.'%\' ' : '')
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
 			
 			$mgl['total'] = sizeof($mgl);
@@ -375,8 +375,8 @@ class LMSST {
 			COALESCE(SUM(vps.pricebuynet), 0) as valuenet,  COALESCE(SUM(vps.pricebuygross), 0) as valuegross, COUNT(vps.id) as count
 			FROM stck_vpstock vps
 			WHERE vps.gdeleted = 0'
-			.($start ? ' AND UPPER(vps.gname) LIKE \''.$start.'%\'' : '')
-			.'GROUP BY vps.gid'
+			.($start ? ' AND UPPER(vps.gname) LIKE \''.$start.'%\' ' : '')
+			.' GROUP BY vps.gid'
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
 				$ggl['total'] = sizeof($ggl);
 				$ggl['order'] = $order;
