@@ -16,10 +16,13 @@ Znane problemy:
 - edycja dokuementu przyjêcia
 - obs³uga dokumentów koryguj±cych
 - brak obs³ugi pozycji o krotno¶ci > 1 w ramach jedenej pozycji magazynowej
+- w przypadku zmiany dostawcy rozliczonego dokumentu przyjêcia rozliczenie nie jest przepisywane do nowego dostawcy
+- na listach grup wy¶wietlane s± tylko pozycje z aktywnymi pozycjami w magazynie
 
 TODO:
+- zablokowanie mo¿liwo¶ci wprowadzenia dwóch produktów o tym smaym numerze EAN
+- filtrowanie listy produktów w ramach producenta
 - szybkie zaznaczenia produktu jako sprzedanego
-- status gearancji w karcie informacji o pozycji magazynowej
 - mo¿liwo¶æ dodania producenta i grupy z poziomu dodawania nowej pozycji magazynowej
 - przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokuemntu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
 - kompletacja!
