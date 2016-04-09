@@ -92,4 +92,5 @@ $_LANG['Sell price:'] = 'Cena sprzedaży:';
 $_LANG['Stock position: $a'] = 'Pozycja magazynowa: $a';
 $_LANG['There are no groups in your database.'] = 'Brak grup w bazie danych.';
 $_LANG['Warehouse name:'] = 'Nazwa magzynu:';
+$_LANG['Add product group'] = 'Dodaj grpę produktów';
 ?>
