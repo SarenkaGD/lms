@@ -93,4 +93,6 @@ $_LANG['Stock position: $a'] = 'Pozycja magazynowa: $a';
 $_LANG['There are no groups in your database.'] = 'Brak grup w bazie danych.';
 $_LANG['Warehouse name:'] = 'Nazwa magzynu:';
 $_LANG['Add product group'] = 'Dodaj grpę produktów';
+$_LANG['Wrong or missing group!'] = 'Błędna grupa!';
+$_LANG['Wrong or missing manufacturer!'] = 'Błędny producent!';
 ?>

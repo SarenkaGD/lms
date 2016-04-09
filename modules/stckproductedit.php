@@ -20,6 +20,12 @@ if (isset($_POST['productedit'])) {
 	if ($productedit['quantity'] < 1 || !ctype_digit($productedit['quantity']))
 		$error['quantity'] = trans('Incorrect product quantity!');
 	
+	if (!$productedit['groupid'] || $LMSST->GroupExists($productedit['groupid']) < 0)
+		$error['groupid'] = trans('Wrong or missing group!');
+
+	if (!$productedit['manufacturerid'] || !$LMSST->ManufacturerExists($productedit['manufacturerid']))
+		$error['manufacturerid'] = trans('Wrong or missing manufacturer!');
+
 	if (!$productedit['quantitycheck'])
 		$productedit['quantitycheck'] = 0;
 	

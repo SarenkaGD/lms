@@ -377,7 +377,7 @@ class LMSST {
 			.($start ? ' AND UPPER(vps.gname) LIKE \''.$start.'%\' ' : '')
 			.' GROUP BY vps.gid'
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {*/
-		if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment,
+		if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment, g.*,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_groups g
 			LEFT JOIN stck_stock s ON s.groupid = g.id
@@ -500,7 +500,7 @@ class LMSST {
 				$sqlord = ' ORDER BY p.id';
 				break;
 			case 'name':
-				$sqlord = ' ORDER BY p.name';
+				$sqlord = ' ORDER BY pname';
 				break;
 			case 'manufacturer':
 				$sqlord = ' ORDER BY m.name';
@@ -512,7 +512,7 @@ class LMSST {
 				$sqlord = ' ORDER BY p.quantity';
 				break;
 			default:
-				$sqlord = ' ORDER BY p.name';
+				$sqlord = ' ORDER BY pname';
 				break;
 		}
 
@@ -584,6 +584,9 @@ class LMSST {
 	}
 
 	function ProductEdit($pe) {
+		$og = $this->DB->GetOne('SELECT groupid FROM stck_products WHERE id = ?', array($pe['id']));
+		if ($og != $pe['groupid'])
+			$this->DB->BeginTrans();
 		$this->DB->Execute("UPDATE stck_products SET name = ?, quantity = ?, ean = ?, typeid = ?,
 		groupid = ?, manufacturerid = ?, taxid = ?, quantityid = ?, quantitycheck = ?, comment = ?,
 		moddate = ?NOW?, modid = ?, deleted = 0 WHERE id = ?", array (
@@ -599,6 +602,10 @@ class LMSST {
 		$pe['comment'],
 		$this->AUTH->id,
 		$pe['id']));
+		if ($og != $pe['groupid']) {
+			$this->DB->Execute('UPDATE stck_stock SET s.groupid = ? WHERE s.productid = ?', array($pe['groupid']));
+			$this->DB->CommitTrans();
+		}
 		return $pe['id'];
 	}
 
