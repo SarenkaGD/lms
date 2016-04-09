@@ -95,4 +95,5 @@ $_LANG['Warehouse name:'] = 'Nazwa magzynu:';
 $_LANG['Add product group'] = 'Dodaj grpę produktów';
 $_LANG['Wrong or missing group!'] = 'Błędna grupa!';
 $_LANG['Wrong or missing manufacturer!'] = 'Błędny producent!';
+$_LANG['Edit receive note: $a'] = 'Edycja dokumentu przyjęcia: $a'; 
 ?>

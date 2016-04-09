@@ -7,7 +7,7 @@ elseif (! $LMSST->ReceiveNoteExists($_GET['id']))
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
-$layout['pagetitle'] = trans('Edit receive note');
+$layout['pagetitle'] = trans('Edit receive note: $a', $_GET['id']);
 
 $taxeslist = $LMS->GetTaxes();
 $quantities = $LMSST->QuantityGetList();
