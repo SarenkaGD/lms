@@ -13,8 +13,7 @@ Sprzeda¿ produktów odbywa sie poprzez edycjê pozycji i wpisanie daty i ceny sprz
 Od  wersji 20160401 system wyposa¿ony w aktualizator dzia³aj±cy na wzór (zuep³nie jak :P) aktualiator LMS`a.
 
 Znane problemy:
-- edycja dokuementu przyjêcia
-- obs³uga dokumentów koryguj±cych
+- obs³uga dokumentów koryguj±cych w zakresie stanów magazynowych
 - brak obs³ugi pozycji o krotno¶ci > 1 w ramach jedenej pozycji magazynowej
 
 TODO:
