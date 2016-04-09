@@ -23,7 +23,7 @@ $receivenoteedit = $LMSST->ReceiveNoteGetInfoById($_GET['id']);
 $osid = $receivenoteedit['supplierid'];
 
 $productlist = $LMSST->StockProductList($o, NULL, 1, $receivenoteedit['id']);
-/*$listdata['total'] = $productlist['total'];
+$listdata['total'] = $productlist['total'];
 $listdata['totalvn'] = $productlist['totalvn'];
 $listdata['totalvg'] = $productlist['totalvg'];
 $listdata['totalpcs'] = $productlist['totalpcs'];
@@ -34,7 +34,7 @@ unset($productlist['direction']);
 unset($productlist['order']);
 unset($productlist['totalpcs']);
 unset($productlist['totalvg']);
-unset($productlist['totalvn']);*/
+unset($productlist['totalvn']);
 
 $rnepl = array();
 
@@ -220,7 +220,7 @@ if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 	}
 }
 
-/*$productlist = $LMSST->StockProductList($o, NULL, 1, $receivenoteedit['id']);*/
+/*$productlist = $LMSST->StockProductList($o, NULL, 1, $receivenoteedit['id']);
 $listdata['total'] = $productlist['total'];
 $listdata['totalvn'] = $productlist['totalvn'];
 $listdata['totalvg'] = $productlist['totalvg'];
@@ -232,7 +232,7 @@ unset($productlist['direction']);
 unset($productlist['order']);
 unset($productlist['totalpcs']);
 unset($productlist['totalvg']);
-unset($productlist['totalvn']);
+unset($productlist['totalvn']);*/
 
 if(!isset($_GET['page']))
 	$SESSION->restore('srnepl', $_GET['page']);

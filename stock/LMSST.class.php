@@ -370,13 +370,6 @@ class LMSST {
 				break;
 		}
 		
-		/*if ($ggl = $this->DB->GetAll('SELECT vps.gid, vps.gname, vps.gcomment,
-			COALESCE(SUM(vps.pricebuynet), 0) as valuenet,  COALESCE(SUM(vps.pricebuygross), 0) as valuegross, COUNT(vps.id) as count
-			FROM stck_vpstock vps
-			WHERE vps.gdeleted = 0'
-			.($start ? ' AND UPPER(vps.gname) LIKE \''.$start.'%\' ' : '')
-			.' GROUP BY vps.gid'
-			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {*/
 		if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment, g.*,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_groups g
@@ -860,11 +853,6 @@ class LMSST {
 				$this->BalanceAddStockID($sid, $bid, 1);
 			}
 			if ($receivenote['doc']['paytype'] == 1) {
-			/*	$this->LMS->AddBalance(array(
-					'value' => $receivenote['doc']['gross']*-1,
-					'customerid' => $receivenote['doc']['supplierid'],
-					'comment' => $receivenote['doc']['number']." - ".$_PAYTYPES[1],
-				));*/
 				$this->ReceiveNoteAccount($receivenote['doc']['dbnumber']);
 			}
 			return true;	
@@ -1009,10 +997,11 @@ class LMSST {
 			if ($rn['osid'] != $rn['supplierid']) {
 				$this->DB->BeginTrans();
 				foreach ($productlist as $product) {
-					if (!$this->StockPositionChangeSupplier($product['id'], $rn['supplierid']))
+					if (!$this->StockPositionChangeSupplier($product['id'], $rn['supplierid'])) {
 						return false;
+					}
 				}
-
+				
 				if ($rnepl) {
 					$rnepl['doc']['supplierid'] = $rn['supplierid'];
 					$rnepl['doc']['number'] = $rn['id'];
@@ -1021,7 +1010,13 @@ class LMSST {
 						return false;
 
 				}
+				print_r($this->DB);
+				if ($this->DB->GetOne('SELECT paid FROM stck_receivenotes WHERE id = ?', array($rn['id']))) {
+					$cid = $this->DB->GetOne('SELECT cashid FROM stck_receivennotesassignment WHERE rnid = ?', array($rn['id']));
+					$this->DB->Execute('UPDATE cash SET customerid = ? WHERE id = ?', array($rn['supplierid'], $cid));
+				}
 				$this->DB->Execute('UPDATE stck_receivenotes SET supplierid = ? WHERE id = ?', array($rn['supplierid'], $rn['id']));
+				print_r($this->DB);
 				$this->DB->CommitTrans();
 				return $rn['id'];
 			}
@@ -1031,6 +1026,7 @@ class LMSST {
 	}
 
 	function ReceiveNoteAccount($id) {
+		$this->DB->BeginTrans();
 		$rn = $this->DB->GetRow('SELECT id, grossvalue, supplierid, number, paytype, paid FROM stck_receivenotes WHERE id = ?', array($id));
 		if (!$rn['paid']) {
 			$this->LMS->AddBalance(array(
@@ -1039,23 +1035,14 @@ class LMSST {
 				'type' => 1,
 				'comment' => $rn['number']." - ".$PAYTYPES[$rn['paytype']]
 			));
+			$cid = $this->DB->GetLastInsertID('cash');
+			$this->DB->Execute('INSERT INTO stck_receivennotesassignment (rnid, cashid) VALUE(?, ?)', array($id, $cid));
 			$this->DB->Execute('UPDATE stck_receivenotes SET paid = 1 WHERE id = ?', array($id));
+			$this->DB->CommitTrans();
 		}
 	}
 
 	/* BALANCE */
-
-/*	function BalanceAddStockID($stock, $balance) {
-		if ($this->DB->Execute('UPDATE cash SET stockid = ? WHERE id = ?', array($stock, $balance)))
-			if ($this->DB->Execute('INSERT INTO stck_stockassigments (type, stockid, assigmentid) VALUES(?, ?, ?)', array(
-				1,
-				$stock,
-				$balance
-				)))
-				return true;
-			return false;
-		return false;
-	}*/
 
 	function BalanceAddStockID($stock, $balance, $rnitem = NULL) {
 		if ($this->DB->Execute('INSERT INTO stck_cashassignments(cashid, stockid, rnitem) VALUES(?, ?, ?)', array($balance, $stock, $rnitem))) {

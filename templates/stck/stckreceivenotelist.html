@@ -6,10 +6,21 @@ function filter() {
 	document.stckfilterreceivenotes.target="";
 	document.stckfilterreceivenotes.submit();
 }
+
+function pays() {
+	if (!confirm('{t}Are you sure, you want to check selected receive note as accounted?{/t}'))
+		return;
+		
+	document.srnl.action="?m={$layout.module}&action=srna";
+	document.srnl.target="";
+	document.srnl.submit();
+}
+
 -->
 </SCRIPT>
 <H1>{$layout.pagetitle}</H1>
 <TABLE CELLPADDING="3" width="100%">
+	<thead>
 	<TR CLASS="dark">
 		<TD CLASS="frightu fleftu" COLSPAN="10" ALIGN="right">
 			<FORM name="stckfilterreceivenotes" method="POST" action="?m=stckreceivenotelist&amp;action=filter">
@@ -65,6 +76,9 @@ function filter() {
 		</TD>
 	</TR>
 	{/if}
+	</thead>
+	<tbody>
+	<FORM METHOD="post" NAME="srnl" ACTION="?m=balanceadd">
 	{cycle values="light,lucid" print=false}
 	{section name=receivenotelist loop=$receivenotelist start=$start max=$pagelimit}
 	<TR class="{cycle}" onmouseover="addClass(this, 'highlight')" onmouseout="removeClass(this, 'highlight')">
@@ -113,6 +127,8 @@ function filter() {
 		</TD>
 	</TR>
 	{/section}
+	</tbody>
+	<tfoot>
 	{if $listdata.total != 0}
 	<TR CLASS="dark">
 		<TD CLASS="fall" COLSPAN="10" WIDTH="100%">
@@ -146,5 +162,6 @@ function filter() {
 			</B>
 		</TD>
 	</TR>
+	</tfoot>
 </TABLE>
 {include file="footer.html"}
