@@ -15,7 +15,6 @@ class LMSST {
 		$this->CONFIG = &$CONFIG;
 		$this->LMS = &$LMS;
 		$this->dbschversion = $this->UpgradeDB();
-		//print_r($this);
 	}
 	
 	/* MODULE SYSTEM FUNCTIONS */
@@ -361,22 +360,30 @@ class LMSST {
 		
 		switch($order) {
 			case 'id':
-				$sqlord = ' ORDER BY gid';
+				$sqlord = ' ORDER BY g.id';
 				break;
 			case 'name':
-				$sqlord = ' ORDER BY gname';
+				$sqlord = ' ORDER BY g.name';
 				break;
 			default:
-				$sqlord = ' ORDER BY gname';
+				$sqlord = ' ORDER BY g.name';
 				break;
 		}
 		
-		if ($ggl = $this->DB->GetAll('SELECT vps.gid, vps.gname, vps.gcomment,
+		/*if ($ggl = $this->DB->GetAll('SELECT vps.gid, vps.gname, vps.gcomment,
 			COALESCE(SUM(vps.pricebuynet), 0) as valuenet,  COALESCE(SUM(vps.pricebuygross), 0) as valuegross, COUNT(vps.id) as count
 			FROM stck_vpstock vps
 			WHERE vps.gdeleted = 0'
 			.($start ? ' AND UPPER(vps.gname) LIKE \''.$start.'%\' ' : '')
 			.' GROUP BY vps.gid'
+			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {*/
+		if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment,
+			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
+			FROM stck_groups g
+			LEFT JOIN stck_stock s ON s.groupid = g.id
+			WHERE s.pricesell is NULL'
+			.($start ? ' AND UPPER(g.name) LIKE \''.$start.'%\' ' : '')
+			.' GROUP BY (g.id)'
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
 				$ggl['total'] = sizeof($ggl);
 				$ggl['order'] = $order;
