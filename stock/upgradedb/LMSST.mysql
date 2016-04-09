@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `stck_groups` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=49 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `stck_manufacturers` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=255 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `stck_products` (
   KEY `taxid` (`taxid`),
   KEY `typeid` (`typeid`),
   KEY `quantityid` (`quantityid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2206 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `stck_quantities` (
   `comment` text NOT NULL,
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
 -- Zrzut danych tabeli `stck_quantities`
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `stck_receivenotes` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `supplierid` (`supplierid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1250 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `stck_stock` (
   KEY `supplierid` (`supplierid`),
   KEY `warehouseid` (`warehouseid`),
   KEY `idx1` (`pricebuynet`,`pricebuygross`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8744 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `stck_stockassigments` (
   `complete` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `stockid` (`stockid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17651 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `stck_supplierassignments` (
   `IDCustomer` int(11) NOT NULL,
   `IDSupplier` int(11) DEFAULT NULL,
   PRIMARY KEY (`IDSupplierAssignment`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS `stck_types` (
   `modid` int(11) NOT NULL DEFAULT '0',
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `stck_warehouses` (
   `deleted` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -317,13 +317,12 @@ INSERT INTO `stck_types` (`id`, `def`, `name`, `quantitycheck`, `creationdate`, 
 --
 
 INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
-('phpui','custom_accesstable','stock/accesstable.php','0'),
-('phpui','custom_menu','stock/menu.php','0'),
-('phpui','grouplist_pagelimit','100','0'),
-('phpui','manufacturerlist_pagelimit','100','0'),
-('phpui','productlist_pagelimit','100','0'),
-('phpui','receivenotelist_pagelimit','100','0'),
-('phpui','stock','1','0');
+('phpui','custom_accesstable','stock/accesstable.php','Access table for lms-stck','0'),
+('phpui','custom_menu','stock/menu.php','Custom menu for lms-stck','0'),
+('phpui','grouplist_pagelimit','100','lms-stck group limit per page','0'),
+('phpui','manufacturerlist_pagelimit','100','lms-stck manufacturer limit per page','0'),
+('phpui','productlist_pagelimit','100','lms-stck product limit per page','0'),
+('phpui','receivenotelist_pagelimit','100','lms-stck receive note limit per page','0');
 
 -- 
 -- Zmiany w db LMS

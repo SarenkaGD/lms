@@ -97,4 +97,5 @@ $_LANG['Wrong or missing group!'] = 'Błędna grupa!';
 $_LANG['Wrong or missing manufacturer!'] = 'Błędny producent!';
 $_LANG['Edit receive note: $a'] = 'Edycja dokumentu przyjęcia: $a'; 
 $_LANG['Buy report'] = 'Raport zakupowy';
+$_LANG['Product group name:'] = 'Nazwa grupy produktów:';
 ?>

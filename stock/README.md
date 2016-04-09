@@ -1,6 +1,6 @@
 Modu³ magazynu handlowego dla LMS
 
-demo: http://sarenka.mojasiec.com/lms/ l: demo h: demo
+demo: http://sarenka.mojasiec.com/lms/ l: demo h: Demo1234
 
 autor - Krzysztof Michalski k.michalski(at)maxcon.pl poprawki - Grzegorz Cichowski gcichowski(at)gmail.com
 

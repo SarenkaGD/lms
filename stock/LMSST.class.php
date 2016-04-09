@@ -81,7 +81,7 @@ class LMSST {
 				if (!$sql = file_get_contents(STCK_DIR . DIRECTORY_SEPARATOR . 'upgradedb' . DIRECTORY_SEPARATOR . $schema))
 					die ('Could not open database schema file ' . STCK_DIR . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . $schema);
 			
-				if (!$this->MultiExecute($sql))    // execute
+				if (!$this->DB->MultiExecute($sql))    // execute
 					die ('Could not load database schema!');
 
 			}
@@ -91,6 +91,10 @@ class LMSST {
 	}
 	
 	/* WAREHOUSE */
+	function WarehouseGetDefaultId() {
+		return $this->DB->GetOne('SELECT id FROM stck_warehouses WHERE def = 1');
+	}
+
 
 	function WarehouseAdd($warehouse) {
 		if ($this->DB->Execute("INSERT INTO stck_warehouses(name, comment, creationdate, creatorid) VALUES(?, ?, ?NOW?, ?)", array(
