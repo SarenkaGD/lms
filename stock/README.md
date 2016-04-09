@@ -10,7 +10,7 @@ Produkty do magazynu wprowadza sie poprzez dokument przyjêcia.
 Po zapisaniu dokumentu przyjecia na magazyn wchodz± produkty a u dostawcy pojawia sie nadp³ata.
 Rozliczenie dokumentu przyjêcia powoduje oznaczenie dokumentu jako zap³aconego, a u dostawcy pojawia siê ta kwota jako rozliczona
 Sprzeda¿ produktów odbywa sie poprzez edycjê pozycji i wpisanie daty i ceny sprzeda¿y lub poprzez wystawienie klientowi faktury na t± konkretn± sztukê (modu³ wyposa¿ony w wybór pozycji z magazynu w czasie wystawiania dokumentu sprzeda¿y).
-Od  wersji 20160401 system wyposa¿ony w aktualizator dzia³aj±cy na wzór (zuep³nie jak :P) aktualiator LMS`a.
+Od wersji 20160401 system wyposa¿ony w aktualizator dzia³aj±cy na wzór (zupe³nie jak :P) aktualiator LMS`a.
 
 Znane problemy:
 - obs³uga dokumentów koryguj±cych w zakresie stanów magazynowych
