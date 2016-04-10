@@ -744,7 +744,7 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                         . ($result['division_ten'] != '' ? "\n" . trans('TEN') . ' ' . $result['division_ten'] : '');
             }
 
-            if ($result['content'] = $this->db->GetAll('SELECT invoicecontents.value AS value, 
+            if ($result['content'] = $this->db->GetAll('SELECT invoicecontents.id as icid, invoicecontents.value AS value, 
 						itemid, taxid, taxes.value AS taxvalue, taxes.label AS taxlabel, 
 						prodid, content, count, invoicecontents.description AS description, 
 						tariffid, itemid, pdiscount, vdiscount 
