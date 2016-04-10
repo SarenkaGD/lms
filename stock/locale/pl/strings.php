@@ -98,4 +98,6 @@ $_LANG['Wrong or missing manufacturer!'] = 'Błędny producent!';
 $_LANG['Edit receive note: $a'] = 'Edycja dokumentu przyjęcia: $a'; 
 $_LANG['Buy report'] = 'Raport zakupowy';
 $_LANG['Product group name:'] = 'Nazwa grupy produktów:';
+$_LANG['full access to lms-stck module'] = 'pełny dostęp do modułu lms-stck';
+$_LANG['lms-stck reports'] = 'raporty modułu lms-stck';
 ?>

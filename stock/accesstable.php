@@ -5,7 +5,7 @@ $access_table['lms-stck-full'] = array(
 	);
 
 $access_table['lms-stck-reports'] = array(
-	'label' => trans('full access lms-stck reports'),
+	'label' => trans('lms-stck reports'),
 	'allow_regexp' => '^printstock$'
 	);
 
