@@ -126,11 +126,17 @@ class LMSStck {
 				break;
 		}
 
-		if ($wgl = $this->DB->GetAll('SELECT w.id, w.name, w.comment, w.def,
+		/*if ($wgl = $this->DB->GetAll('SELECT w.id, w.name, w.comment, w.def,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_warehouses w
 			LEFT JOIN stck_stock s ON s.warehouseid = w.id AND s.pricesell IS NULL AND s.leavedate = 0
 			WHERE w.deleted = 0 
+			GROUP BY (w.id)'*/
+		if ($wgl = $this->DB->GetAll('SELECT w.id, w.name, w.comment, w.def,
+			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
+			FROM stck_warehouses w
+			LEFT JOIN stck_stock s ON s.warehouseid = w.id AND s.sold = 0
+			WHERE w.deleted = 0
 			GROUP BY (w.id)'
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
 			$wgl['total'] = sizeof($wgl);
@@ -168,14 +174,20 @@ class LMSStck {
 	}
 
 	function WarehouseGetInfoById($id) {
-		if ($wi = $this->DB->GetRow("SELECT w.*, u.name as createdby,
+		/*if ($wi = $this->DB->GetRow("SELECT w.*, u.name as createdby,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_warehouses w
 			LEFT JOIN users u ON w.creatorid = u.id
 			LEFT JOIN stck_stock s ON s.warehouseid = w.id
 			WHERE w.id = ? AND u.id = w.creatorid AND s.pricesell IS NULL", array($id))) {
 			//$wi['count'] = $this->WarehouseStockCount($id);
-			//$wi['value'] = $this->WarehouseStockValue($id);
+			//$wi['value'] = $this->WarehouseStockValue($id);*/
+		if ($wi = $this->DB->GetRow("SELECT w.*, u.name as createdby,
+			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
+			FROM stck_warehouses w
+			LEFT JOIN users u ON w.creatorid = u.id
+			LEFT JOIN stck_stock s ON s.warehouseid = w.id
+			WHERE w.id = ? AND u.id = w.creatorid AND s.sold = 0", array($id))) {
 			$wi['modifiedby'] = $this->LMS->GetUserName($wi['modid']);
 			return $wi;
 		}
@@ -247,7 +259,7 @@ class LMSStck {
 			LEFT JOIN users u ON u.id = m.creatorid
 			LEFT JOIN stck_products p ON p.manufacturerid = m.id
 			LEFT JOIN stck_stock s ON s.productid = p.id
-			WHERE m.id = ? AND u.id = m.creatorid AND s.pricesell IS NULL", array($id))) {
+			WHERE m.id = ? AND u.id = m.creatorid AND s.sold = 0", array($id))) {
 			
 /*			$mi['count'] = $this->ManufacturerStockCount($id);
 			$mi['value'] = $this->ManufacturerStockValue($id);
@@ -317,7 +329,7 @@ class LMSStck {
 			LEFT JOIN users u ON u.id = g.creatorid
 			LEFT JOIN stck_quantities q ON q.id = g.quantityid
 			LEFT JOIN stck_stock s ON s.groupid = g.id
-			WHERE g.id = ? AND s.pricesell IS NULL", array($id))) {
+			WHERE g.id = ? AND s.sold = 0", array($id))) {
 //			$gi['count'] = $this->GroupStockCount($id);
 //			$gi['value'] = $this->GroupStockValue($id);
 			$gi['modifiedby'] = $this->LMS->GetUserName($gi['modid']);
@@ -378,7 +390,7 @@ class LMSStck {
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_groups g
 			LEFT JOIN stck_stock s ON s.groupid = g.id
-			WHERE s.pricesell is NULL'
+			WHERE s.sold = 0'
 			.($start ? ' AND UPPER(g.name) LIKE \''.$start.'%\' ' : '')
 			.' GROUP BY (g.id)'
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
@@ -519,7 +531,7 @@ class LMSStck {
 			LEFT JOIN stck_groups g ON p.groupid = g.id
 			LEFT JOIN stck_stock s ON s.productid = p.id
 			LEFT JOIN stck_types t ON p.typeid = t.id
-			WHERE p.deleted = 0 AND s.pricesell IS NULL'
+			WHERE p.deleted = 0 AND s.sold = 0'
 			.($warehouse ? ' AND s.warehouseid = '.$warehouse : '')
 			.($manufacturer ? ' AND m.id = '.$manufacturer : '')
 			.($group ? ' AND g.id = '.$group : '')
@@ -574,7 +586,7 @@ class LMSStck {
 			LEFT JOIN users u ON u.id = p.creatorid
 			LEFT JOIN stck_quantities q ON q.id = p.quantityid
 			LEFT JOIN stck_stock s ON s.productid = p.id
-			WHERE p.id = ? AND s.pricesell IS NULL", array($id))) {
+			WHERE p.id = ? AND s.sold = 0", array($id))) {
 			$pi['modifiedby'] = $this->LMS->GetUserName($pi['modid']);
 			return $pi;
 		}
@@ -653,14 +665,14 @@ class LMSStck {
 	/* STOCK */
 
 	function StockSell($number, $id, $price, $date) {
-		if ($this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $id)))
+		if ($this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, sold = 1, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $id)))
 			return true;
 		else
 			return false;
 	}
 
 	function StockUnSell($id) {
-		$this->DB->Execute("UPDATE stck_stock SET quitdocumentid = NULL, pricesell = NULL, leavedate = 0, moddate = ?NOW?, modid = ? WHERE id = ?", array($this->AUTH->id, $id));
+		$this->DB->Execute("UPDATE stck_stock SET pricesell = NULL, leavedate = 0, sold = 0, moddate = ?NOW?, modid = ? WHERE id = ?", array($this->AUTH->id, $id));
 	}
 
 	function StockAdd($product, $doc = NULL, $bdate) {
@@ -800,7 +812,7 @@ class LMSStck {
 			WHERE 1'
 			.($prodid ? ' AND s.productid = '.$prodid : '')
 			.($docid ? ' AND s.enterdocumentid = '.$docid : '')
-			.($ssp ? '' : ' AND s.pricesell IS NULL')
+			.($ssp ? '' : ' AND s.sold = 0')
 			.($warehouseid ? ' AND s.warehouseid = '.$warehouseid : '')
 			.($manufacturerid ? ' AND m.id = '.$manufacturerid : '')
 			.($groupid ? ' AND p.groupid = '.$groupid : '')
