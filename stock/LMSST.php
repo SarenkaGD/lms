@@ -10,7 +10,7 @@ if (ConfigHelper::getConfig('database.database') == 'postgres') {
 define('STCK_DBVERSION', '2016040901');
 define('STCK_DIR', $CONFIG['directories']['sys_dir'] . DIRECTORY_SEPARATOR . 'stock');
 
-require('LMSST.class.php');
+require('LMSStck.class.php');
 
-$LMSST = new LMSST($DB, $AUTH, $CONFIG, $LMS);
+$LMSST = new LMSStck($DB, $AUTH, $CONFIG, $LMS);
 ?>

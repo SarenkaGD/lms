@@ -1,6 +1,6 @@
 <?php
 
-class LMSST {
+class LMSStck {
 
 	var $DB;
 	var $AUTH;
@@ -9,7 +9,7 @@ class LMSST {
 	var $_version = 1.1;
 	var $dbschversion;
 
-	function LMSST(&$DB, &$AUTH, &$CONFIG, &$LMS) {
+	function LMSStck(&$DB, &$AUTH, &$CONFIG, &$LMS) {
 		$this->DB = &$DB;
 		$this->AUTH = &$AUTH;
 		$this->CONFIG = &$CONFIG;
