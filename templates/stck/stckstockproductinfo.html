@@ -82,7 +82,7 @@
 			<B>{t}Sell price:{/t}</B>
 		</TD>
 		<TD CLASS="fright">
-			{$product.pricesell|money_format}
+			{if $product.pricesell > 0}{$product.pricesell|money_format}{else}-{/if}
 		</TD>
 	</TR>
 	<TR CLASS="LIGHT">
