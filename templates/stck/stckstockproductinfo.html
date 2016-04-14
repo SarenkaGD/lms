@@ -73,7 +73,7 @@
 			<B>{t}Sell date:{/t}</B>
 		</TD>
 		<TD CLASS="fright">
-			{$product.leavedate|date_format:"%Y/%m/%d"}
+			{if $product.leavedate > 0}{$product.leavedate|date_format:"%Y/%m/%d"}{else}-{/if}
 		</TD>
 	</TR>
 	<TR CLASS="light">
