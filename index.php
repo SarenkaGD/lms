@@ -206,7 +206,7 @@ $error = NULL; // initialize error variable needed for (almost) all modules
 
 //Load stock module class and defs
 if (ConfigHelper::getConfig('phpui.stock')) {
-	require('stock/LMSST.php');
+	require('stock/LMSStck.php');
 	//$LMSST = new LMSST($DB, $AUTH, $CONFIG, $LMS);
 }
 // Load menu
