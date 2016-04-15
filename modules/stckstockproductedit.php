@@ -22,6 +22,11 @@ if (isset($_POST['productedit'])) {
 	if (!preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $productedit['pricebuygross']))
 		$error['pricegross'] = 'Wrong or missing price!';
 
+	if ($productedit['sold'])
+		$productedit['sold'] = 1;
+	else
+		$productedit['sold'] = '0';
+
 	if (isset($productedit['pricesell']) && !preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $productedit['pricebuygross']))
 		$error['pricesell'] = 'Wrong or missing price!';
 	

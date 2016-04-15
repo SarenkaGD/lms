@@ -74,10 +74,19 @@
 			<INPUT type="text" name="productedit[pricebuygross]" SIZE="6" style="text-align: right;" VALUE="{$productedit.pricebuygross}" {tip text="Enter value" trigger="pricegross"}>
 		</TD>
 	</TR>
+	<TR>
+		<TD WIDTH="1%" CLASS="fleft" NOWRAP>
+			<IMG SRC="img/value.gif" ALT="">
+			<b>{t}Sold:{/t}</b>
+		</TD>
+		<TD CLASS="fright">
+			<INPUT TYPE="checkbox" name="productedit[sold]"{if $productedit.sold} checked{/if}>
+		</TD>
+	</TR>
 	<TR CLASS="LIGHT">
 		<TD WIDTH="1%" CLASS="fleft" NOWRAP>
 			<IMG SRC="img/calendar.gif" ALT="">
-			<B>{t}Sell date{/t}:</B>
+			<B>{t}Sell date:{/t}</B>
 		</TD>
 		<TD CLASS="fright">
 			<INPUT type="TEXT" name="productedit[leavedate]" value="{$productedit.leavedate|date_format:"%Y/%m/%d"}" OnClick="cal3.popup();" {tip text="Product`s sale date" trigger="leavedate"} SIZE="10">
@@ -86,7 +95,7 @@
 	<TR CLASS="light">
 		<TD WIDTH="1%" CLASS="fleft" NOWRAP>
 			<IMG SRC="img/money.gif" ALT="">
-			<B>{t}Sell price{/t}:</B>
+			<B>{t}Sell price:{/t}</B>
 		</TD>
 		<TD CLASS="fright">
 			<INPUT type="text" name="productedit[pricesell]" SIZE="6" style="text-align: right;" VALUE="{$productedit.pricesell}" {tip text="Enter value" trigger="pricesell"}>

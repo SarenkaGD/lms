@@ -25,7 +25,7 @@ if (isset($_POST['stock'])) {
 }
 
 if (!$stock['warehouse'])
-	$stock['warehouse'] = $LMSST->WarehouseGetDefaultId();;
+	$stock['warehouse'] = $LMSST->WarehouseGetDefaultId();
 
 $productlist = $LMSST->StockList($o, $stock['manufacturer'], $stock['group'], $stock['warehouse']);
 $listdata['total'] = $productlist['total'];

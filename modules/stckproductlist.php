@@ -24,7 +24,7 @@ if (isset($_POST['s_pl'])) {
 	$SESSION->restore('s_pl', $s_pl);
 }
 
-$productlist = $LMSST->ProductGetList($o, $s_pl['manufacturer'], $s_pl['group']);
+$productlist = $LMSST->ProductGetList($o, $s_pl['manufacturer'], $s_pl['group'], $s_pl['warehouse']);
 
 $listdata['total'] = $productlist['total'];
 $listdata['direction'] = $productlist['direction'];
@@ -32,6 +32,11 @@ $listdata['order'] = $productlist['order'];
 unset($productlist['total']);
 unset($productlist['direction']);
 unset($productlist['order']);
+
+$warehouselist = $LMSST->WarehouseGetList($o);
+unset($warehouselist['total']);
+unset($warehouselist['direction']);
+unset($warehouselist['order']);
 
 $manufacturerlist = $LMSST->ManufacturerGetList($o);
 unset($manufacturerlist['total']);
@@ -60,6 +65,7 @@ $SMARTY->assign('start',$start);
 $SMARTY->assign('productlist', $productlist);
 $SMARTY->assign('listdata', $listdata);
 $SMARTY->assign('manufacturers', $manufacturerlist);
+$SMARTY->assign('warehouses', $warehouselist);
 $SMARTY->assign('groups', $grouplist);
 $SMARTY->assign('s_pl', $s_pl);
 $SMARTY->display('stck/stckproductlist.html');

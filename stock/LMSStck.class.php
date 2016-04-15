@@ -618,7 +618,7 @@ class LMSStck {
 		return $pe['id'];
 	}
 
-	function ProductGetList($order='name,asc', $manufacturerid = NULL, $groupid = NULL) {
+	function ProductGetList($order='name,asc', $manufacturerid = NULL, $groupid = NULL, $warehouseid = NULL) {
 	  	
 		list($order,$direction) = sscanf($order, '%[^,],%s');
 		$totalpcs = 0;
@@ -638,6 +638,9 @@ class LMSStck {
 		case 'quant':
 			$sqlord = ' ORDER BY scount';
 			break;
+		case 'id':
+			$sqlord = ' ORDER BY p.id';
+			break;
 		default:
 			$sqlord = ' ORDER BY pname';
 		break;
@@ -645,15 +648,16 @@ class LMSStck {
 
 		$pgl = $this->DB->GetAll("SELECT p.*,
 			m.id as mid, m.name as mname, CONCAT(m.name, ' ', p.name) as pname,
-			g.id as gid, g.name as gname,
-			vsc.scount
-			FROM stck_products p
+			g.id as gid, g.name as gname,"
+			.($warehouseid ? ' vsc.scount' : 'SUM(vsc.scount) as scount')
+			." FROM stck_products p
 			LEFT JOIN stck_manufacturers m ON m.id = p.manufacturerid
 			LEFT JOIN stck_groups g ON g.id = p.groupid
 			LEFT JOIN stck_vstockcount vsc ON vsc.productid = p.id
 			WHERE 1"
 			.($manufacturerid ? ' AND m.id = '.$manufacturerid : '')
 			.($groupid ? ' AND p.groupid = '.$groupid : '')
+			.($warehouseid ? ' AND vsc.warehouseid = '.$warehouseid : ' GROUP BY p.id')
 			.($sqlord != '' ? $sqlord.' '.$direction : ''), array());
 		$pgl['total'] = sizeof($pgl);
 		$pgl['order'] = $order;
@@ -714,22 +718,24 @@ class LMSStck {
 		$position['pricebuygross'] = str_replace(',','.', $position['pricebuygross']);
 
 		if ($this->DB->Execute('UPDATE stck_stock SET warehouseid = ?, serialnumber = ?, pricebuynet = ?,
-		taxid = ?, pricebuygross = ?, modid = ?, moddate = ?NOW?, comment = ? WHERE id = ?', array(
+		taxid = ?, pricebuygross = ?, modid = ?, sold = ?, moddate = ?NOW?, comment = ? WHERE id = ?', array(
 			$position['warehouseid'],
 			strtoupper($position['serialnumber']),
 			(string) $position['pricebuynet'],
 			$position['taxid'],
 			(string) $position['pricebuygross'],
 			$this->AUTH->id,
+			$position['sold'],
 			$position['comment'],
 			$position['id']
 			))) {
 			$cid = $this->DB->GetOne('SELECT cashid FROM stck_cashassignments WHERE stockid = ? AND rnitem = ?', array($position['id'], 1));
-			//$this->DB->Execute('UPDATE cash SET value = ?, taxid = ? WHERE stockid = ? AND value > 0', array((string) $position['pricebuygross'], $position['taxid'], $position['id']));
+			echo "CID: ".$cid;
 			$this->DB->Execute('UPDATE cash set value = ?, taxid = ? WHERE id = ?', array((string) $position['pricebuygross'], $position['taxid'], $cid));
+			print_r($this->DB);
 			$docid = $this->DB->GetOne('SELECT enterdocumentid FROM stck_stock WHERE id = ?', array($position['id']));
 			$this->ReceiveNoteUpdateValue($docid);
-			if ($position['leavedate']) {
+			if ($position['sold']) {
 				$position['pricesell'] = str_replace(',','.', $position['pricesell']);
 				$this->StockSell(NULL, $position['id'], $position['pricesell'], $position['leavedate']);
 			}

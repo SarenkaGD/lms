@@ -6,13 +6,22 @@
 	<TR CLASS="dark">
 		<TD COLSPAN="7">
 		<FORM METHOD="POST" ACTION="?m=stckproductlist">
-		<TABLE>
+		<TABLE WIDTH="100%">
 			<TR CLASS="bold">
+				<TD style="padding: 3px 3px 0 3px;">{t}Warehouse{/t}:</TD>
 				<TD style="padding: 3px 3px 0 3px;">{t}Manufacturer{/t}:</TD>
 				<TD style="padding: 3px 3px 0 3px;">{t}Group{/t}:</TD>
 			</TR>
 			<TR>
-				<TD style="padding: 3px;">
+				<TD style="width: 1%; padding: 3px;">
+					<select name="s_pl[warehouse]" onChange="this.form.submit()">
+						<option value="">{t}- select warehouse -{/t}</option>
+						{foreach from=$warehouses item=wh}
+						<option value="{$wh.id}"{if $s_pl.warehouse eq $wh.id} SELECTED{/if}>{$wh.name}</option>
+						{/foreach}
+					</select>
+				</TD>
+				<TD style="padding: 3px; width: 1%;">
 					<select name="s_pl[manufacturer]" onChange="this.form.submit()">
 						<option value="">{t}- select manufacturer -{/t}</option>
 						{foreach from=$manufacturers item=mf}
@@ -20,7 +29,7 @@
 						{/foreach}
 					</select>
 				</TD>
-				<TD style="padding: 3px;">
+				<TD style="padding: 3px; width: 1%;">
 					<select name="s_pl[group]" onChange="this.form.submit()">
 						<option value="">{t}- select group -{/t}</option>
 						{foreach from=$groups item=g}
@@ -28,6 +37,9 @@
 						{/foreach}
 					</select>
 				</TD>
+				<td align="right" style="padding: 3px;">
+					<A href="?m=stckproductadd">{t}Add product{/t} <IMG src="img/save.gif" alt=""> </A>
+				</td>
 
 			</TR>
 		</TABLE>
@@ -51,7 +63,6 @@
 			<A href="?m=stckproductlist&o=id{if $listdata.direction eq "asc" && $listdata.order eq "id"},desc{/if}">ID:</A> {if $listdata.order eq "id"}<IMG src="img/{if $listdata.direction eq "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}
 		</TD>
 		<TD width="1%" class="frightu" align="right" nowrap>
-			<A href="?m=stckproductadd">{t}New Product{/t} <IMG src="img/save.gif" alt=""> </A>
 		</TD>
 
 	</TR>
