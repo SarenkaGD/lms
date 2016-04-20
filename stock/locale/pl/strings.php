@@ -101,4 +101,8 @@ $_LANG['Product group name:'] = 'Nazwa grupy produktów:';
 $_LANG['full access to lms-stck module'] = 'pełny dostęp do modułu lms-stck';
 $_LANG['lms-stck reports'] = 'raporty modułu lms-stck';
 $_LANG['sold'] = 'sprzedany';
+$_LANG['Canceled invoice (nr: $a)'] = 'Anulowana faktura (nr: $a)';
+$_LANG['Enter EAN, serial number, product number or product name to check buy price'] = 'Podaj EAN, numer seryjny, id lub nazwę produktu by sprawdzić cenę zakupu';
+$_LANG['Enter serial number to check warranty status'] = 'Podaj numer seryjny by sprawdzić status gwarancji';
+$_LANG['Unable to recover invoice - stock already sold!'] = 'Brak możliwości przywrócenia faktury - towar sprzedany!';
 ?>
