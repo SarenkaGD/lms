@@ -32,18 +32,36 @@ function select_customer($id)
     return $JSResponse;
 }
 
+function getUsersForGroup($groupid) {
+	$JSResponse = new xajaxResponse();
+
+	if (empty($groupid))
+		$users = null;
+	else
+		$users = LMSDB::getInstance()->GetCol('SELECT u.id FROM users u
+			JOIN userassignments ua ON ua.userid = u.id
+			WHERE u.deleted = 0 AND u.access = 1 AND ua.usergroupid = ?',
+			array($groupid));
+
+	$JSResponse->call('update_user_selection', $users);
+
+	return $JSResponse;
+}
+
 $LMS->InitXajax();
-$LMS->RegisterXajaxFunction('select_customer');
+$LMS->RegisterXajaxFunction(array('select_customer', 'getUsersForGroup'));
 $SMARTY->assign('xajax', $LMS->RunXajax());
 
 if(isset($_POST['event']))
 {
 	$event = $_POST['event'];
-	
-	if(!($event['title'] || $event['description'] || $event['date']))
-	{
+
+	if (!isset($event['usergroup']))
+		$event['usergroup'] = 0;
+	$SESSION->save('eventgid', $event['usergroup']);
+
+	if (!($event['title'] || $event['description'] || $event['date']))
 		$SESSION->redirect('?m=eventlist');
-	}
 
 	if ($event['title'] == '')
 		$error['title'] = trans('Event title is required!');
@@ -130,17 +148,19 @@ $layout['pagetitle'] = trans('New Event');
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
-$usergroup = $DB->GetAll("SELECT id, name FROM usergroups");
-$userlist = $DB->GetAll('SELECT users.id, users.name, userassignments.usergroupid FROM users 
-        LEFT JOIN userassignments ON (userassignments.userid = users.id)
-        WHERE users.deleted = 0 AND users.access = 1 ORDER BY login ASC');
+$usergroups = $DB->GetAll('SELECT id, name FROM usergroups');
+$userlist = $DB->GetAll('SELECT id, name FROM users
+	WHERE deleted = 0 AND access = 1 ORDER BY login ASC');
+
+if (!isset($event['usergroup']))
+	$SESSION->restore('eventgid', $event['usergroup']);
 
 if (!ConfigHelper::checkConfig('phpui.big_networks'))
 	$SMARTY->assign('customerlist', $LMS->GetCustomerNames());
 
 $SMARTY->assign('max_userlist_size', ConfigHelper::getConfig('phpui.event_max_userlist_size'));
 $SMARTY->assign('userlist', $userlist);
-$SMARTY->assign('usergroup', $usergroup);
+$SMARTY->assign('usergroups', $usergroups);
 $SMARTY->assign('error', $error);
 $SMARTY->assign('event', $event);
 $SMARTY->assign('hours', 
