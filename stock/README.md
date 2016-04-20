@@ -13,15 +13,15 @@ Sprzeda¿ produktów odbywa sie poprzez edycjê pozycji i wpisanie daty i ceny sprz
 Od wersji 20160401 system wyposa¿ony w aktualizator dzia³aj±cy na wzór (zupe³nie jak :P) aktualiator LMS`a.
 
 Znane problemy:
-- obs³uga dokumentów koryguj±cych w zakresie stanów magazynowych
+- obs³uga dokumentów koryguj±cych w zakresie stanów magazynowych (edycja faktur w koñcu dzia³a :)
 - brak obs³ugi pozycji o krotno¶ci > 1 w ramach jedenej pozycji magazynowej
 
 TODO:
-- zablokowanie mo¿liwo¶ci wprowadzenia dwóch produktów o tym smaym numerze EAN
+- zablokowanie mo¿liwo¶ci wprowadzenia dwóch produktów o tym samym numerze EAN
 - filtrowanie listy produktów w ramach producenta
 - szybkie zaznaczenia produktu jako sprzedanego
 - mo¿liwo¶æ dodania producenta i grupy z poziomu dodawania nowej pozycji magazynowej
-- przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokuemntu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
+- przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokumentu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
 - kompletacja!
 
 Plany na przysz³o¶æ:
