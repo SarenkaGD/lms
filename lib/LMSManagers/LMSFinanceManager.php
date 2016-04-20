@@ -646,7 +646,15 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             }
         }
         $this->db->Execute('DELETE FROM documents WHERE id = ?', array($invoiceid));
-        $this->db->Execute('DELETE FROM invoicecontents WHERE docid = ?', array($invoiceid));
+        //Added from lms-stck Sarenka
+	if (ConfigHelper::getConfig('phpui.stock')) {
+		global $LMSST;
+		$stock = $this->db->GetAll('SELECT stockid FROM stck_invoicecontentsassignments WHERE icdocid = ?', array($invoiceid));
+		foreach ($stock as $v) {
+			$LMSST->StockUnSell($v['stockid']);
+		}
+	}
+	$this->db->Execute('DELETE FROM invoicecontents WHERE docid = ?', array($invoiceid));
         $this->db->Execute('DELETE FROM cash WHERE docid = ?', array($invoiceid));
         $this->db->CommitTrans();
     }
@@ -666,7 +674,15 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                 );
                 $this->syslog->AddMessage(SYSLOG_RES_INVOICECONT, SYSLOG_OPER_DELETE, $args, array($SYSLOG_RESOURCE_KEYS[SYSLOG_RES_DOC], $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_CUST]));
             }
-            $this->db->Execute('DELETE FROM invoicecontents WHERE docid=? AND itemid=?', array($invoiceid, $itemid));
+	    //Added for lms-stck Sarenka
+            if (ConfigHelper::getConfig('phpui.stock')) {
+	    	if ($sid = $this->db->GetOne('SELECT stockid FROM stck_invoicecontentsassignments WHERE icdocid=? AND icitemid=?', array($invoiceid, $itemid))) {
+			global $LMSST;
+			$LMSST->StockUnSell($sid);
+		}
+	    }
+	    
+	    $this->db->Execute('DELETE FROM invoicecontents WHERE docid=? AND itemid=?', array($invoiceid, $itemid));
 
             if (!$this->db->GetOne('SELECT COUNT(*) FROM invoicecontents WHERE docid=?', array($invoiceid))) {
                 // if that was the last item of invoice contents
@@ -1333,6 +1349,16 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
         elseif ($row['doctype'] == DOC_DNOTE)
             $this->DebitNoteContentDelete($row['docid'], $row['itemid']);
         else {
+	    //Added for lms-stck Sarenka
+	    if (ConfigHelper::getConfig('phpui.stock')) {
+		if ($sid = $this->db->GetRow('SELECT stockid, rnitem FROM stck_cashassignments WHERE cashid = ?', array($id))) {
+			if ($sid['rnitem'])
+				return false;
+			
+			global $LMSST;
+			$LMSST->StockUnSell($sid['stockid']);
+		}
+	    }
             $this->db->Execute('DELETE FROM cash WHERE id = ?', array($id));
             if ($this->syslog) {
                 $args = array(

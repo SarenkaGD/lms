@@ -668,15 +668,22 @@ class LMSStck {
 
 	/* STOCK */
 
-	function StockSell($number, $id, $price, $date) {
-		if ($this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, sold = 1, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $id)))
+	function StockSell($number, $stockid, $price, $date) {
+		if ($this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, sold = 1, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $stockid)))
 			return true;
-		else
-			return false;
+		
+		return false;
 	}
 
-	function StockUnSell($id) {
-		$this->DB->Execute("UPDATE stck_stock SET pricesell = NULL, leavedate = 0, sold = 0, moddate = ?NOW?, modid = ? WHERE id = ?", array($this->AUTH->id, $id));
+	function StockUnSell($id, $comment = NULL) {
+		if ($this->DB->Execute("UPDATE stck_stock SET pricesell = NULL, leavedate = 0, sold = 0, moddate = ?NOW?, modid = ?, comment = ? WHERE id = ?", array($this->AUTH->id, $comment, $id)))
+			return true;
+		
+		return false;
+	}
+
+	function StockSoldById($id) {
+		return $this->DB->GetOne('SELECT sold FROM stck_stock WHERE id = ?', array($id));
 	}
 
 	function StockAdd($product, $doc = NULL, $bdate) {
@@ -730,9 +737,7 @@ class LMSStck {
 			$position['id']
 			))) {
 			$cid = $this->DB->GetOne('SELECT cashid FROM stck_cashassignments WHERE stockid = ? AND rnitem = ?', array($position['id'], 1));
-			echo "CID: ".$cid;
 			$this->DB->Execute('UPDATE cash set value = ?, taxid = ? WHERE id = ?', array((string) $position['pricebuygross'], $position['taxid'], $cid));
-			print_r($this->DB);
 			$docid = $this->DB->GetOne('SELECT enterdocumentid FROM stck_stock WHERE id = ?', array($position['id']));
 			$this->ReceiveNoteUpdateValue($docid);
 			if ($position['sold']) {
@@ -888,7 +893,6 @@ class LMSStck {
 			$this->DB->BeginTrans();
 
 		foreach($rnel['product'] as $product) {
-			echo("Dodaje produkt");
 			$product['group'] = $this->DB->GetOne('SELECT groupid FROM stck_products WHERE id = ?', array($product['pid']));
 			if ($rnel['doc']['number'] && !$product['docnumber'])
 				$product['docnumber'] = $rnel['doc']['number'];
@@ -1032,13 +1036,11 @@ class LMSStck {
 						return false;
 
 				}
-				print_r($this->DB);
 				if ($this->DB->GetOne('SELECT paid FROM stck_receivenotes WHERE id = ?', array($rn['id']))) {
 					$cid = $this->DB->GetOne('SELECT cashid FROM stck_receivennotesassignment WHERE rnid = ?', array($rn['id']));
 					$this->DB->Execute('UPDATE cash SET customerid = ? WHERE id = ?', array($rn['supplierid'], $cid));
 				}
 				$this->DB->Execute('UPDATE stck_receivenotes SET supplierid = ? WHERE id = ?', array($rn['supplierid'], $rn['id']));
-				print_r($this->DB);
 				$this->DB->CommitTrans();
 				return $rn['id'];
 			}
