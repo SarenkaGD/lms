@@ -8,7 +8,7 @@
 					LEFT JOIN stck_products p ON p.id = s.productid
 					LEFT JOIN stck_manufacturers m ON m.id = p.manufacturerid
 					LEFT JOIN stck_warehouses w ON s.warehouseid = w.id
-					WHERE s.leavedate = 0 AND
+					WHERE s.sold = 0 AND
 					(".(preg_match('/^[0-9]+$/', $search) ? 's.productid = '.intval($search).' OR ' : '')."
 					LOWER(".$DB->Concat('m.name',"' '",'p.name').") ?LIKE? LOWER(".$sql_search.")
 					OR LOWER(p.ean) ?LIKE? LOWER(".$sql_search.")
