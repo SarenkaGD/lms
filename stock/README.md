@@ -18,8 +18,6 @@ Znane problemy:
 
 TODO:
 - zablokowanie mo¿liwo¶ci wprowadzenia dwóch produktów o tym samym numerze EAN
-- filtrowanie listy produktów w ramach producenta
-- szybkie zaznaczenia produktu jako sprzedanego
 - mo¿liwo¶æ dodania producenta i grupy z poziomu dodawania nowej pozycji magazynowej
 - przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokumentu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
 - kompletacja!

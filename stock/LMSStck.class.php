@@ -773,7 +773,10 @@ class LMSStck {
 		}
 	}
 
-	function StockProductList($order, $prodid = NULL, $ssp, $docid = NULL, $warehouseid = NULL, $manufacturerid = NULL, $groupid = NULL, $sn = NULL) {
+	/* $filter = array(
+	'sn' => 'serial number',
+	'name' => 'product name');*/
+	function StockProductList($order, $prodid = NULL, $ssp, $docid = NULL, $warehouseid = NULL, $manufacturerid = NULL, $groupid = NULL, $filter = NULL) {
 		list($order,$direction) = sscanf($order, '%[^,],%s');
 		$totalpcs = 0;
 		$totalvn = 0;
@@ -827,7 +830,8 @@ class LMSStck {
 			.($warehouseid ? ' AND s.warehouseid = '.$warehouseid : '')
 			.($manufacturerid ? ' AND m.id = '.$manufacturerid : '')
 			.($groupid ? ' AND p.groupid = '.$groupid : '')
-			.($sn ? ' AND LOWER(serialnumber) ?LIKE? LOWER('.$sn.')' : '')
+			.($filter['sn'] ? ' AND UPPER(s.serialnumber) ?LIKE? UPPER(\'%'.$filter['sn'].'%\')' : '')
+			.($filter['name'] ? ' HAVING UPPER(pname) ?LIKE? UPPER(\'%'.$filter['name'].'%\')' : '')
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
 			foreach($spl as $p) {
 				$totalpcs += $p['count'];

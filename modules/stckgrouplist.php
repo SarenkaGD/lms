@@ -5,10 +5,15 @@ function check($str){
 }
 
 if (!check($_GET['start']))
-	$listdata['start'] = NULL;
+	$listdata['start'] = $listdata['state'] = NULL;
 else
-	$listdata['start'] = $_GET['start'];
+	$listdata['start'] = $listdata['state'] = $_GET['start'];
 
+if (isset($_GET['s']) && !check($_GET['s']))
+	$listdata['start'] = $listdata['state'] = NULL;
+else
+	$listdata['start'] = $listdata['state'] = $_GET['s'];
+	
 
 $layout['pagetitle'] = trans('Product groups');
 

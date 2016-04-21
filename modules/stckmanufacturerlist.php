@@ -1,14 +1,18 @@
 <?php
 function check($str){
 	$c=strlen($str)==1 ? ord($str) : 0;    // get the ascii code if it is a single character
-      	echo "C: ".$c;
 	return ($c>=ord('A') && $c<=ord('Z'));  // it is a single character between a and z
 }
 
 if (!check($_GET['start']))
-	$listdata['start'] = NULL;
+	$listdata['start'] = $listdata['state'] = NULL;
 else
-	$listdata['start'] = $_GET['start'];
+	$listdata['start'] = $listdata['state'] = $_GET['start'];
+
+if (isset($_GET['s']) && !check($_GET['s']))
+	$listdata['start'] = $listdata['state'] = NULL;
+else
+	$listdata['start'] = $listdata['state'] = $_GET['s'];
 
 $layout['pagetitle'] = trans('Manufacturers');
 
@@ -33,6 +37,11 @@ if(!isset($_GET['page']))
 $page = (! $_GET['page'] ? 1 : $_GET['page']);
 $pagelimit = (!ConfigHelper::getConfig('phpui.manufacturerlist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.manufacturerlist_pagelimit'));
 $start = ($page - 1) * $pagelimit;
+
+if ($start > $listdata['total']) {
+	$page = 1;
+	$start = 0;
+}
 
 $SESSION->save('smlp', $page);
 

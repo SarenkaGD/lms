@@ -5,17 +5,17 @@
 <SCRIPT TYPE="text/javascript">
 <!--
 function filter() {
-	document.stckslb.action="?m=stckproductinfo&id={$productinfo.id}&ssp={$ssp}";
+	document.stckslb.action="?m={$module}&ssp={$ssp}";
 	document.stckslb.target="";
 	document.stckslb.submit();
 }
 -->
 </SCRIPT>
 <TABLE CELLPADDING="3" width="100%">
-	<FORM NAME="stckslb" METHOD="post" ACTION="?m=stckproductinfo&amp;id={$productinfo.id}&amp;ssp={$ssp}">
+	<FORM NAME="stckslb" METHOD="post" ACTION="?m={$module}&amp;ssp={$ssp}">
 	<TR CLASS="dark">
-		<TD CLASS="ftl"></TD>
-		<TD CLASS="ftop"><INPUT TYPE="text" NAME="filter[sn]" VALUE="{$filter.sn}"></td>
+		<TD CLASS="ftl nobr"><b>{t}Name:{/t}</b> <INPUT TYPE="text" style="width: 30%;" NAME="filter[name]" VALUE="{$filter.name}"></td>
+		<TD CLASS="ftop nobr"><b>S/N:</b> <INPUT TYPE="text" style="width: 60%;" NAME="filter[sn]" VALUE="{$filter.sn}"></td>
 		<td CLASS="ftop"><a href="javascript:filter()">&raquo;&raquo;&raquo;</a></td>
 		<TD COLSPAN="8" CLASS="ftr"></TD>
 	</TR>
@@ -24,6 +24,7 @@ function filter() {
 		<TD COLSPAN="11" ALIGN="right" CLASS="fleft fright">
 			<A HREF="?m={$module}&amp;ssp={!$ssp}"{if $ssp} CLASS="bold"{/if}>{t}Show sold positions{/t}</A>
 		</TD>
+	</TR>
 	<TR CLASS="dark" {tip text="Click on column name to change sorting order"}>
 		<TD CLASS="fleftu" width="30%">
 			<IMG src="img/producer.gif" ALT="">&nbsp;<A href="?m={$module}&o=name{if $listdata.direction eq "asc" && $listdata.order eq "name"},desc{/if}"><B>{t}Name:{/t}</B></A> {if $listdata.order eq "name"}<IMG src="img/{if $listdata.direction eq "desc"}asc{else}desc{/if}_order.gif" alt="">{/if}<BR>

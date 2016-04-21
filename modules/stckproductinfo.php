@@ -53,9 +53,14 @@ if (isset($_POST['filter'])) {
 		$filter['sn'] = $_POST['filter']['sn'];
 	else
 		$filter['sn'] = NULL;
+	
+	if ($_POST['filter']['name'])
+		$filter['name'] = $_POST['filter']['name'];
+	else
+		$filter['name'] = NULL;
 }
 
-$productlist = $LMSST->StockProductList($o, $productinfo['id'], $ssp, NULL, NULL, NULL, NULL, $filter['sn']);
+$productlist = $LMSST->StockProductList($o, $productinfo['id'], $ssp, NULL, NULL, NULL, NULL, $filter);
 $listdata['total'] = $productlist['total'];
 $listdata['totalvn'] = $productlist['totalvn'];
 $listdata['totalvg'] = $productlist['totalvg'];

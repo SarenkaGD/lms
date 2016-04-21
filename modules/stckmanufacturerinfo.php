@@ -48,7 +48,19 @@ else
 
 $SESSION->save('smiplssp', $ssp);
 
-$productlist = $LMSST->StockProductList($o, NULL, $ssp, NULL, NULL, $manufacturerinfo['id']);
+if (isset($_POST['filter'])) {
+	if ($_POST['filter']['sn'])
+		$filter['sn'] = $_POST['filter']['sn'];
+	else
+		$filter['sn'] = NULL;
+
+	if ($_POST['filter']['name'])
+		$filter['name'] = $_POST['filter']['name'];
+	else
+		$filter['name'] = NULL;
+}
+
+$productlist = $LMSST->StockProductList($o, NULL, $ssp, NULL, NULL, $manufacturerinfo['id'], NULL, $filter);
 //$productlist = $LMSST->StockList($o, $manufacturerinfo['id']);
 $listdata['total'] = $productlist['total'];
 $listdata['totalvn'] = $productlist['totalvn'];
@@ -68,11 +80,12 @@ if(!isset($_GET['page']))
 	$SESSION->restore('smipl', $_GET['page']);
 
 $page = (! $_GET['page'] ? 1 : $_GET['page']);
-$pagelimit = (! $CONFIG['phpui']['productlist_pagelimit'] ? $listdata['total'] : $CONFIG['phpui']['productlist_pagelimit']);
+$pagelimit = (!ConfigHelper::getConfig('phpui.productlist_pagelimit') ? 100 : ConfigHelper::getConfig('phpui.productlist_pagelimit'));
 $start = ($page - 1) * $pagelimit;
 
 $SESSION->save('smipl', $page);
 
+$SMARTY->assign('filter', $filter);
 $SMARTY->assign('ssp', $ssp);
 $SMARTY->assign('page',$page);
 $SMARTY->assign('pagelimit',$pagelimit);

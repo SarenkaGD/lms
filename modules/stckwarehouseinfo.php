@@ -48,8 +48,20 @@ else
 
 $SESSION->save('swiplssp', $ssp);
 
+if (isset($_POST['filter'])) {
+        if ($_POST['filter']['sn'])
+		$filter['sn'] = $_POST['filter']['sn'];
+	else
+		$filter['sn'] = NULL;
+		
+	if ($_POST['filter']['name'])
+		$filter['name'] = $_POST['filter']['name'];
+	else
+		$filter['name'] = NULL;
+}
+
 //$productlist = $LMSST->StockList($o, NULL, NULL, $warehouseinfo['id']);
-$productlist = $LMSST->StockProductList($o, NULL, $ssp, NULL, $warehouseinfo['id']);
+$productlist = $LMSST->StockProductList($o, NULL, $ssp, NULL, $warehouseinfo['id'], NULL, NULL, $filter);
 $listdata['total'] = $productlist['total'];
 $listdata['totalvn'] = $productlist['totalvn'];
 $listdata['totalvg'] = $productlist['totalvg'];
