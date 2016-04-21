@@ -1,6 +1,7 @@
 20160421
+- Added modal windows with add new group/product in stckproductadd
 - Added support for name based search in stckstocklistbox.html 
--Locked creating product with duplicated EAN
+- Locked creating product with duplicated EAN
 
 20160420
 - Added support for invoice cancel

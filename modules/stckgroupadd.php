@@ -17,8 +17,12 @@ if (isset($_POST['groupadd'])) {
 	
 	if (!$error) {
 		if ($id = $LMSST->GroupAdd($groupadd)) {
-			if(!isset($groupadd['reuse'])) {
+			if(!isset($groupadd['reuse']) && !$layout['popup']) {
 				$SESSION->redirect('?m=stckgroupinfo&id='.$id);
+			} else {
+				$SMARTY->assign('success', 1);
+				$SMARTY->assign('reload', 1);
+
 			}
 		} else {
 			$error['name'] = trans('Group with this name already exists!');

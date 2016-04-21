@@ -1,6 +1,9 @@
 {include file="header.html"}
-<H1>{$layout.pagetitle}</H1>
-<P><FORM METHOD="POST" ACTION="?m=stckgroupadd" NAME="groupadd">
+{if !$layout.popup}<h1>{$layout.pagetitle}</h1>
+{else}
+{include file="stck/modal.html"}
+{/if}
+<P><FORM METHOD="POST" ACTION="?m=stckgroupadd{if $layout.popup}&popup=1{/if}" NAME="groupadd">
 <INPUT type="submit" class="hiddenbtn">
 <TABLE CLASS="lmsbox">
 	<thead>
@@ -52,13 +55,13 @@
 	<TR CLASS="LIGHT">
 		<TD WIDTH="1%" CLASS="fleft" NOWRAP><IMG SRC="img/info1.gif" ALT=""> <B>{t}Comment:{/t}</B></TD>
 		<TD CLASS="fright">
-		  <TEXTAREA NAME="groupadd[comment]" COLS="60" ROWS="7" {tip text="Enter comment (optional)"}>{$groupadd.comment}</TEXTAREA>
+		  <TEXTAREA NAME="groupadd[comment]" COLS="{if !$layout.popup}60{else}30{/if}" ROWS="{if !$layout.popup}7{else}2{/if}" {tip text="Enter comment (optional)"}>{$groupadd.comment}</TEXTAREA>
 		</TD>
 	</TR>
 	<TR CLASS="LIGHT">
 		<TD width="100%" CLASS="fbottomu" COLSPAN="2" align="right">
 			<A HREF="javascript:document.groupadd.submit();" accesskey="s">{t}Submit{/t} <IMG SRC="img/save.gif" ALT=""></A>
-			<A HREF="?m=stckgroups">{t}Cancel{/t} <IMG SRC="img/cancel.gif" ALT=""></A><BR>
+			<A HREF="{if !$layout.popup}?m=stckgroups{else}javascript:parent.$.modal.close();{/if}">{t}Cancel{/t} <IMG SRC="img/cancel.gif" ALT=""></A><BR>
 			<INPUT type="checkbox" name="groupadd[reuse]" id="groupadd[reuse]" value="ON" {if $groupadd.reuse}checked{/if}><A HREF="javascript:checkElement('groupadd[reuse]')"> {t}Display this form again, when this group is saved{/t}</A>
 		</TD>
 	</TR>
