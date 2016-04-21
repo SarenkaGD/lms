@@ -666,6 +666,29 @@ class LMSStck {
 
 	}
 
+	public function ProductGetInfoByEAN($ean) {
+		if ($pi = $this->DB->GetRow("SELECT p.*,
+			m.name as mname,
+			g.name as gname,
+			u.name as createdby,
+			q.name as qname,
+			t.name as tname,
+			tx.value as tax, tx.label as txname,
+			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
+			FROM stck_products p
+			LEFT JOIN stck_manufacturers m ON m.id = p.manufacturerid
+			LEFT JOIN stck_groups g ON g.id = p.groupid
+			LEFT JOIN stck_types t ON t.id = p.typeid
+			LEFT JOIN taxes tx ON tx.id = p.taxid
+			LEFT JOIN users u ON u.id = p.creatorid
+			LEFT JOIN stck_quantities q ON q.id = p.quantityid
+			LEFT JOIN stck_stock s ON s.productid = p.id
+			WHERE p.ean = ? AND s.sold = 0", array($ean))) {
+				$pi['modifiedby'] = $this->LMS->GetUserName($pi['modid']);
+				return $pi;
+		}
+	}
+
 	/* STOCK */
 
 	function StockSell($number, $stockid, $price, $date) {

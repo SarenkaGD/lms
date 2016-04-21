@@ -11,18 +11,18 @@ if (isset($_POST['productadd'])) {
 	$productadd = $_POST['productadd'];
 
 	if ($productadd['name'] == '')
-		$error['name'] = trans('Manufacturer must have a name!');
+		$error['name'] = trans('Product must have a name!');
 	
+	if ($LMSST->ProductGetInfoByEAN($productadd['ean']))
+		$error['ean'] = trans('EAN already exists!');
+
 	if (!$error) {
 		if ($id = $LMSST->ProductAdd($productadd)) {
 			$SMARTY->assign('success', 1);
 			if(!isset($productadd['reuse']) && !$layout['popup']) {
 				$SESSION->redirect('?m=stckproductinfo&id='.$id);
 			} 
-		} else {
-			$error['name'] = trans('Manufacturer already exists in database!');
 		}
-
 	}
 }
 
