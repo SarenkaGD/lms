@@ -73,7 +73,7 @@
 			<B>{t}Manufacturer:{/t}</B>
 		</TD>
 		<TD CLASS="fright">
-			<SELECT SIZE="1" NAME="productadd[manufacturerid]" {tip text="Select manufaturer" trigger="manufacturerid"}>
+			<SELECT SIZE="1" NAME="productadd[manufacturerid]" {tip text="Select manufacturer" trigger="manufacturerid"}>
 				{foreach item=manufacturer from=$manufacturerslist}
 					<OPTION VALUE="{$manufacturer.id}"{if $manufacturer.id == $productadd.maunfacturerid} selected{/if}>{$manufacturer.name}</OPTION>
 				{/foreach}

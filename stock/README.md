@@ -17,7 +17,6 @@ Znane problemy:
 - brak obs³ugi pozycji o krotno¶ci > 1 w ramach jedenej pozycji magazynowej
 
 TODO:
-- mo¿liwo¶æ dodania producenta i grupy z poziomu dodawania nowej pozycji magazynowej
 - przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokumentu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
 - kompletacja!
 
