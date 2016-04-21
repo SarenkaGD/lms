@@ -386,13 +386,24 @@ class LMSStck {
 				break;
 		}
 		
-		if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment, g.*,
+		/*if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment, g.*,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_groups g
 			LEFT JOIN stck_stock s ON s.groupid = g.id
 			WHERE s.sold = 0'
 			.($start ? ' AND UPPER(g.name) LIKE \''.$start.'%\' ' : '')
 			.' GROUP BY (g.id)'
+			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {*/
+		if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment, g.*, sij.valuenet, sij.valuegross, sij.count
+			FROM stck_groups g
+			LEFT JOIN (
+				SELECT COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count, s.groupid
+		        	FROM stck_stock s
+				WHERE s.sold = 0
+				GROUP BY(s.groupid)
+			) AS sij ON sij.groupid = g.id
+			WHERE 1'
+			.($start ? ' AND UPPER(g.name) LIKE \''.$start.'%\' ' : '')
 			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {
 				$ggl['total'] = sizeof($ggl);
 				$ggl['order'] = $order;
