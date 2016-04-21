@@ -106,4 +106,5 @@ $_LANG['Enter EAN, serial number, product number or product name to check buy pr
 $_LANG['Enter serial number to check warranty status'] = 'Podaj numer seryjny by sprawdzić status gwarancji';
 $_LANG['Unable to recover invoice - stock already sold!'] = 'Brak możliwości przywrócenia faktury - towar sprzedany!';
 $_LANG['EAN already exists!'] = 'EAN już istnieje!';
+$_LANG['Group with this name already exists!'] = 'Grupa o tej nazwie już istnieje!';
 ?>
