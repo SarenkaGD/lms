@@ -19,7 +19,7 @@
 				<TR>
 					<TD style="padding: 3px;">
 						{foreach item=i from='A'|@range:'Z'}
-							<a href="?m=stckmanufacturerlist&amp;start={$i}" style="margin-right: 0.5%; padding: 2px 4px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; border: 1px solid #800000;" class="{if $listdata.start == $i}light{else}dark{/if}">{if $listdata.start == $i}<b>{/if}{$i}{if $listdata.start == $i}</b>{/if}</a> 
+							<a href="?m=stckmanufacturerlist&amp;s={$i}" style="margin-right: 0.5%; padding: 2px 4px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; border: 1px solid #800000;" class="{if $listdata.state == $i}light{else}dark{/if}">{if $listdata.state == $i}<b>{/if}{$i}{if $listdata.state == $i}</b>{/if}</a> 
 						{/foreach}
 					</TD>
 				</TR>

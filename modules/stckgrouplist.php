@@ -4,15 +4,10 @@ function check($str){
 	return ($c>=ord('A') && $c<=ord('Z'));  // it is a single character between a and z
 }
 
-if (!check($_GET['start']))
-	$listdata['start'] = $listdata['state'] = NULL;
+if (!check($_GET['s']))
+	$listdata['state'] = NULL;
 else
-	$listdata['start'] = $listdata['state'] = $_GET['start'];
-
-if (isset($_GET['s']) && !check($_GET['s']))
-	$listdata['start'] = $listdata['state'] = NULL;
-else
-	$listdata['start'] = $listdata['state'] = $_GET['s'];
+	$listdata['state'] = $_GET['s'];
 	
 
 $layout['pagetitle'] = trans('Product groups');
@@ -24,7 +19,7 @@ else
 
 $SESSION->save('sglo', $o);
 
-$grouplist = $LMSST->GroupGetList($o, $listdata['start']);
+$grouplist = $LMSST->GroupGetList($o, $listdata['state']);
 $listdata['total'] = $grouplist['total'];
 $listdata['direction'] = $grouplist['direction'];
 $listdata['order'] = $grouplist['order'];
