@@ -185,7 +185,7 @@ if ($script_service)
 // notes - new debit note notify
 // warnings - send message to customers with warning flag set for node
 // messages - send message to customers which have awaiting www messages
-// timetable - timetable notify
+// timetable - send event notify to users
 $notifications = array();
 foreach (array('contracts', 'debtors', 'reminder', 'invoices', 'notes', 'warnings', 'messages', 'timetable') as $type) {
 	$notifications[$type] = array();
@@ -304,7 +304,7 @@ function send_mail($msgid, $cid, $rmail, $rname, $subject, $body) {
 	$msgitemid = $DB->GetLastInsertID('messageitems');
 
 	$headers = array(
-		'From' => empty($dns_email) ? $mail_from : $dsn_email,
+		'From' => empty($dsn_email) ? $mail_from : $dsn_email,
 		'To' => qp_encode($rname) . " <$rmail>",
 		'Subject' => $subject,
 		'Reply-To' => empty($reply_email) ? $mail_from : $reply_email,
@@ -378,62 +378,84 @@ function send_sms_to_user($phone, $data) {
 
 // timetable
 if (empty($types) || in_array('timetable', $types)) {
-    $days = $notifications['timetable']['days'];
-    $users = $DB->GetAll("SELECT id, name, email FROM users WHERE deleted = 0 AND email != '' AND ntype & 1 = 1 AND access = 1");
-    $date = strtotime(date("Y/m/d"));
-    $subject = trans("LMS timetable for today");
-    $today = date("Y/m/d");
-    foreach ($users as $usr){
-        $counter = 0;
-        $contents = '';
-        $recipient = $usr['email'];
-        $events = $DB->GetAll("SELECT DISTINCT title, description, begintime, endtime,
-            customerid, UPPER(lastname) AS lastname, customers.name AS name, street, city, zip
-            FROM events
-            LEFT JOIN customers ON (customers.id = customerid)
-            LEFT JOIN eventassignments ON (events.id = eventassignments.eventid)
-            WHERE date=? AND
-            ((private=1 AND (events.userid=? OR eventassignments.userid=?)) OR
-            (private=0 AND eventassignments.userid=?) OR
-            (private=0 AND eventassignments.userid IS NULL))
-            ORDER BY begintime", array($date, $usr['id'], $usr['id'], $usr['id']));
+	$days = $notifications['timetable']['days'];
+	$users = $DB->GetAll("SELECT id, name, (CASE WHEN ntype & ? > 0 THEN email ELSE '' END) AS email,
+			(CASE WHEN ntype & ? > 0 THEN phone ELSE '' END) AS phone FROM users
+		WHERE deleted = 0 AND access = 1 AND ntype & ? > 0 AND (email <> '' OR phone <> '')",
+		array(MSG_MAIL, MSG_SMS, (MSG_MAIL | MSG_SMS)));
+	$date = mktime(0, 0, 0);
+	$subject = $notifications['timetable']['subject'];
+	$today = date("Y/m/d");
+	foreach ($users as $user) {
+		if (empty($user['email']) && empty($user['phone']))
+			continue;
 
-        foreach ($events as $event){
-            $begintime = sprintf("%02d:%02d", floor($event['begintime']/100), $event['begintime']%100);
-            $contents .= trans("Timetable for today: ").$today.PHP_EOL;
-            $contents .= "----------------------------------------------------------------------------".PHP_EOL;
-            $contents .= trans("Time:")."\t".$begintime;
-            if($event['endtime'] != 0 && $event['begintime'] != $event['endtime']){
-                $endtime = sprintf("%02d:%02d", floor($event['endtime']/100), $event['endtime']%100);
-                $contents .= " - " .$endtime;
-            }
-            $contents .= PHP_EOL;
-            $contents .= trans('Title:')."\t".$event['title'].PHP_EOL;
-            $contents .= trans('Description:')."\t".$event['description'].PHP_EOL;
-            if($event['customerid']){
-                $contents .= trans('Customer:')."\t".$event['lastname']." ".$event['name'].", ".$event['zip']." ".$event['city']." ".$event['street'].PHP_EOL;
-                $contents .= trans('customer contacts: ').PHP_EOL;
-                $contacts = $DB->GetAll("SELECT contact FROM customercontacts WHERE customerid = ? AND (type & ?) = ? ",array($event['customerid'], (CONTACT_MOBILE or CONTACT_FAX or CONTACT_LANDLINE or CONTACT_DISABLED), (CONTACT_MOBILE or CONTACT_FAX or CONTACT_LANDLINE)));
-                foreach ($contacts as $phone){
-                    $contents .= $phone['contact'].PHP_EOL;
-                }
-            }
-            $contents .= "----------------------------------------------------------------------------".PHP_EOL;
+		$contents = '';
+		$events = $DB->GetAll("SELECT DISTINCT title, description, begintime, endtime,
+			customerid, UPPER(lastname) AS lastname, customers.name AS name, street, city, zip
+			FROM events
+			LEFT JOIN customers ON (customers.id = customerid)
+			LEFT JOIN eventassignments ON (events.id = eventassignments.eventid)
+			WHERE date=? AND
+			((private=1 AND (events.userid=? OR eventassignments.userid=?)) OR
+			(private=0 AND eventassignments.userid=?) OR
+			(private=0 AND eventassignments.userid IS NULL))
+			ORDER BY begintime", array($date, $user['id'], $user['id'], $user['id']));
 
-            $counter++;
-        }
+		if (!empty($events)) {
+			$mail_contents = '';
+			$sms_contents = '';
+			foreach ($events as $event) {
+				$begintime = sprintf("%02d:%02d", floor($event['begintime'] / 100), $event['begintime'] % 100);
+				$mail_contents .= trans("Timetable for today") . ': '  . $today . PHP_EOL;
+				$sms_contents .= trans("Timetable for today") . ': '  . $today . ', ';
+				$mail_contents .= "----------------------------------------------------------------------------".PHP_EOL;
+				$mail_contents .= trans("Time:") . "\t" . $begintime;
+				$sms_contents .= trans("Time:") . " " . $begintime;
+				if ($event['endtime'] != 0 && $event['begintime'] != $event['endtime']) {
+					$endtime = sprintf("%02d:%02d", floor($event['endtime'] / 100), $event['endtime'] % 100);
+					$mail_contents .= ' - ' . $endtime;
+					$sms_contents .= ' - ' . $endtime;
+				}
+				$mail_contents .= PHP_EOL;
+				$sms_contents .= ': ';
+				$mail_contents .= trans('Title:') . "\t" . $event['title'] . PHP_EOL;
+				$sms_contents .= $event['title'];
+				$mail_contents .= trans('Description:') . "\t" . $event['description'] . PHP_EOL;
+				$sms_contents .=  ' (' . $event['description'] . ')';
+				if ($event['customerid']) {
+					$mail_contents .= trans('Customer:') . "\t" . $event['lastname'] . " " . $event['name']
+						. ", " . $event['zip'] . " " . $event['city'] . " " . $event['street'] . PHP_EOL;
+					$sms_contents .= trans('Customer:') . ' ' . $event['lastname'] . " " . $event['name']
+						. ", " . $event['zip'] . " " . $event['city'] . " " . $event['street'];
+					$contacts = $DB->GetCol("SELECT contact FROM customercontacts
+						WHERE customerid = ? AND (type & ?) = 0 AND (type & ?) > 0",
+						array($event['customerid'], CONTACT_DISABLED, (CONTACT_MOBILE | CONTACT_FAX | CONTACT_LANDLINE)));
+					if (!empty($contacts)) {
+						$mail_contents .= trans('customer contacts: ') . PHP_EOL . implode(', ', $contacts) . PHP_EOL;
+						$sms_contents .= ' - ' . implode(', ', $contacts);
+					}
+				}
+				$mail_contents .= "----------------------------------------------------------------------------" . PHP_EOL;
+				$sms_contents .= ' ';
+			}
 
-        if($counter){
-            $recipient_name = $row['lastname'] . ' ' . $row['name'];
-            $recipient_mails = ($debug_email ? explode(',', $debug_email) : (!empty($usr['email']) ? explode(',', trim($usr['email'])) : null));
-            if(!$quiet){
-            	echo trans('User').": ".$usr['name']." id: ".$usr['id']." ".trans('have $a events',$counter).PHP_EOL;
-            }
-            if(!$debug){
-                send_mail_to_user($usr['email'], $usr['name'], $subject, $contents);
-            }
-        }
-    }
+			if (!empty($user['email'])) {
+				$recipient_name = $row['lastname'] . ' ' . $row['name'];
+				$recipient_mails = ($debug_email ? explode(',', $debug_email) : (!empty($user['email']) ? explode(',', trim($user['email'])) : null));
+				if (!$quiet)
+					printf("[timetable/mail] %s (%04d): %s" . PHP_EOL, $user['name'], $user['id'], $user['email']);
+				if (!$debug)
+					send_mail_to_user($user['email'], $user['name'], $subject, $mail_contents);
+			}
+			if (!empty($user['sms'])) {
+				if (!$quiet)
+					printf("[timetable/sms] %s (%04d): %s" . PHP_EOL, $user['name'], $user['id'], $user['phone']);
+				if (!$debug)
+					send_sms_to_user($user['phone'], $sms_contents);
+			}
+		}
+	}
 }
 
 // contracts
