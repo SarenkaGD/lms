@@ -5,6 +5,11 @@ version ?.??.?? (????-??-??):
   - added support for DSN and MDN in lms-notify.php script [chilan]
   - smarty installation is provided by composer from now [chilan]
   - added support for sms notifications in timetable type [chilan]
+  - show event summary for all found events at bottom [chilan]
+  - unification of cash import code as preparation for cashimport backend
+    scripts' usage [chilan]
+  - added bin/lms-cashimport.php script as universal backend for
+    loading cash import file contents from specified files [chilan]
 
 version 1.11.20 (2016-04-19):
 
