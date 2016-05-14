@@ -918,6 +918,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 					FROM customercontacts
 					WHERE customerid = ? AND type & ? > 0 ORDER BY id',
 					array($result['id'], CONTACT_BANKACCOUNT));
+			$result['sendinvoices'] = false;
 
 			foreach (array('contacts', 'emails', 'accounts') as $ctype)
 				if (is_array($result[$ctype]))
@@ -927,9 +928,15 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 							if ($row['type'] & $tidx)
 								$types[] = $tname;
 
+						if ($ctype == 'emails' && (($row['type'] & (CONTACT_INVOICES | CONTACT_DISABLED)) == CONTACT_INVOICES))
+							$result['sendinvoices'] = true;
+
 						if ($types)
 							$result[$ctype][$idx]['typestr'] = implode('/', $types);
 					}
+
+			if (empty($result['invoicenotice']))
+				$result['sendinvoices'] = false;
 
             return $result;
         } else
