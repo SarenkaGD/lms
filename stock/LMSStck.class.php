@@ -32,6 +32,14 @@ class LMSStck {
 
 	private function UpgradeDB($dbver = STCK_DBVERSION, $stckdir = NULL) {
 		$lastupgrade = NULL;
+		if ($lmsdbv = $this->DB->GetOne('SELECT keyvalue
+			FROM dbinfo
+			WHERE keytype = ?', array('dbversion'))) {
+			if ($lmsdbv < '2016033100')
+				return '2016040000';
+		} else {
+			die('Unknown LMSDB version!');
+		}
 		if ($dbversion = $this->DB->GetOne('SELECT keyvalue
 			FROM stck_dbinfo
 			WHERE keytype = ?', array('dbversion'))) {
@@ -253,20 +261,28 @@ class LMSStck {
 	}
 
 	function ManufacturerGetInfoById($id) {
-		if ($mi = $this->DB->GetRow("SELECT m.*, u.name as createdby,
+		if ($mi = $this->DB->GetRow("SELECT m.*, u1.name as createdby, u2.name as modifiedby,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_manufacturers m
-			LEFT JOIN users u ON u.id = m.creatorid
+			LEFT JOIN users u1 ON u2.id = m.creatorid
+			LEFT JOIN users u2 ON u2.id = m.creatorid
 			LEFT JOIN stck_products p ON p.manufacturerid = m.id
 			LEFT JOIN stck_stock s ON s.productid = p.id
 			WHERE m.id = ? AND u.id = m.creatorid AND s.sold = 0", array($id))) {
-			
-/*			$mi['count'] = $this->ManufacturerStockCount($id);
-			$mi['value'] = $this->ManufacturerStockValue($id);
-*/			$mi['modifiedby'] = $this->LMS->GetUserName($mi['modid']);
+			//$mi['modifiedby'] = $this->LMS->GetUserName($mi['modid']);
 			return $mi;
 		}
 	}
+
+	function ManufacturerGetIdByName($name) {
+		if ($mi = $this->DB->GetRow("SELECT m.id
+			FROM stck_manufacturers m
+			WHERE UPPER(m.name) = UPPER(?)", array($name))) {
+			return $mi;
+		}
+		return false;
+	}
+
 
 	function ManufacturerStockCount($id) {
 		return $this->DB->GetOne("SELECT COUNT(s.id)
@@ -323,18 +339,25 @@ class LMSStck {
 	}
 
 	function GroupGetInfoById($id) {
-		if ($gi = $this->DB->GetRow("SELECT g.*, u.name as createdby, q.name as quantityname,
+		if ($gi = $this->DB->GetRow("SELECT g.*, u1.name as createdby, u2.name as modifiedby,
+			q.name as quantityname,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_groups g
-			LEFT JOIN users u ON u.id = g.creatorid
+			LEFT JOIN users u1 ON u1.id = g.creatorid
+			LEFT JOIN users u2 ON u2.id = g.modid
 			LEFT JOIN stck_quantities q ON q.id = g.quantityid
 			LEFT JOIN stck_stock s ON s.groupid = g.id
 			WHERE g.id = ? AND s.sold = 0", array($id))) {
-//			$gi['count'] = $this->GroupStockCount($id);
-//			$gi['value'] = $this->GroupStockValue($id);
-			$gi['modifiedby'] = $this->LMS->GetUserName($gi['modid']);
 			return $gi;
 		}
+	}
+
+	function GroupGetIdByName($name) {
+		if ($gi = $this->DB->GetRow("SELECT g.id
+			FROM stck_groups g
+			WHERE UPPER(g.name) = UPPER(?)", array($name)))
+			return $gi;
+		return false;
 	}
 
 	function GroupDel($id) {
@@ -698,6 +721,14 @@ class LMSStck {
 				$pi['modifiedby'] = $this->LMS->GetUserName($pi['modid']);
 				return $pi;
 		}
+	}
+
+	public function ProductGetIdByName($name, $mid) {
+		if ($pi = $this->DB->GetRow("SELECT p.id
+			FROM stck_products p
+			WHERE UPPER(p.name) = UPPER(?) AND p.manufacturerid = ?", array($name, $mid)))
+			return $pi;
+		return false;
 	}
 
 	/* STOCK */

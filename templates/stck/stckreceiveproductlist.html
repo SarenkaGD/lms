@@ -164,6 +164,89 @@
 		</TD>
 	</TR>
 </TABLE>
+<form enctype="multipart/form-data" name="receivenotefile" method="post" action="?m=stckreceiveproductlist" id="receivenotefile">
+<TABLE CELLPADDING="3" width="100%" style="margin-top: 10px;">
+<tr class="dark" style="text-align: center;">
+        <td class="fall" colspan="5"><b>{t}File upload{/t} - <a target="_blank" href="/stock/import.csv">{t}Example{/t}</a></b></td>
+</tr>
+<tr class="dark">
+        <td class="fleftu" style="width: 1%;">{t}Warehouse{/t}</td>
+        <td class="fbt" style="width: 5%;">{t}Tax:{/t}</td>
+        <td class="fbt">{t}File{/t}</td>
+	<td colspan="2" class="frightu"></td>
+</td>
+<tr>
+        <TD class="fleftu">
+                <select name="receivenote[product_tmp][warehouse]" {tip text="Select warehouse" trigger="warehouse_file"}>
+                {foreach item=wh from=$warehouses}
+                        <option value="{$wh.id}"{if $wh.def} selected{/if}>{$wh.name}</option>
+                {/foreach}
+                </select>
+        </TD>
+        <td align="center" class="fbt">
+                <SELECT size="1" name="receivenote[product_tmp][taxid]" {tip text="Select Tax rate"}>
+                        {foreach item=tax from=$taxeslist}
+                        <OPTION value="{$tax.id}"{if $tax.value == $_config.phpui.default_taxrate} selected{/if}>{$tax.label}</OPTION>
+                        {/foreach}
+                </SELECT>
+        </td>
+	<td align="left" class="fbt">
+		<input type="checkbox" name="receivenote[product_tmp][create_m]" id="create_m"> - <label for="create_m">{t}automatically create manufacturers{/t}</label>
+	</td>
+	<td align="left" class="fbt">
+		<input type="checkbox" name="receivenote[product_tmp][create_p]" id="create_p"> - <label for="create_p">{t}automatically create products{/t}</label>
+	</td>
+        <td class="frightu"><input type="file" name="receivenote[file]" {tip trigger="file"}></td>
+</tr>
+<TR CLASS="LIGHT">
+        <TD width="100%" CLASS="fbottomu" COLSPAN="5" align="right">
+                <A HREF="javascript:document.receivenotefile.submit();" accesskey="s">{t}Add{/t} <IMG SRC="img/save.gif" ALT=""></A>
+        </TD>
+</TR>
+</TABLE>
+</form>
+<TABLE CELLPADDING="3" width="100%" style="margin-top: 10px;">
+<tr class="dark" style="text-align: center;">
+<td class="fleftu">{t}Warehouse{/t}</td>
+<td class="fbt">{t}Product{/t}</td>
+<td class="fbt">{t}Warranty:{/t}</td>
+<td class="fbt">{t}Serial number:{/t}</td>
+<!--<td class="fbt">{t}Packaging:{/t}</td>-->
+<td class="fbt">{t}Net Value:{/t}</td>
+<td class="fbt">{t}Tax:{/t}</td>
+<td class="fbt">{t}Gross Value:{/t}</td>
+</tr>
+{cycle values="light,lucid" print=false}
+{foreach $receivenote.product_tmp as $p2}
+<TR class="{cycle}" onmouseover="addClass(this, 'highlight')" onmouseout="removeClass(this, 'highlight')">
+        <TD class="fleft" align="center">{$p2.warehousename}</TD>
+        <TD>{$p2.product}</TD>
+        <TD align="right">{$p2.warranty}</TD>
+        <TD align="right">{$p2.serial}</TD>
+        <TD align="right">{$p2.price.net|money_format}</TD>
+        <TD align="right">{$p2.price.tax}</TD>
+        <TD align="right" class="fright">{$p2.price.gross|money_format}</TD>
+</TR>
+{/foreach}
+<TR CLASS="light">
+        <TD COLSPAN="4" WIDTH="70%" CLASS="fleftu" ALIGN="right">
+                <B>{t}Total:{/t} {$p2@total|default:"0"}</B>
+        </TD>
+        <TD CLASS="ftop" align="right">
+                <B>{$receivenote.doc_tmp.net|default:"0"|money_format}</B>
+        </TD>
+        <TD CLASS="ftop">&nbsp;</TD>
+        <TD CLASS="frightu" ALIGN="right">
+                <B>{$receivenote.doc_tmp.gross|default:"0"|money_format}</B>
+        </TD>
+</TR>
+<TR>
+        <TD WIDTH="99%" COLSPAN="9" CLASS="fleftu frightu" ALIGN="right">
+                <A href="?m=stckreceiveproductlist&amp;actiontmp=save" onClick="if(confirm('{t}Are you sure that you want to add these positions receive note?{/t}')) { return true; } else { return false; } ">{t}Submit{/t} <img src="img/save.gif" alt=""></A>
+                <A href="?m=stckreceiveproductlist&amp;actiontmp=cancel" onClick="if(confirm('{t}Are you sure that you want to cancel import?{/t}')) { return true; } else { return false; } ">{t}Cancel{/t} <img src="img/cancel.gif" alt=""></A>
+        </TD>
+</TR>
+</TABLE>
 <SCRIPT type="text/javascript">
 <!--
 new AutoSuggest(document.getElementById('receivenote'),document.getElementById('pinput'),'?m=quicksearch&ajax=1&mode=product&what=',1);
