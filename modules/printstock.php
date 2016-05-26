@@ -26,6 +26,8 @@
 
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 
+$SMARTY->assign('type', $type);
+
 switch($type)
 {
 	case 'inventory':

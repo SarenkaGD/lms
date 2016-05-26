@@ -123,9 +123,10 @@
 		<td class="frightu"></td>
 	</tr>
 {cycle values="light,lucid" print=false}
-{foreach $receivenote.product as $p}
+{foreach $receivenote.product as $p name=p}
 	<TR class="{cycle}" onmouseover="addClass(this, 'highlight')" onmouseout="removeClass(this, 'highlight')">
-		<TD class="fleft" align="center">{$p.warehousename}</TD>
+		<TD class="fleft" align="right">{$smarty.foreach.p.iteration}.</TD>
+		<TD align="center">{$p.warehousename}</TD>
 		<TD>{$p.product}</TD>
 		<TD align="right">{$p.warranty}</TD>
 		<TD align="right">
@@ -145,7 +146,7 @@
 	</TR>
 {/foreach}
 	<TR CLASS="light">
-		<TD COLSPAN="5" WIDTH="70%" CLASS="fleftu" ALIGN="right">
+		<TD COLSPAN="6" WIDTH="70%" CLASS="fleftu" ALIGN="right">
 			<B>{t}Total:{/t} {$p@total|default:"0"}</B>
 		</TD>
 		<TD CLASS="ftop" align="right">
@@ -207,7 +208,8 @@
 </form>
 <TABLE CELLPADDING="3" width="100%" style="margin-top: 10px;">
 <tr class="dark" style="text-align: center;">
-<td class="fleftu">{t}Warehouse{/t}</td>
+<td class="fleftu"></td>
+<td class="fbt">{t}Warehouse{/t}</td>
 <td class="fbt">{t}Product{/t}</td>
 <td class="fbt">{t}Warranty:{/t}</td>
 <td class="fbt">{t}Serial number:{/t}</td>
@@ -217,10 +219,11 @@
 <td class="fbt">{t}Gross Value:{/t}</td>
 </tr>
 {cycle values="light,lucid" print=false}
-{foreach $receivenote.product_tmp as $p2}
+{foreach $receivenote.product_tmp as $p2 name=p2}
 <TR class="{cycle}" onmouseover="addClass(this, 'highlight')" onmouseout="removeClass(this, 'highlight')">
-        <TD class="fleft" align="center">{$p2.warehousename}</TD>
-        <TD{if $p2.newp} class="alert" {tip text="{t}New product{/t}"}{/if}>{$p2.product}</TD>
+        <TD class="fleft" align="right">{$smarty.foreach.p2.iteration}.</TD>
+        <TD align="center">{$p2.warehousename}</TD>
+	<TD{if $p2.newp} class="alert" {tip text="{t}New product{/t}"}{/if}>{$p2.product}</TD>
         <TD align="right">{$p2.warranty}</TD>
         <TD align="right">{$p2.serial}</TD>
         <TD align="right">{$p2.price.net|money_format}</TD>
@@ -229,7 +232,7 @@
 </TR>
 {/foreach}
 <TR CLASS="light">
-        <TD COLSPAN="4" WIDTH="70%" CLASS="fleftu" ALIGN="right">
+        <TD COLSPAN="5" WIDTH="70%" CLASS="fleftu" ALIGN="right">
                 <B>{t}Total:{/t} {$p2@total|default:"0"}</B>
         </TD>
         <TD CLASS="ftop" align="right">

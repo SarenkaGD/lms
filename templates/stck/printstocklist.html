@@ -36,9 +36,9 @@
 		<TD CLASS="HEAD" ALIGN="CENTER">
 			{t}In stock:{/t}
 		</TD>
-		<TD CLASS="HEAD" ALIGN="CENTER">
+		{if $type != 'brep'}<TD CLASS="HEAD" ALIGN="CENTER">
 			{t}Price buy net:{/t}
-		</TD>
+		</TD>{/if}
 		<TD CLASS="HEAD" ALIGN="CENTER">
 			{t}Net value{/t}:
 		</TD>
@@ -61,9 +61,9 @@
 		<TD ALIGN="CENTER">
 			{$productlist[p].count}
 		</TD>
-		<TD ALIGN="RIGHT" NOWRAP>
+		{if $type != 'brep'}<TD ALIGN="RIGHT" NOWRAP>
 			{$productlist[p].pricebuynet|money_format}
-		</TD>
+		</TD>{/if}
 		<TD ALIGN="RIGHT" NOWRAP>
 			{$productlist[p].valuenet|money_format}
 		</TD>
