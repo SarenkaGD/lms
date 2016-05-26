@@ -220,7 +220,7 @@
 {foreach $receivenote.product_tmp as $p2}
 <TR class="{cycle}" onmouseover="addClass(this, 'highlight')" onmouseout="removeClass(this, 'highlight')">
         <TD class="fleft" align="center">{$p2.warehousename}</TD>
-        <TD>{$p2.product}</TD>
+        <TD{if $p2.newp} class="alert" {tip text="{t}New product{/t}"}{/if}>{$p2.product}</TD>
         <TD align="right">{$p2.warranty}</TD>
         <TD align="right">{$p2.serial}</TD>
         <TD align="right">{$p2.price.net|money_format}</TD>

@@ -113,6 +113,10 @@ if (isset($_POST['receivenote']['product']) && !isset($_GET['action'])) {
 			$receivenote['product_tmp'][$k]['serial'] = strtoupper($receivenote['product_tmp'][$k]['serial']);
 			$receivenote['product_tmp'][$k]['warehouse'] = $product_tmp['warehouse'];
 			$receivenote['product_tmp'][$k]['warehousename'] = $whname;
+			$receivenote['product_tmp'][$k]['model'] = trim($receivenote['product_tmp'][$k]['model']);
+                        $receivenote['product_tmp'][$k]['config'] = trim($receivenote['product_tmp'][$k]['config']);
+                        $receivenote['product_tmp'][$k]['manufacturer'] = trim($receivenote['product_tmp'][$k]['manufacturer']);
+                        $receivenote['product_tmp'][$k]['group'] = trim($receivenote['product_tmp'][$k]['group']);
 			$receivenote['product_tmp'][$k]['name'] = $receivenote['product_tmp'][$k]['model'].' '.$receivenote['product_tmp'][$k]['config'];
 			$receivenote['product_tmp'][$k]['product'] = $receivenote['product_tmp'][$k]['manufacturer'].' '.$receivenote['product_tmp'][$k]['name'];
 			$price = $receivenote['product_tmp'][$k]['price'];
@@ -158,11 +162,14 @@ if (isset($_POST['receivenote']['product']) && !isset($_GET['action'])) {
 
 			if ($q = $LMSST->ProductGetIdByName($receivenote['product_tmp'][$k]['name'], $receivenote['product_tmp'][$k]['manufacturerid'])) {
 				$receivenote['product_tmp'][$k]['pid'] = $q['id'];
+				$receivenote['product_tmp'][$k]['newp'] = false;
 			} elseif ($product_tmp['create_p']) {
 				if (!$receivenote['product_tmp'][$k]['pid'] = $LMSST->ProductAdd($receivenote['product_tmp'][$k])) {
 					$error['file'] = trans('Unable to add product: $a', $receivenote['product_tmp'][$k]['name']);
 					$receivenote['product_tmp'] = NULL;
 					break;
+				} else {
+					$receivenote['product_tmp'][$k]['newp'] = true;
 				}
 			} else {
 				$error['file'] = trans('Unknown product: $a', $receivenote['product_tmp'][$k]['name']);
