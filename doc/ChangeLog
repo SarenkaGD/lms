@@ -35,6 +35,16 @@ version ?.??.?? (????-??-??):
     decide if customer ten and ssn duplication warnings/errors are enabled [chilan]
   - workaround new mysql version restricted sql mode forbiding default value
     for text/blob fields [chilan]
+  - improved voip scripts and updated voip tables in database [kosa/chilan]
+  - improved voip billing list search [kosa/chilan]
+  - added check for maximum helpdesk subject length [kosa/chilan]
+  - allow plugins to modify button list in network device info [chilan]
+  - automatically move transfer form to separate page if there is no
+    enough space on tcpdf invoice page [chilan]
+  - invoices.header_image config variable controls pdf invoice logo placement [chilan]
+  - added backend script for voip emergency numbers database creation [chilan]
+  - added backend script which generates sip account and extensions configuration
+    files in asterisk format [chilan]
 
 version 1.11.20 (2016-04-19):
 
