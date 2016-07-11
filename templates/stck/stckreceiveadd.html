@@ -11,7 +11,7 @@
 			<B>{t}Supplier:{/t}</B>
 		</TD>
 		<TD CLASS="frightu">
-			<INPUT TYPE="TEXT" SIZE="60" NAME="receivenote[doc][supplier]" VALUE="{$receivenote.doc.supplier}" ID="sinput" {tip trigger="supplier" bold=1}> {if $receivenote.supplierid}({$receivenote.supplierid|string_format:"%04d"}){/if}
+			<INPUT TYPE="TEXT" SIZE="60" NAME="receivenote[doc][supplier]" VALUE="{$receivenote.doc.supplier|escape:"htmlall"}" ID="sinput" {tip trigger="supplier" bold=1}> {if $receivenote.supplierid}({$receivenote.supplierid|string_format:"%04d"}){/if}
 			<INPUT TYPE="HIDDEN" NAME="receivenote[doc][supplierid]" VALUE="{$receivenote.doc.supplierid}">
 			<INPUT DISABLED type="checkbox" name="receivenote[doc][internal]" id="receivenote[internal]" value="1"{if $receivenote.doc.internal} CHECKED{/if}><A HREF="javascript:checkElement('receivenote[internal]')"> {t}internal{/t}</A>
 		</TD>

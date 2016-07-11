@@ -33,6 +33,8 @@ if (isset($_POST['receivenote']['product']) && !isset($_GET['action'])) {
 
 	$itemdata['unitname'] = $LMSST->QuantityGetNameById($itemdata['unit']);
 
+	$itemdata['quantity'] = $LMSST->QuantityGetByProductId($itemdata['pid']);
+
 	if (!preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $itemdata['price']['net']) && !preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $itemdata['price']['gross']))
 		$error['price'] = trans('Wrong or missing price!');
 	

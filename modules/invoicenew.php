@@ -302,7 +302,7 @@ switch($action)
 		$DB->BeginTrans();
 		//Added for STCK by Sarenka MAXCON
 		if (ConfigHelper::getConfig('phpui.stock'))
-			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions','stck_cashassigments','stck_invoicecontentsassignments','stck_stock'));
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions','stck_cashassignments','stck_invoicecontentsassignments','stck_stock','stck_quantityleft'));
 		else
 			 $DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
 		//END STCK
@@ -342,7 +342,7 @@ switch($action)
 		if (ConfigHelper::getConfig('phpui.stock')) {
 			foreach($contents as $ct) {
 				if ($ct['stckproductid']) {
-					$LMSST->StockSell($iid, $ct['stckproductid'], $ct['valuebrutto'], $invoice['cdate']);
+					$LMSST->StockSell($iid, $ct['stckproductid'], $ct['valuebrutto'], $invoice['cdate'], $ct['count']);
 					}
 			}
 		}

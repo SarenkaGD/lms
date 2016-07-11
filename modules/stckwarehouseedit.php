@@ -15,7 +15,7 @@ $error = NULL;
 if (isset($_POST['warehouseedit'])) {
 	$warehouseedit = $_POST['warehouseedit'];
 	$warehouseedit['id'] = $_GET['id'];
-//print_r($warehouseedit);
+	
 	if ($warehouseedit['name'] == '')
 		$error['name'] = trans('Warehouse must have a name!');
 	

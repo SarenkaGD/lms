@@ -22,12 +22,25 @@ function pad(id) {
 	$('#pid').val(id);
 }
 
-function pinv(id, net, gross) {
+function pinv(id, net, gross, quant = false) {
 	pad(id);
 	if (gross > 0) {
+		$('input[name="valuenetto"]').val('');
 		$('input[name="valuebrutto"]').val(gross);
 	} else {
 		$('input[name="valuenetto"]').val(net);
+		$('input[name="valuebrutto"]').val('');
+	}
+	
+	if (quant > 0) {
+		$('input[name="count"]').change(function() {
+			var count = $('input[name="count"]').val();
+			if (count > quant) {
+				var a = confirm("There are only " + quant + " on stock. Are you sure?");
+				if (a != true)
+					$('input[name="count"]').val(quant);
+			}
+		});
 	}
 }
 

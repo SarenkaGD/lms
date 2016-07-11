@@ -122,4 +122,6 @@ $_LANG['automatically create manufacturers'] = 'automatycznie dodaj producentów
 $_LANG['automatically create products'] = 'automatycznie dodaj produkty';
 $_LANG['Unable to add product: $a'] = 'Błąd dodawania produktu: $a';
 $_LANG['Unable to add manufacturer: $a'] = 'Błąd dodawania producenta: $a';
+$_LANG['Commercial:'] = 'Handlowy:';
+$_LANG['Production:'] = 'Produkcyjny:';
 ?>

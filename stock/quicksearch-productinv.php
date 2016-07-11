@@ -2,12 +2,13 @@
 		$search = str_replace(' ', '%', $search);
 		$sql_search = $DB->Escape("%$search%");
 		if(isset($_GET['ajax'])) {
-			$candidates = $DB->GetAll("SELECT s.id, s.productid, s.serialnumber, s.pricebuynet, s.pricebuygross, s.bdate,
+			$candidates = $DB->GetAll("SELECT s.id, s.productid, s.serialnumber, s.pricebuynet, s.pricebuygross, s.bdate, p.quantity, ql.ql,
 				".$DB->Concat('m.name',"' '",'p.name')." as name, p.ean
 				FROM stck_stock s
 				LEFT JOIN stck_products p ON p.id = s.productid
 				LEFT JOIN stck_manufacturers m ON m.id = p.manufacturerid
 				LEFT JOIN stck_warehouses w ON s.warehouseid = w.id
+				LEFT JOIN stck_quantityleft ql ON s.id = ql.stockid
 				WHERE s.sold = 0 AND
 				(".(preg_match('/^[0-9]+$/', $search) ? 's.productid = '.intval($search).' OR ' : '')."
 				LOWER(".$DB->Concat('m.name',"' '",'p.name').") ?LIKE? LOWER(".$sql_search.")
@@ -34,7 +35,12 @@
 						if ($row['serialnumber'])
 							$desc = $desc." (S/N: ".$row['serialnumber'].")";
 
-						$actions[$row['id']] = 'javascript:pinv(\''.$row['id'].'\',\''.$row['pricebuynet'].'\',\''.$row['pricebuygross'].'\')';
+						if ($row['quantity'] > 1) {
+							$row['pricebuynet'] = str_replace(',', '.', round($row['pricebuynet']/$row['quantity'], 2));
+							$row['pricebuygross'] = str_replace(',', '.', round($row['pricebuygross']/$row['quantity'], 2));
+						}
+
+						$actions[$row['id']] = 'javascript:pinv(\''.$row['id'].'\',\''.$row['pricebuynet'].'\',\''.$row['pricebuygross'].'\', \''.$row['ql'].'\')';
 						$eglible[$row['id']] = escape_js(($row['deleted'] ? '<font class="blend">' : '')
 						.truncate_str($desc, 100).($row['deleted'] ? '</font>' : ''));
 

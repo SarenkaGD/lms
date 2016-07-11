@@ -202,15 +202,18 @@ class LMSStck {
 	}
 
 	function WarehouseEdit($we) {
-		$this->DB->Execute("UPDATE stck_warehouses SET name = ?, comment = ?, def = ?, moddate = ?NOW?, modid = ?, commerce = ?, deleted = 0 WHERE id = ?", array (
+		$this->DB->Execute("UPDATE stck_warehouses SET name = ?, comment = ?, def = ?, moddate = ?NOW?, modid = ?, commerce = ?, production = ?, deleted = 0 WHERE id = ?", array (
 			$we['name'],
 			$we['comment'],
 			$we['default'],
 			$this->AUTH->id,
 			$we['commerce'],
+			$we['production'],
 			$we['id']));
 		if ($we['default'])
 			$this->DB->Execute("UPDATE stck_warehouses SET def = 0 WHERE id != ?", array($we['id']));
+		if ($we['production'])
+			$this->DB->Execute("UPDATE stck_warehouses SET production = 0 WHERE id != ?", array($we['id']));
 		return $we['id'];
 	}
 
@@ -481,6 +484,10 @@ class LMSStck {
 		return $this->DB->GetOne("SELECT name FROM stck_quantities WHERE id = ?", array($id));
 	}
 
+	function QuantityGetByProductId($id) {
+		return $this->DB->GetOne("SELECT quantity FROM stck_products WHERE id = ?", array($id));
+	}
+
 	/* TYPES */
 
 	function TypeGetList($order='name,asc') {
@@ -733,9 +740,15 @@ class LMSStck {
 
 	/* STOCK */
 
-	function StockSell($number, $stockid, $price, $date) {
-		if ($this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, sold = 1, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $stockid)))
+	function StockSell($number, $stockid, $price, $date, $quantity = 1) {
+		global $error;
+		if ($quantity == 1) {
+			if ($this->DB->Execute("UPDATE stck_stock SET quitdocumentid = ?, pricesell = ?, leavedate = ?, sold = 1, moddate = ?NOW?, modid = ? WHERE id = ?", array($number, (string)$price, $date, $this->AUTH->id, $stockid)))
+				return true;
+		} else {
+			$this->DB->Execute("UPDATE stck_quantityleft SET ql = ql - ? WHERE stockid = ?", array($quantity, $stockid));
 			return true;
+		}
 		
 		return false;
 	}
@@ -752,6 +765,7 @@ class LMSStck {
 	}
 
 	function StockAdd($product, $doc = NULL, $bdate) {
+		$this->DB->BeginTrans();
 		if ($this->DB->Execute("INSERT INTO stck_stock(warehouseid, productid, supplierid, enterdocumentid, creationdate, bdate, creatorid, serialnumber, pricebuynet, taxid, pricebuygross, groupid, warranty) VALUES(?, ?, ?, ?, ?NOW?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
 			$product['warehouse'],
 			$product['pid'],
@@ -765,10 +779,16 @@ class LMSStck {
 			(string) str_replace(',','.', $product['price']['gross']),
 			$product['group'],
 			$product['warranty']
-			)))
-			return $this->DB->GetLastInsertID();
-		else
+			))) {
+			$sid = $this->DB->GetLastInsertID();
+			if ($product['quantity'] > 1)
+				$this->DB->Execute("INSERT INTO stck_quantityleft(stockid, quantityid, ql) VALUES(?, ?, ?)", array($sid, $product['unit'], $product['quantity']));
+			$this->DB->CommitTrans();
+			return $sid;
+		} else {
+			$this->DB->RollbackTrans();
 			return FALSE;
+		}
 	}
 
 	function StockPositionGetById($id) {
