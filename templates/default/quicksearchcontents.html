@@ -22,6 +22,7 @@
 <input class="blend" type="text" id="documentinput" name="qs[document]" value="" size="15" {tip text="Enter document number and press Enter"}>{/if}
 <script type="text/javascript">
 <!--
+<<<<<<< HEAD
 {if ConfigHelper::getConfig('phpui.quicksearch_customer')}
 	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('customerinput'), '?m=quicksearch&ajax=1&mode=customer&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 {/if}
@@ -43,5 +44,13 @@
 {if ConfigHelper::getConfig('phpui.quicksearch_stck_warranty}')}
 	new AutoSuggest(document.getElementById('quicksearch'),document.getElementById('stckwarrantyinput'),'?m=quicksearch&ajax=1&mode=productwarranty&what=',{ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 {/if}//-->
+=======
+	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('customerinput'), '?m=quicksearch&ajax=1&mode=customer&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit', 'true')});
+	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('nodeinput'), '?m=quicksearch&ajax=1&mode=node&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit', 'true')});
+	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('rtinput'), '?m=quicksearch&ajax=1&mode=ticket&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit', 'true')});
+	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('accountinput'), '?m=quicksearch&ajax=1&mode=account&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit', 'true')});
+	new AutoSuggest(document.getElementById('quicksearch'), document.getElementById('documentinput'), '?m=quicksearch&ajax=1&mode=document&what=', {ConfigHelper::getConfig('phpui.quicksearch_autosubmit', 'true')});
+//-->
+>>>>>>> 8be93af356821963ef3b0ffbe8e5a4742391d77b
 </script>
 {/block}

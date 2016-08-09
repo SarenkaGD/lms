@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 
 /*
@@ -214,15 +214,12 @@ $dayend = $daystart + 86399;
 $deadline = ConfigHelper::getConfig('payments.deadline', ConfigHelper::getConfig('invoices.paytime', 0));
 
 // Include required files (including sequence is important)
+require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'common.php');
 require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'language.php');
 include_once(LIB_DIR . DIRECTORY_SEPARATOR . 'definitions.php');
 require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'unstrip.php');
-require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'common.php');
 
-if (ConfigHelper::checkConfig('phpui.logging') && class_exists('SYSLOG'))
-	$SYSLOG = new SYSLOG($DB);
-else
-	$SYSLOG = null;
+$SYSLOG = SYSLOG::getInstance();
 
 // Initialize Session, Auth and LMS classes
 
@@ -267,6 +264,22 @@ function parse_customer_data($data, $row) {
 			array($row['id']));
 		$data = preg_replace("/\%abonament/", $saldo, $data);
 	}
+
+	if (preg_match("/\%last_10_in_a_table/", $data)) {
+		$last10 = $DB->GetAll("SELECT comment, value, time FROM cash WHERE
+			customerid = ? ORDER BY time DESC LIMIT 10", array($row['id']));
+		// ok, now we are going to rise up system's load
+		$l10 = "-----------+-----------+----------------------------------------------------\n";
+		foreach ($last10 as $row_s) {
+			$op_time = strftime( "%Y/%m/%d", $row_s['time']);
+			$op_amount = sprintf("%9.2f", $row_s['value']);
+			$for_what = sprintf("%-52s", $row_s['comment']);
+			$l10 = $l10 . "$op_time | $op_amount | $for_what\n";
+		}
+		$l10 = $l10."-----------+-----------+----------------------------------------------------\n";
+		$data = preg_replace("/\%last_10_in_a_table/", $l10, $data);
+	}
+
 	// invoices, debit notes
 	$data = preg_replace("/\%invoice/", $row['doc_number'], $data);
 	$data = preg_replace("/\%number/", $row['doc_number'], $data);
