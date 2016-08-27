@@ -29,12 +29,14 @@ if (!empty($_POST['marks'])) {
 	foreach ($_POST['marks'] as $id => $mark)
 		$marks[] = intval($mark);
 
-	if ($list = $DB->GetAll('SELECT c.filename, c.md5sum, c.contenttype
-		FROM documentcontents c
+	if ($list = $DB->GetCol('SELECT d.id FROM documentcontents c
 		JOIN documents d ON (d.id = c.docid)
 		JOIN docrights r ON (r.doctype = d.type)
 		WHERE c.docid IN ('.implode(',', $marks).')
 			AND r.userid = ? AND (r.rights & 1) = 1', array($AUTH->id))) {
+
+		$list = $DB->GetAll('SELECT filename, contenttype, md5sum FROM documentattachments
+			WHERE docid IN (' . implode(',', $list) . ')');
 		$ctype = $list[0]['contenttype'];
 
 		if (!preg_match('/^text/i', $ctype)) {
@@ -80,24 +82,35 @@ if (!empty($_POST['marks'])) {
 		}
 		die;
 	}
-} elseif($doc = $DB->GetRow('SELECT c.filename, c.md5sum, c.contenttype, d.id, d.number, d.cdate, d.type, n.template
-	FROM documentcontents c
-	JOIN documents d ON (d.id = c.docid)
+} elseif($doc = $DB->GetRow('SELECT d.id, d.number, d.cdate, d.type, n.template
+	FROM documents d
 	LEFT JOIN numberplans n ON (d.numberplanid = n.id)
 	JOIN docrights r ON (r.doctype = d.type)
-	WHERE c.docid = ? AND r.userid = ? AND (r.rights & 1) = 1', array($_GET['id'], $AUTH->id))) {
+	WHERE d.id = ? AND r.userid = ? AND (r.rights & 1) = 1', array($_GET['id'], $AUTH->id))) {
+
+	$docattachments = $DB->GetAllByKey('SELECT * FROM documentattachments WHERE docid = ?
+		ORDER BY main DESC', 'id', array($_GET['id']));
+	$attachmentid = intval($_GET['attachmentid']);
+	if ($attachmentid)
+		$docattach = $docattachments[$attachmentid];
+	else
+		$docattach = reset($docattachments);
+	$doc['md5sum'] = $docattach['md5sum'];
+	$doc['filename'] = $docattach['filename'];
+	$doc['contenttype'] = $docattach['contenttype'];
+
 	$docnumber = docnumber($doc['number'], $doc['template'], $doc['cdate']);
 	$filename = DOC_DIR . DIRECTORY_SEPARATOR . substr($doc['md5sum'],0,2) . DIRECTORY_SEPARATOR . $doc['md5sum'];
 	if (file_exists($filename)) {
 		$filename_pdf = DOC_DIR . DIRECTORY_SEPARATOR . substr($doc['md5sum'],0,2) . DIRECTORY_SEPARATOR . $doc['md5sum'].'.pdf';
-                if(file_exists($filename_pdf)){
-                        header('Content-type: application/pdf');
+		if (file_exists($filename_pdf)) {
+			header('Content-type: application/pdf');
 			header('Content-Disposition: inline; filename="' . $docnumber . '.pdf"');
 			header('Content-Transfer-Encoding: binary');
 			header('Content-Length: ' . filesize($filename_pdf));
 			header('Accept-Ranges: bytes');
 			readfile($filename_pdf);
-                } elseif ($doc['contenttype'] != 'pdf' && strtolower(ConfigHelper::getConfig('phpui.document_type')) == 'pdf') {
+		} elseif (preg_match('/html/i', $doc['contenttype']) && strtolower(ConfigHelper::getConfig('phpui.document_type')) == 'pdf') {
 			if($doc['type'] == DOC_CONTRACT) {
 				$subject = trans('Contract');
 				$title = trans('Contract No. $a', $docnumber);
@@ -114,10 +127,10 @@ if (!empty($_POST['marks'])) {
 			$htmlbuffer = ob_get_contents();
 			ob_end_clean();
 			$margins = explode(",", ConfigHelper::getConfig('phpui.document_margins', '10,5,15,5'));
-                        if(ConfigHelper::getConfig('phpui.cache_documents'))
-                                html2pdf($htmlbuffer, $subject, $title, $doc['type'], $doc['id'], 'P', $margins, ($_GET['save'] == 1) ? true : false, false, $doc['md5sum']);
-                        else
-                                html2pdf($htmlbuffer, $subject, $title, $doc['type'], $doc['id'], 'P', $margins, ($_GET['save'] == 1) ? true : false);
+			if (ConfigHelper::getConfig('phpui.cache_documents'))
+				html2pdf($htmlbuffer, $subject, $title, $doc['type'], $doc['id'], 'P', $margins, ($_GET['save'] == 1) ? true : false, false, $doc['md5sum']);
+			else
+				html2pdf($htmlbuffer, $subject, $title, $doc['type'], $doc['id'], 'P', $margins, ($_GET['save'] == 1) ? true : false);
 		} else {
 			header('Content-Type: '.$doc['contenttype']);
 

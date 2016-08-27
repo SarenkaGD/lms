@@ -281,23 +281,15 @@
 <!--
 	document.forms['editnode'].elements['nodeedit[name]'].focus();
 
-	function GenPasswd()
-	{
+	function GenPasswd() {
 		if(! confirm('{trans("Are you sure, you want to generate new password?")}'))
 			return;
 
-		var passwd = new Array();
-		var items = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 		var length = {ConfigHelper::getConfig('phpui.nodepassword_length', '16')};
 		if (length > 32) length = 32;
 
-		for (var i=0; i<length; i++)
-		{
-			n = Math.floor(Math.random() * items.length);
-			passwd[i] = items.substring(n, n+1);
-		}
-
-		document.forms['editnode'].elements['nodeedit[passwd]'].value = passwd.join("");
+		document.forms['editnode'].elements['nodeedit[passwd]'].value =
+			generate_random_string(length, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 	}
 
 	function newmac()
@@ -310,9 +302,12 @@
 		var newcell = newrow.insertCell(0);
 		newcell.style.width = '100%';
 		newcell.innerHTML = '<INPUT TYPE="TEXT" NAME="nodeedit[macs][' + nr + ']" VALUE=""'
-			+ ' onmouseover="popup(\'{trans("Enter MAC address")}\')" onmouseout="pophide()">'
+			+ ' title="{trans("Enter MAC address")}">'
 			+ '<a href="javascript: void(0);" onClick="return macchoosewin(document.editnode.elements[\'nodeedit[macs][' + nr + ']\']);"'
-			+ ' onmouseover="popup(\'{trans("Click to select MAC from the list")}\')" onmouseout="pophide()">&nbsp;&raquo;&raquo;&raquo;</A>';
+			+ ' title="{trans("Click to select MAC from the list")}">&nbsp;&raquo;&raquo;&raquo;</A>';
+		$(newcell).children("[title]").tooltip({
+			position: { my: "left top" }
+		});
 		macscountelem.value = parseInt(nr) + 1;
 	}
 

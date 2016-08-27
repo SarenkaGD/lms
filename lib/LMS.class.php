@@ -440,9 +440,9 @@ class LMS
         return $manager->GetCashByID($id);
     }
 
-	public function CashImportParseFile($filename, $contents, $patterns) {
+	public function CashImportParseFile($filename, $contents, $patterns, $quiet = true) {
 		$manager = $this->getCashManager();
-		return $manager->CashImportParseFile($filename, $contents, $patterns);
+		return $manager->CashImportParseFile($filename, $contents, $patterns, $quiet);
 	}
 
 	public function CashImportCommit() {
@@ -2228,6 +2228,16 @@ class LMS
         $manager = $this->getVoipAccountManager();
         return $manager->voipAccountUpdate($voipaccountdata);
     }
+    
+    public function getVoipBillings(array $params)
+    {
+    	$manager = $this->getVoipAccountManager();
+        return $manager->getVoipBillings($params);
+    }
+    
+	/**
+	 * End VoIP functions
+	 */
 
     public function GetCustomerVoipAccounts($id)
     {

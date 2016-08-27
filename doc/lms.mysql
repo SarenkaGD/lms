@@ -99,7 +99,6 @@ DROP TABLE IF EXISTS rtticketcategories;
 DROP TABLE IF EXISTS rtcategoryusers;
 DROP TABLE IF EXISTS rtcategories;
 DROP TABLE IF EXISTS rtrights;
-DROP TABLE IF EXISTS rtnotes;
 DROP TABLE IF EXISTS rtattachments;
 DROP TABLE IF EXISTS rtmessages;
 DROP TABLE IF EXISTS rttickets;
@@ -133,6 +132,7 @@ DROP TABLE IF EXISTS location_boroughs;
 DROP TABLE IF EXISTS location_districts;
 DROP TABLE IF EXISTS location_states;
 DROP TABLE IF EXISTS receiptcontents;
+DROP TABLE IF EXISTS documentattachments;
 DROP TABLE IF EXISTS documentcontents;
 DROP TABLE IF EXISTS documents;
 DROP TABLE IF EXISTS debitnotecontents;
@@ -424,18 +424,32 @@ CREATE TABLE documents (
 # Structure of table documentcontents
 #
 CREATE TABLE documentcontents (
-        docid int(11) DEFAULT '0' NOT NULL,
+	docid int(11) NOT NULL,
 	title text DEFAULT '' NOT NULL,
-        fromdate int(11) DEFAULT '0' NOT NULL,
+	fromdate int(11) DEFAULT '0' NOT NULL,
 	todate int(11) DEFAULT '0' NOT NULL,
-        filename varchar(255) DEFAULT '' NOT NULL,
-	contenttype varchar(255) DEFAULT '' NOT NULL,
-        md5sum varchar(32) DEFAULT '' NOT NULL,
 	description text DEFAULT '' NOT NULL,
-        INDEX md5sum (md5sum),
 	INDEX fromdate (fromdate),
 	INDEX todate (todate),
-	UNIQUE KEY docid (docid)
+	UNIQUE KEY docid (docid),
+	FOREIGN KEY (docid) REFERENCES documents (id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+# --------------------------------------------------------
+#
+# Structure of table documentattachments
+#
+CREATE TABLE documentattachments (
+	id int(11) NOT NULL AUTO_INCREMENT,
+	docid int(11) NOT NULL,
+	filename varchar(255) NOT NULL,
+	contenttype varchar(255) NOT NULL,
+	md5sum varchar(32) NOT NULL,
+	main smallint DEFAULT 1 NOT NULL,
+	PRIMARY KEY (id),
+	INDEX md5sum (md5sum),
+	UNIQUE KEY docid (docid, md5sum),
+	FOREIGN KEY (docid) REFERENCES documents (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 # --------------------------------------------------------
@@ -1029,6 +1043,7 @@ CREATE TABLE rtmessages (
   headers text NOT NULL DEFAULT '',
   body mediumtext NOT NULL DEFAULT '',
   createtime int(11) NOT NULL DEFAULT '0',
+  type smallint NOT NULL DEFAULT 0,
   PRIMARY KEY  (id),
   INDEX ticketid (ticketid),
   FOREIGN KEY (ticketid) REFERENCES rttickets (id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1044,24 +1059,6 @@ CREATE TABLE rtattachments (
   contenttype varchar(255) NOT NULL DEFAULT '',
   INDEX messageid (messageid),
   FOREIGN KEY (messageid) REFERENCES rtmessages (id) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
-# --------------------------------------------------------
-#
-# Structure of table  rtnotes
-#
-CREATE TABLE rtnotes (
-	id int(11) 	     NOT NULL auto_increment,
-	ticketid int(11)     NOT NULL,
-	userid int(11)       NOT NULL,
-	body text            NOT NULL DEFAULT '',
-	createtime int(11)   NOT NULL DEFAULT '0',
-	type smallint NOT NULL DEFAULT 1,
-	PRIMARY KEY (id),
-	INDEX ticketid (ticketid),
-	INDEX userid (userid),
-	FOREIGN KEY (ticketid) REFERENCES rttickets (id) ON DELETE CASCADE ON UPDATE CASCADE,
-	FOREIGN KEY (userid) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 # --------------------------------------------------------
@@ -1629,7 +1626,7 @@ CREATE TABLE cashimport (
     id int(11) NOT NULL auto_increment,
     date int(11) NOT NULL DEFAULT '0',
     value decimal(9,2) NOT NULL DEFAULT '0',
-    customer varchar(150) NOT NULL DEFAULT '',
+    customer text NOT NULL DEFAULT '',
     description text NOT NULL DEFAULT '',
     customerid int(11) DEFAULT NULL,
     hash varchar(50) NOT NULL DEFAULT '',
@@ -2721,4 +2718,4 @@ INSERT INTO netdevicemodels (name, alternative_name, netdeviceproducerid) VALUES
 ('XR7', 'XR7 MINI PCI PCBA', 2),
 ('XR9', 'MINI PCI 600MW 900MHZ', 2);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016080801');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016082600');

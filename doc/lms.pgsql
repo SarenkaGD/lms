@@ -1074,20 +1074,35 @@ CREATE INDEX documents_reference_idx ON documents(reference);
 -------------------------------------------------------- */
 DROP TABLE IF EXISTS documentcontents CASCADE;
 CREATE TABLE documentcontents (
-	docid integer 		DEFAULT 0 NOT NULL,
+	docid integer		NOT NULL
+		REFERENCES documents (id) ON DELETE CASCADE ON UPDATE CASCADE,
 	title text 		DEFAULT '' NOT NULL,
 	fromdate integer 	DEFAULT 0 NOT NULL,
 	todate integer 		DEFAULT 0 NOT NULL,
-	filename varchar(255) 	DEFAULT '' NOT NULL,
-	contenttype varchar(255) DEFAULT '' NOT NULL,
-	md5sum varchar(32) 	DEFAULT '' NOT NULL,
 	description text 	DEFAULT '' NOT NULL,
 	UNIQUE (docid)
 );
-CREATE INDEX documentcontents_md5sum_idx ON documentcontents (md5sum);
 CREATE INDEX documentcontents_todate_idx ON documentcontents (todate);
 CREATE INDEX documentcontents_fromdate_idx ON documentcontents (fromdate);
 
+/* -------------------------------------------------------- 
+  Structure of table "documentattachments"
+-------------------------------------------------------- */
+DROP SEQUENCE IF EXISTS documentattachments_id_seq;
+CREATE SEQUENCE documentattachments_id_seq;
+DROP TABLE IF EXISTS documentattachments CASCADE;
+CREATE TABLE documentattachments (
+	id integer DEFAULT nextval('documentattachments_id_seq'::text) NOT NULL,
+	docid integer NOT NULL
+		REFERENCES documents (id) ON DELETE CASCADE ON UPDATE CASCADE,
+	filename varchar(255) NOT NULL,
+	contenttype varchar(255) NOT NULL,
+	md5sum varchar(32) NOT NULL,
+	main smallint DEFAULT 1 NOT NULL,
+	PRIMARY KEY (id),
+	UNIQUE (docid, md5sum)
+);
+CREATE INDEX documentattachments_md5sum_idx ON documentattachments (md5sum);
 
 /* -------------------------------------------------------- 
   Structure of table "receiptcontents" 
@@ -1352,28 +1367,11 @@ CREATE TABLE rtmessages (
   headers text 		DEFAULT '' NOT NULL,
   body text		DEFAULT '' NOT NULL,
   createtime integer	DEFAULT 0 NOT NULL,
+  type smallint			DEFAULT 0 NOT NULL,
   PRIMARY KEY (id)
 );
 
 CREATE INDEX rtmessages_ticketid_idx ON rtmessages (ticketid);
-
-DROP SEQUENCE IF EXISTS rtnotes_id_seq;
-CREATE SEQUENCE rtnotes_id_seq;
-DROP TABLE IF EXISTS rtnotes CASCADE;
-CREATE TABLE rtnotes (
-	id integer default nextval('rtnotes_id_seq'::text) NOT NULL,
-	ticketid integer      NOT NULL
-	    REFERENCES rttickets (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    userid integer        NOT NULL
-        REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE,
-	body text             DEFAULT '' NOT NULL,
-	createtime integer    DEFAULT 0 NOT NULL,
-	type smallint         DEFAULT 1 NOT NULL,
-	PRIMARY KEY (id)
-);
-
-CREATE INDEX rtnotes_ticketid_idx ON rtnotes (ticketid);
-CREATE INDEX rtnotes_userid_idx ON rtnotes (userid);
 
 DROP SEQUENCE IF EXISTS rtrights_id_seq;
 CREATE SEQUENCE rtrights_id_seq;
@@ -1684,7 +1682,7 @@ CREATE TABLE cashimport (
     id integer 			DEFAULT nextval('cashimport_id_seq'::text) NOT NULL,
     date integer 		DEFAULT 0 NOT NULL,
     value numeric(9,2) 		DEFAULT 0 NOT NULL,
-    customer varchar(150) 	DEFAULT '' NOT NULL,
+    customer text		DEFAULT '' NOT NULL,
     description text	DEFAULT '' NOT NULL,
     customerid integer 		DEFAULT NULL
 	    REFERENCES customers (id) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -2836,6 +2834,6 @@ INSERT INTO netdevicemodels (name, alternative_name, netdeviceproducerid) VALUES
 ('XR7', 'XR7 MINI PCI PCBA', 2),
 ('XR9', 'MINI PCI 600MW 900MHZ', 2);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016080801');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016082600');
 
 COMMIT;

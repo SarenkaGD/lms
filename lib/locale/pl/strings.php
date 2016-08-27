@@ -2835,6 +2835,8 @@ $_LANG['Resource Type:'] = 'Typ zasobu:';
 $_LANG['Enter resource ID (empty means any ID)'] = 'Podaj ID zasobu (puste pole oznacza dowolny ID)';
 $_LANG['Next'] = 'Następne';
 $_LANG['Previous'] = 'Poprzednie';
+$_LANG['Next<!pagin>'] = 'Następna';
+$_LANG['Previous<!pagin>'] = 'Poprzednia';
 $_LANG['No such transactions in database.'] = 'Brak transakcji w bazie danych.';
 $_LANG['No CDR records found in database.'] = 'Nie znaleziono rekordów CDR w bazie danych.';
 $_LANG['Property Name:'] = 'Nazwa właściwości:';
@@ -3101,6 +3103,8 @@ $_LANG['Format type:'] = 'Typ formatu:';
 $_LANG['multi file zip archive (lms legacy format)'] = 'archiwum zip z wieloma plikami (dotychczasowy format)';
 $_LANG['single csv file (uke siis format)'] = 'pojedynczy plik csv (format zgodny ze specyfikacją uke siis)';
 $_LANG['Exported sheets:'] = 'Eksportowane arkusze:';
+
+$_LANG['cash import file'] = 'plik importu płatności';
 
 $_LANG['Azimuth:'] = 'Azymut:';
 $_LANG['Width:'] = 'Szerokość:';
@@ -3389,5 +3393,16 @@ $_LANG['Enter URL address (optional)'] = 'Podaj adres URL (opcjonalnie)';
 $_LANG['Check if URL address should be disabled'] = 'Zaznacz, jeśli adres URL powinien być wyłączony';
 $_LANG['Incorrect URL address!'] = 'Niepoprawny adres URL!';
 $_LANG['URL address is required!'] = 'Adres URL jest wymagany!';
+
+$_LANG['Enter deadline date in YYYY/MM/DD format (empty field means default deadline) or click to select it from calendar'] = 'Podaj termin płatności w formacie RRRR/MM/DD lub kliknij by wybrać go z kalendarza';
+$_LANG['Deadline date should be later than consent date!'] = 'Termin płatności powinien być późniejszy niż data wystawienia!';
+
+$_LANG['Your browser does not support the audio element.'] = 'Twoja przeglądarka nie obsługuje elementu audio.';
+$_LANG['Your browser does not support the video element.'] = 'Twoja przeglądarka nie obsługuje elementu video.';
+
+$_LANG['more document attachments'] = 'więcej załączników dokumentu';
+$_LANG['New files:'] = 'Nowe pliki:';
+$_LANG['Attached files:'] = 'Załączone pliki:';
+$_LANG['Files:'] = 'Pliki:';
 
 ?>

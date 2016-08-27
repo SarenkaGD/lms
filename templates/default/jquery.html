@@ -1,0 +1,129 @@
+<link href="img/jqueryui/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css">
+<link href="img/jquery-datetimepicker/build/jquery.datetimepicker.min.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="img/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="img/jqueryui/jquery-ui.min.js"></script>
+<script type="text/javascript" src="img/jqueryui/ui/minified/i18n/datepicker-{$language}.js"></script>
+<script type="text/javascript" src="img/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript">
+<!--
+	$(function() {
+		var autocomplete = "off";
+
+		$('.calendar').datepicker({
+			dateFormat: "yy/mm/dd",
+			changeYear: true
+		})
+		.attr("autocomplete", autocomplete);
+
+		$('.calendar-time').datetimepicker({
+			lang: "{$language}",
+			step: 30,
+			closeOnDateSelect: true
+		})
+		.attr("autocomplete", autocomplete);
+
+		$('[title]').each(function() {
+			tooltipClass = "";
+			if ($(this).hasClass("alert")) {
+				tooltipClass += " alert";
+				if ($(this).hasClass("bold"))
+					tooltipClass += " bold";
+			} else if ($(this).hasClass("bold"))
+				tooltipClass += "bold";
+			$(this).tooltip({
+				show: { delay: 500 },
+				track: true,
+				tooltipClass: tooltipClass
+			});
+		});
+
+		[
+			{ class: 'voipaccountinfo', url: '?m=voipaccountinfoshort&id='},
+			{ class: 'invoiceinfo', url: '?m=invoiceinfo&id='},
+			{ class: 'docnumber', url: '?m=number&id='},
+			{ class: 'customerinfo', url: '?m=customerinfoshort&id='},
+			{ class: 'nodelist', url: '?m=nodelistshort&id='},
+			{ class: 'ewxnodelist', url: '?m=ewxnodelist&id='},
+			{ class: 'rtticketinfo', url: '?m=rtticketinfo&id='},
+			{ class: 'customerassignmentinfo', url: '?m=customerassignmentinfo&id='},
+			{ class: 'nodegroupinfo', url: '?m=nodeinfo&nodegroups=1&id='},
+			{ class: 'netdevlist', url: '?m=ewxdevlist&id='}
+		].forEach(function(popup) {
+			$('.' + popup.class).tooltip({
+				items: '.' + popup.class,
+				tooltipClass: popup.class,
+				content: function(callback) {
+					var elem = $(this);
+					var resourceid = elem.attr('data-resourceid');
+					$.ajax(popup.url + resourceid, {
+						async: true,
+						success: function(data) {
+							callback(data);
+						}
+					});
+				}
+			});
+		});
+
+		var documentviews = $('.documentview');
+
+		documentviews.tooltip({
+			items: '.documentview-image',
+			tooltipClass: 'documentview',
+			content: function() {
+				var href = $(this).attr('href');
+				return '<img src="' + href + '" style="max-width: 300px;">';
+			}
+		});
+
+		documentviews.on("click", function() {
+			var dialog = $('#' + $(this).attr('data-dialog-id'));
+			dialog.dialog('open');
+			if ($(this).hasClass('documentview-image'))
+				$(this).tooltip('disable');
+			else if ($(this).hasClass('documentview-audio')) {
+				var audioelem = dialog.find('audio').get(0);
+				audioelem.currentTime = 0;
+				audioelem.play();
+			} else if ($(this).hasClass('documentview-video')) {
+				var videoelem = dialog.find('video').get(0);
+				videoelem.currentTime = 0;
+				videoelem.play();
+			}
+			return false;
+		});
+
+		$('.documentviewdialog').dialog({
+			modal: true,
+			autoOpen: false,
+			resizable: false,
+			minWidth: 0,
+			minHeight: 0,
+			dialogClass: 'documentviewdialog',
+			open: function(event, ui) {
+				$(this).dialog('option', 'position', { my: 'center', at: 'center', of: window })
+					.dialog('option', 'width', '30%');
+				$('.ui-widget-overlay').bind('click', function() {
+					$(this).siblings('.ui-dialog').find('.ui-dialog-content')
+						.dialog('close');
+				});
+			},
+			close: function(event, ui) {
+				var elem = $('#' + $(this).attr('id').replace(/dialog/, ''));
+				if (elem.hasClass('documentview-image'))
+					elem.tooltip('enable');
+				else if (elem.hasClass('documentview-audio'))
+					$(this).find('audio').get(0).pause();
+				else if (elem.hasClass('documentview-video'))
+					$(this).find('video').get(0).pause();
+			}
+		})
+		.on('click', function() {
+			$(this).dialog('close');
+		})
+		.parent().resizable({
+			aspectRatio: true
+		});
+	});
+//-->
+</script>

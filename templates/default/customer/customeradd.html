@@ -4,16 +4,11 @@
 <!--// $Id$ //-->
 <script type="text/javascript" src="img/tinymce3/tiny_mce.js"> </script>
 <H1>{$layout.pagetitle}</H1>
-{include file="calendar_js.html"}
 <SCRIPT type="text/javascript">
 <!--
-	function randomize()
-	{
-		var r = 0;
-		do
-			r = Math.floor(Math.random()*1000000-1);
-		while (r<1000);
-		document.customeradd.elements['customeradd[pin]'].value = r;
+	function randomize() {
+		document.customeradd.elements['customeradd[pin]'].value =
+			generate_random_string(4 + Math.floor(Math.random() * 3), '0123456789');
 	}
 
 	function newcontact(type) {
@@ -29,14 +24,17 @@
 			{foreach $_CUSTOMERCONTACTTYPES as $contacttype => $properties}
 			case '{$contacttype}':
 				innerHTML = '<HR><INPUT TYPE="text" size="{$properties.ui.size}" value="" name="customeradd[{$contacttype|cat:"s"}][' + nr + '][contact]"'
-					+ ' onmouseover="popup(\'{$properties.ui.tip}\')" onmouseout="pophide()">';
-				innerHTML += '{foreach $properties.ui.flags as $flagtype => $flagproperties}<label{if isset($flagproperties.tip)} onmouseover="popup(\'{$flagproperties.tip}\')" onmouseout="pophide()"{/if}><INPUT TYPE="checkbox" value="{$flagtype}" name="customeradd[{$contacttype|cat:"s"}][' + nr + '][type][]"> {$flagproperties.label}</label>{/foreach}';
+					+ ' title="{$properties.ui.tip}">';
+				innerHTML += '{foreach $properties.ui.flags as $flagtype => $flagproperties}<label{if isset($flagproperties.tip)} title="{$flagproperties.tip}"{/if}><INPUT TYPE="checkbox" value="{$flagtype}" name="customeradd[{$contacttype|cat:"s"}][' + nr + '][type][]"> {$flagproperties.label}</label>{/foreach}';
 				innerHTML += '<BR><INPUT TYPE="text" size="68" value="" name="customeradd[{$contacttype|cat:"s"}][' + nr + '][name]"'
-					+ ' onmouseover="popup(\'{trans("Enter contact name/description (optional)")}\')" onmouseout="pophide()">';
+					+ ' title="{trans("Enter contact name/description (optional)")}">';
 				break;
 			{/foreach}
 		}
 		newcell.innerHTML = innerHTML;
+		$(newcell).children("[title]").tooltip({
+			position: { my: "left top" }
+		});
 		contactcountelem.value = parseInt(nr) + 1;
 	}
 //-->
@@ -354,7 +352,8 @@
 						<IMG src="img/pin.gif" alt="">
 					</TD>
 					<TD style="width: 99%;">
-						<INPUT type="number" pattern="{literal}.{4,6}{/literal}" required size="6" value="{if $customeradd.pin}{$customeradd.pin}{/if}" name="customeradd[pin]" title="{trans("Enter 4 to 6 digits PIN number (optional)")}" {tip text="Enter 4 to 6 digits PIN number (optional)" trigger="pin"}>&nbsp;<A href="javascript:randomize()" {tip text="Generate random PIN"}>&raquo;&raquo;&raquo;</A>
+						<INPUT type="number" pattern="{literal}[0-9]{4,6}{/literal}" required size="6" value="{if $customeradd.pin}{$customeradd.pin}{/if}" name="customeradd[pin]" title="{trans("Enter 4 to 6 digits PIN number (optional)")}" {tip text="Enter 4 to 6 digits PIN number (optional)" trigger="pin"}>&nbsp;
+						<A href="javascript:randomize()" {tip text="Generate random PIN"}>&raquo;&raquo;&raquo;</A>
 					</TD>
 				</TR>
 				<TR>
@@ -427,6 +426,8 @@
 										<OPTION value="14"{if $customeradd.paytime==14} selected{/if}>14</OPTION>
 										<OPTION value="21"{if $customeradd.paytime==21} selected{/if}>21</OPTION>
 										<OPTION value="30"{if $customeradd.paytime==30} selected{/if}>30</OPTION>
+										<OPTION value="60"{if $customeradd.paytime==60} selected{/if}>60</OPTION>
+										<OPTION value="90"{if $customeradd.paytime==90} selected{/if}>90</OPTION>
 									</SELECT>
 								</TD>
 							</TR>
