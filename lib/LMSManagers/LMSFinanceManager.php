@@ -557,22 +557,15 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             $this->db->Execute('INSERT INTO invoicecontents (docid, itemid,
 				value, taxid, prodid, content, count, pdiscount, vdiscount, description, tariffid) 
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
-<<<<<<< HEAD
             
 	    //Added for lms-stck by Sarenka - MAXCON
 	    if (ConfigHelper::getConfig('phpui.stock'))
 	    	$this->db->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
 	    			VALUES(?, ?, ?)', array($iid, $itemid, $item['stckproductid']));
 
-	    if ($this->syslog) {
-                $args[$SYSLOG_RESOURCE_KEYS[SYSLOG_RES_CUST]] = $invoice['customer']['id'];
-                $this->syslog->AddMessage(SYSLOG_RES_INVOICECONT, SYSLOG_OPER_ADD, $args, array($SYSLOG_RESOURCE_KEYS[SYSLOG_RES_CUST], $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_DOC],
-                    $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_TAX], $SYSLOG_RESOURCE_KEYS[SYSLOG_RES_TARIFF]));
-=======
             if ($this->syslog) {
                 $args[SYSLOG::RES_CUST] = $invoice['customer']['id'];
                 $this->syslog->AddMessage(SYSLOG::RES_INVOICECONT, SYSLOG::OPER_ADD, $args);
->>>>>>> 8be93af356821963ef3b0ffbe8e5a4742391d77b
             }
 
             $this->AddBalance(array(
