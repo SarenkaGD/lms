@@ -40,6 +40,15 @@ $rnepl = array();
 
 $SESSION->restore('rnepl', $rnepl);
 
+if (!$rnepl['docid']) {
+	$rnepl['rnid'] = $_GET['id'];
+	$rnepl['doc']['net'] = $receivenoteedit['netvalue'];
+	$rnepl['doc']['gross'] = $receivenoteedit['grossvalue'];
+} elseif ($rnepl['rnid'] != $_GET['id']) {
+	$SESSION->remove($rnepl);
+	$rnepl = array();
+}
+
 if (ctype_digit($_GET['sid'])) {
         $receivenoteedit['supplierid'] = $_GET['sid'];
 	$receivenoteedit['sname'] = $LMS->GetCustomerName($receivenoteedit['supplierid']);
@@ -118,10 +127,6 @@ if (isset($_POST['receivenoteedit'])) {
 	}
 }
 
-/*$rnepl = array();
-
-$SESSION->restore('rnepl', $rnepl);
-*/
 if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 	$itemdata = $_POST['rnepl']['product'];
 	$itemdata['serial'] = $_POST['receivenote']['product']['serial'];
@@ -194,12 +199,13 @@ if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 			$SESSION->save('rnepl', $rnepl);
 			break;
 		case 'edit':
-			$itemdata = $rnepl['product'][$_GET['id']];
-			$rnepl['doc']['net'] -= $rnepl['product'][$_GET['id']]['price']['net'];
-			$rnepl['doc']['gross'] -= $rnepl['product'][$_GET['id']]['price']['gross'];
-			unset($rnepl['product'][$_GET['id']]);
+			$itemdata = $rnepl['product'][$_GET['posid']];
+			$rnepl['doc']['net'] -= $rnepl['product'][$_GET['posid']]['price']['net'];
+			$rnepl['doc']['gross'] -= $rnepl['product'][$_GET['posid']]['price']['gross'];
+			unset($rnepl['product'][$_GET['posid']]);
 			$SESSION->remove('rnepl');
 			$SESSION->save('rnepl', $rnepl);
+			$SMARTY->assign('itemdata', $itemdata);
 			break;
 		default:
 			break;
@@ -215,7 +221,7 @@ if (isset($_POST['rnepl']['product']) && !isset($_GET['action'])) {
 		$rnepl['doc']['number'] = $receivenoteedit['id'];
 		$LMSST->ReceiveNotePositionAdd($rnepl);
 		$SESSION->remove('rnepl');
-		$SESSION->redirect('?m=stckreceivenoteedit&id='.$receivenoteedit['id']);
+		$SESSION->redirect('?m=stckreceivenoteinfo&id='.$receivenoteedit['id']);
 		break;
 	}
 }
