@@ -67,7 +67,8 @@ if (isset($_POST['productedit'])) {
 		}
 	}
 } else {
-	$productedit = $LMSST->StockPositionGetById($_GET['id']);
+	if (!$productedit = $LMSST->StockPositionGetById($_GET['id']))
+		$SESSION->redirect('?m=stckproductlist');
 }
 
 $wlist = $LMSST->WarehouseGetList();

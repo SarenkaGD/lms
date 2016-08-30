@@ -110,6 +110,26 @@
 			<textarea name="productedit[comment]" cols="60" rows="7" onmouseover="popup('Enter comment (optional)')" onmouseout="pophide()">{$productedit.comment}</textarea>
 		</TD>
 	</TR>
+	{if !$layout.popup}
+	<TR>
+		<TD WIDTH="1%" CLASS="fleft" NOWRAP>
+			<IMG SRC="img/info1.gif" ALT="">
+			<B>{t}Created:{/t}</B>
+		</TD>
+		<TD CLASS="fright">
+			{$productedit.createdby} {$productedit.creationdate|date_format:"%Y/%m/%d %H:%M"}
+		</TD>
+	</TR>
+	{/if}
+	<TR>
+                <TD WIDTH="1%" CLASS="fleft" NOWRAP>
+                        <IMG SRC="img/info1.gif" ALT="">
+                        <B>{t}Modified:{/t}</B>
+                </TD>
+                <TD CLASS="fright">
+                        {$productedit.modifiedby} {$productedit.moddate|date_format:"%Y/%m/%d %H:%M"}
+                </TD>
+        </TR>
 	<TR CLASS="LIGHT">
 		<TD width="100%" CLASS="fbottomu" COLSPAN="2" align="right">
 			<A HREF="javascript:document.productedit.submit();" accesskey="s">{t}Submit{/t} <IMG SRC="img/save.gif" ALT=""></A>

@@ -799,11 +799,14 @@ class LMSStck {
 	function StockPositionGetById($id) {
 		if ($sgpbi = $this->DB->GetRow('SELECT s.*,
 			CONCAT(m.name, \' \', p.name) as pname,
-			t.label as txname
+			t.label as txname,
+			u1.name as createdby, u2.name as modifiedby
 			FROM stck_stock s
 			LEFT JOIN stck_products p ON p.id = s.productid
 			LEFT JOIN stck_manufacturers m ON m.id = p.manufacturerid
 			LEFT JOIN taxes t ON (s.taxid = t.id)
+			LEFT JOIN users u1 ON u1.id = s.creatorid
+			LEFT JOIN users u2 ON u2.id = s.modid
 			WHERE s.id = ?', array($id))) {
 			return $sgpbi;
 		}
