@@ -708,7 +708,9 @@ class LMSStck {
 	}
 
 	public function ProductGetInfoByEAN($ean) {
-		if ($pi = $this->DB->GetRow("SELECT p.*,
+		if (!$ean) {
+			return false;
+		} elseif ($pi = $this->DB->GetRow("SELECT p.*,
 			m.name as mname,
 			g.name as gname,
 			u.name as createdby,
@@ -725,9 +727,12 @@ class LMSStck {
 			LEFT JOIN stck_quantities q ON q.id = p.quantityid
 			LEFT JOIN stck_stock s ON s.productid = p.id
 			WHERE p.ean = ? AND s.sold = 0", array($ean))) {
+				if ($pi['id'] === NULL)
+					return false;
 				$pi['modifiedby'] = $this->LMS->GetUserName($pi['modid']);
 				return $pi;
 		}
+		return false;
 	}
 
 	public function ProductGetIdByName($name, $mid) {
