@@ -267,14 +267,14 @@ class LMSStck {
 		if ($mi = $this->DB->GetRow("SELECT m.*, u1.name as createdby, u2.name as modifiedby,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_manufacturers m
-			LEFT JOIN users u1 ON u2.id = m.creatorid
+			LEFT JOIN users u1 ON u1.id = m.creatorid
 			LEFT JOIN users u2 ON u2.id = m.creatorid
 			LEFT JOIN stck_products p ON p.manufacturerid = m.id
 			LEFT JOIN stck_stock s ON s.productid = p.id
-			WHERE m.id = ? AND u.id = m.creatorid AND s.sold = 0", array($id))) {
-			//$mi['modifiedby'] = $this->LMS->GetUserName($mi['modid']);
+			WHERE m.id = ? AND s.sold = 0", array($id))) {
 			return $mi;
 		}
+		return false;
 	}
 
 	function ManufacturerGetIdByName($name) {
