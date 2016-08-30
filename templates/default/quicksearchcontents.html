@@ -39,7 +39,7 @@
 {if ConfigHelper::getConfig('phpui.quicksearch_stck_price')}
 	new AutoSuggest(document.getElementById('quicksearch'),document.getElementById('stckpriceinput'),'?m=quicksearch&ajax=1&mode=productprice&what=',{ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 {/if}
-{if ConfigHelper::getConfig('phpui.quicksearch_stck_warranty}')}
+{if ConfigHelper::getConfig('phpui.quicksearch_stck_warranty')}
 	new AutoSuggest(document.getElementById('quicksearch'),document.getElementById('stckwarrantyinput'),'?m=quicksearch&ajax=1&mode=productwarranty&what=',{ConfigHelper::getConfig('phpui.quicksearch_autosubmit')});
 {/if}
 </script>
