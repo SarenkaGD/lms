@@ -77,7 +77,7 @@ if (isset($_POST['receivenote']['product']) && !isset($_GET['action'])) {
 		
 		$SESSION->remove('receivenote');
 		$SESSION->save('receivenote', $receivenote);
-		print_r($receivenote['product']);
+		//print_r($receivenote['product']);
 	} else {
 		$SMARTY->assign('item', $itemdata);
 	}
