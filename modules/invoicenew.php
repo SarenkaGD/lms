@@ -330,7 +330,7 @@ switch($action)
 		$DB->BeginTrans();
 		//Added for STCK by Sarenka MAXCON
 		if (ConfigHelper::getConfig('phpui.stock'))
-			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions','stck_cashassignments','stck_invoicecontentsassignments','stck_stock','stck_quantityleft'));
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions','stck_cashassignments','stck_invoicecontentsassignments','stck_stock'));
 		else
 			 $DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
 		//END STCK
