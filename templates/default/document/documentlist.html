@@ -113,7 +113,7 @@
 	</TR>
 	{/if}
     </THEAD>
-    <TBODY>
+    <TBODY class="lms-ui-multi-check">
 	{cycle values="light,lucid" print=false}
 	{section loop=$documentlist name=documentlist start=$start max=$pagelimit}
 	{assign var=doc value=$documentlist[documentlist]}
@@ -157,7 +157,7 @@
 				<img src="img/asc_order.gif">
 			</a>
 			{/if}
-			<INPUT TYPE="checkbox" NAME="marks[{$docid}]" VALUE="{$docid}"{if $marks.$docid}CHECKED{/if}>
+			<INPUT TYPE="checkbox" NAME="marks[{$docid}]" VALUE="{$docid}" class="lms-ui-multi-check"{if $marks.$docid} checked{/if}>
 			<div id="allattachments-{$doc.docid}" style="display: none;">
 				{foreach $doc.attachments as $docattach}
 				{if $docattach@first && $docattach.main}{continue}{/if}
@@ -187,7 +187,7 @@
 	{/if}
 	<TR>
 		<TD COLSPAN="5">
-		        <TABLE WIDTH="100%">
+			<TABLE WIDTH="100%">
 				<TR>
 					<TD ALIGN="left" class="nobr">
 						<A HREF="javascript:print_docs();">{trans("Print")} <IMG SRC="img/print.gif" ALT="{trans("Print")}"></A>&nbsp;
@@ -195,9 +195,12 @@
 						<A HREF="javascript:delete_docs();">{trans("Delete")} <IMG SRC="img/delete.gif" ALT="{trans("Delete")}"></A>
 					</TD>
 					<TD ALIGN="right" class="nobr">
-				                <label for="allbox">{trans("Check All")}</label><INPUT TYPE="checkbox" NAME="allbox" id="allbox" onchange="CheckAll('page', this)" VALUE="1">
+						<label>
+							{trans("Check All")}
+							<INPUT TYPE="checkbox" NAME="allbox" class="lms-ui-multi-check-all" VALUE="1">
+						</label>
 					</TD>
-				 </TR>
+				</TR>
 			</TABLE>
 		</TD>
 	</TR>

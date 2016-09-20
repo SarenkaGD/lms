@@ -82,6 +82,32 @@ version ?.??.?? (????-??-??):
   - document attached file management is possible from document edit form [chilan]
   - helpdesk and documents: remember selected file attachments between form posts - brand new
     file uploader which hardly uses html5 [chilan]
+  - added support for multiple phone numbers [kosa/chilan]
+  - bumped openlayers version to current 2.x series HEAD and allow to use
+    google maps api key defined by phpui.googlemaps_api_key variable [chilan]
+  - show selected position on map for network device and node current coordinates
+    presentaion [chilan]
+  - allow to select company/division for mass invoice printing [chilan]
+  - defined html class multi-check which allows tbodies function with multi
+    select elements on lists [chilan]
+  - support of multi message deletions [chilan]
+  - multi customer group assignments can be added and deleted from customer form [chilan]
+  - selected liabilities can be deleted from customer form [chilan]
+  - added support for jquery datatables plugin and use it for cash import package list,
+    customer messages and customer balance box [chilan]
+  - multiselect control supports onchange event handler so we can use it quite
+    easy in resource filters [chilan]
+  - tariff list can be filtered by multi selection of tariff tags from upper filter [chilan]
+  - multi node group assignments can be added and deleted from node form [chilan]
+  - added global try/catch block as default resort error handler [chilan]
+  - ported node group list sort to jquery and ajax [chilan]
+  - support of auth type for networks [chilan]
+  - user is able to sort node and customer tabs on his own and order is persistent [chilan]
+  - added support for ssl_verify_peer, ssl_verify_peer_name, ssl_allow_self_signed boolean
+    configuration variables in LMS::SendMail (for now these variables are handled only
+    by phpmailer mail.backend) [chilan]
+  - allow to switch on column filter and toggle for lms-ui-datatable using
+    lms-ui-datatable-column-search and lms-ui-datatable-column-toggle classes respectively [chilan]
 
 version 1.11.20 (2016-04-19):
 

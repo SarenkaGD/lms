@@ -369,7 +369,10 @@
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-multiselect('printbalancelist', 'balancelisttype', '{trans("- all types -")}');
+multiselect({
+	id: 'balancelisttype',
+	defaultValue: '{trans("- all types -")}'
+});
 //-->
 </SCRIPT>
 </P>
@@ -560,8 +563,14 @@ multiselect('printbalancelist', 'balancelisttype', '{trans("- all types -")}');
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-multiselect('invoicereport', 'invoicereportgroup', '{trans("- all groups -")}');
-multiselect('invoicereport', 'numberplanid', '{trans("all")}');
+multiselect({
+	id: 'invoicereportgroup',
+	defaultValue: '{trans("- all groups -")}'
+});
+multiselect({
+	id: 'numberplanid',
+	defaultValue: '{trans("all")}'
+});
 //-->
 </SCRIPT>
 </P>
@@ -700,6 +709,22 @@ multiselect('invoicereport', 'numberplanid', '{trans("all")}');
 				<TR>
 					<TD style="width: 1%;">
 					    <TABLE width="100%">
+						<TR>
+							<TD style="width: 1%;">
+								<IMG src="img/division.gif" alt="">
+							</TD>
+							<TD style="width: 1%;" class="bold nobr">
+								{trans("Division")}:
+							</TD>
+							<TD style="width: 98%;" class="nobr">
+								<SELECT size="1" name="division" {tip text="Select division"}>
+									<OPTION value="0">- {trans("all")} -</OPTION>
+									{foreach $divisions as $division}
+									<OPTION value="{$division.id}">{$division.shortname}</OPTION>
+									{/foreach}
+								</SELECT>
+							</TD>
+						</TR>
 						<TR>
 							<TD style="width: 1%;">
 								<IMG src="img/customer.gif" alt="">
@@ -1285,7 +1310,10 @@ multiselect('invoicereport', 'numberplanid', '{trans("all")}');
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-multiselect('printnetdev', 'invprojects', '{trans("- all -")}');
+multiselect({
+	id: 'invprojects',
+	defaultValue: '{trans("- all -")}'
+});
 //-->
 </SCRIPT>
 </P>

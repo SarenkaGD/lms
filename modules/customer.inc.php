@@ -46,7 +46,7 @@ $customervoipaccounts = $LMS->GetCustomerVoipAccounts($customerid);
 $documents = $LMS->GetDocuments($customerid, 10);
 $taxeslist = $LMS->GetTaxes();
 $allnodegroups = $LMS->GetNodeGroupNames();
-$messagelist = $LMS->GetMessages($customerid, 10);
+$messagelist = $LMS->GetMessages($customerid);
 $eventlist = $LMS->EventSearch(array('customerid' => $customerid), 'date,desc', true);
 $customernodes = $LMS->GetCustomerNodes($customerid);
 $customernetworks = $LMS->GetCustomerNetworks($customerid, 10);
@@ -58,7 +58,7 @@ $customerstats = array(
 );
 
 if ($SYSLOG && (ConfigHelper::checkConfig('privileges.superuser') || ConfigHelper::checkConfig('privileges.transaction_logs'))) {
-	$trans = $SYSLOG->GetTransactions(array('key' => SYSLOG::getResourceKey(SYSLOG::RES_CUST), 'value' => $customerid));
+	$trans = $SYSLOG->GetTransactions(array('key' => SYSLOG::getResourceKey(SYSLOG::RES_CUST), 'value' => $customerid, 'limit' => 300));
 	if (!empty($trans))
 		foreach ($trans as $idx => $tran)
 			$SYSLOG->DecodeTransaction($trans[$idx]);

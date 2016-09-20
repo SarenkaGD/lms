@@ -374,6 +374,7 @@ CREATE TABLE networks (
 	vlanid smallint DEFAULT NULL,
 	hostid integer NULL
 		REFERENCES hosts (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	authtype smallint 	DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (name),
 	CONSTRAINT networks_address_key UNIQUE (address, hostid)
@@ -832,6 +833,31 @@ CREATE TABLE voip_price_groups (
     price           numeric(12,5) DEFAULT 0 NOT NULL,
     unitsize        smallint      DEFAULT 0 NOT NULL,
     PRIMARY KEY (id)
+);
+
+DROP SEQUENCE IF EXISTS voip_numbers_id_seq;
+CREATE SEQUENCE voip_numbers_id_seq;
+DROP TABLE IF EXISTS voip_numbers CASCADE;
+CREATE TABLE voip_numbers (
+    id integer DEFAULT nextval('voip_numbers_id_seq'::text) NOT NULL,
+    voip_account_id integer NOT NULL
+        REFERENCES voipaccounts (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    phone varchar(20) NOT NULL,
+    UNIQUE(phone)
+);
+
+DROP SEQUENCE IF EXISTS voip_pool_numbers_id_seq;
+CREATE SEQUENCE voip_pool_numbers_id_seq;
+DROP TABLE IF EXISTS voip_pool_numbers CASCADE;
+CREATE TABLE voip_pool_numbers (
+    id integer DEFAULT nextval('voip_pool_numbers_id_seq'::text) NOT NULL,
+    disabled smallint DEFAULT 0,
+    name varchar(30) NOT NULL,
+    poolstart varchar(20) NOT NULL,
+    poolend varchar(20) NOT NULL,
+    description text,
+    PRIMARY KEY (id),
+    UNIQUE (name)
 );
 
 DROP TABLE IF EXISTS voip_emergency_numbers CASCADE;
@@ -2821,6 +2847,6 @@ INSERT INTO netdevicemodels (name, alternative_name, netdeviceproducerid) VALUES
 ('XR7', 'XR7 MINI PCI PCBA', 2),
 ('XR9', 'MINI PCI 600MW 900MHZ', 2);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016082600');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016091300');
 
 COMMIT;
