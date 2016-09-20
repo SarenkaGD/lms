@@ -79,7 +79,7 @@
 	{section name=productlist loop=$productlist start=$start max=$pagelimit}
 	<TR class="{cycle}" onmouseover="addClass(this, 'highlight')" onmouseout="removeClass(this, 'highlight')">
 		<TD width="97%" CLASS="fleft" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[productlist].id}';" VALIGN="TOP">
-			<IMG src="img/producer.gif" ALT=""> <a name="{$productlist[productlist].gid}"><B>{$productlist[productlist].pname}</B></A><BR>
+			<IMG src="img/producer.gif" ALT=""> <a name="{$productlist[productlist].id}"><B>{$productlist[productlist].pname}</B></A><BR>
 			{$productlist[productlist].comment}
 		</TD>
 		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[productlist].mid}';" align="right" VALIGN="TOP">
@@ -88,17 +88,17 @@
 		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[productlist].gid}';" align="right" VALIGN="TOP">
 			<nobr><A href="?m=stckgroupinfo&amp;id={$productlist[productlist].gid}">{$productlist[productlist].gname}</a></nobr>
 		</TD>
-		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[productlist].gid}';" align="right" VALIGN="TOP">
+		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[productlist].id}';" align="right" VALIGN="TOP">
 			{if $productlist[productlist].scount}{$productlist[productlist].scount}{else}0{/if}
 		</TD>
-		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[productlist].gid}';" align="right" VALIGN="TOP">
+		<TD WIDTH="1%" onClick="return self.location.href='?m=stckproductinfo&id={$productlist[productlist].id}';" align="right" VALIGN="TOP">
 			({$productlist[productlist].id|string_format:"%04d"})
 		</TD>
 		<TD WIDTH="1%" CLASS="fright" align="right">
 		 	<nobr>
-				<a href="?m=stckproductdel&id={$productlist[productlist].gid}" onClick="return confirmLink(this, '{t name=$productlist[productlist].name}Are you sure, you want to remove product \'$name\' from database? product with current stock cannot be removed!{/t}')"><IMG src="img/delete.gif" alt="[ {t}Delete{/t} ]" title="[ {t}Delete{/t} ]"></A>
-				<a href="?m=stckproductedit&id={$productlist[productlist].gid}"><IMG src="img/edit.gif" alt="[ {t}Edit{/t} ]" title="[ {t}Edit{/t} ]"></A>
-				<a href="?m=stckproductinfo&id={$productlist[productlist].gid}"><IMG src="img/info.gif" alt="[ {t}Info{/t} ]" title="[ {t}Info{/t} ]"></A>
+				<a href="?m=stckproductdel&id={$productlist[productlist].id}" onClick="return confirmLink(this, '{t name=$productlist[productlist].name}Are you sure, you want to remove product \'$name\' from database? product with current stock cannot be removed!{/t}')"><IMG src="img/delete.gif" alt="[ {t}Delete{/t} ]" title="[ {t}Delete{/t} ]"></A>
+				<a href="?m=stckproductedit&id={$productlist[productlist].id}"><IMG src="img/edit.gif" alt="[ {t}Edit{/t} ]" title="[ {t}Edit{/t} ]"></A>
+				<a href="?m=stckproductinfo&id={$productlist[productlist].id}"><IMG src="img/info.gif" alt="[ {t}Info{/t} ]" title="[ {t}Info{/t} ]"></A>
 			</nobr>
 		</TD>
 	</TR>
