@@ -1,0 +1,3864 @@
+Nieu¿ywane symbole terminalne w gramatyce
+
+   ERROR
+
+
+Stan 29 konflikty: 4 przesuniêcie/redukcja
+Stan 33 konflikty: 2 przesuniêcie/redukcja
+Stan 34 konflikty: 1 przesuniêcie/redukcja
+Stan 35 konflikty: 2 przesuniêcie/redukcja
+Stan 36 konflikty: 4 przesuniêcie/redukcja
+Stan 37 konflikty: 4 przesuniêcie/redukcja
+Stan 38 konflikty: 3 przesuniêcie/redukcja
+Stan 40 konflikty: 4 przesuniêcie/redukcja
+Stan 46 konflikty: 1 przesuniêcie/redukcja
+Stan 53 konflikty: 4 przesuniêcie/redukcja
+Stan 63 konflikty: 2 przesuniêcie/redukcja
+Stan 94 konflikty: 1 przesuniêcie/redukcja
+Stan 102 konflikty: 1 redukcja/redukcja
+
+
+Gramatyka
+
+    0 $accept: template $end
+
+    1 value: TEXT
+    2      | LITERAL
+    3      | NUMBER
+    4      | NULL_CONST
+
+    5 type_conv: TO_STRING '(' expression ')'
+    6          | TO_NUMBER '(' expression ')'
+
+    7 type_of: TYPEOF '(' expression ')'
+
+    8 type_operator: type_conv
+    9              | type_of
+
+   10 primary_expression: value
+   11                   | '(' expression ')'
+
+   12 reference: NAME
+   13          | reference '[' expression ']'
+   14          | reference '.' NAME
+
+   15 chng_operator: reference
+   16              | reference INC
+   17              | reference DEC
+
+   18 sub_variable: postfix_expression '[' expression ']'
+   19             | postfix_expression '.' NAME
+
+   20 argument_expression_list: logical_expression
+   21                         | argument_expression_list ',' logical_expression
+
+   22 call_expression: BLOCK '(' argument_expression_list ')' statements END_BLOCK
+   23                | BLOCK '}' statements END_BLOCK
+   24                | BLOCK expressions '}' statements END_BLOCK
+   25                | CONST
+   26                | EXT '(' argument_expression_list ')'
+   27                | EXT '(' ')'
+   28                | EXT expressions '}'
+   29                | EXT expressions
+
+   30 postfix_expression: primary_expression
+   31                   | sub_variable
+   32                   | chng_operator
+   33                   | call_expression
+
+   34 unary_expression: postfix_expression
+   35                 | INC reference
+   36                 | DEC reference
+   37                 | type_operator
+   38                 | '-' postfix_expression
+   39                 | '!' postfix_expression
+
+   40 multiplicative_expression: unary_expression
+   41                          | multiplicative_expression '*' unary_expression
+   42                          | multiplicative_expression '/' unary_expression
+   43                          | unary_expression '%' unary_expression
+
+   44 additive_expression: multiplicative_expression
+   45                    | additive_expression '+' multiplicative_expression
+   46                    | additive_expression '-' multiplicative_expression
+
+   47 shift_expression: additive_expression
+   48                 | additive_expression LEFT additive_expression
+   49                 | additive_expression RIGHT additive_expression
+
+   50 relational_expression: shift_expression
+   51                      | shift_expression '<' shift_expression
+   52                      | shift_expression '>' shift_expression
+   53                      | shift_expression EQUALS_LESS shift_expression
+   54                      | shift_expression EQUALS_GREATER shift_expression
+
+   55 equality_expression: relational_expression
+   56                    | relational_expression EQUALS relational_expression
+   57                    | relational_expression DIFFERS relational_expression
+   58                    | relational_expression MATCH relational_expression
+
+   59 logical_expression: equality_expression
+   60                   | logical_expression OR equality_expression
+   61                   | logical_expression AND equality_expression
+   62                   | logical_expression '&' equality_expression
+   63                   | logical_expression '|' equality_expression
+
+   64 expression: logical_expression
+
+   65 expressions: expressions expression
+   66            | expression
+
+   67 assignment_statement: reference '=' expression
+
+   68 jump_statement: BREAK
+   69               | EXIT
+   70               | CONTINUE
+
+   71 iteration_statement: WHILE '(' expression ')' statements END_WHILE
+   72                    | FOR '(' statement ';' expression ';' statement ')' statements END_FOR
+   73                    | FOREACH '(' reference IN expression ')' statements END_FOREACH
+
+   74 selection_statement: IF '(' expression ')' statements END_IF
+   75                    | IF '(' expression ')' statements ELSE statements END_IF
+
+   76 statement: assignment_statement
+   77          | jump_statement
+   78          | iteration_statement
+   79          | selection_statement
+   80          | expression
+
+   81 statements: statements statement
+   82           | statements ';' statement
+   83           | statements ';'
+   84           | statement
+   85           | statement ';'
+
+   86 template: statements
+
+
+Symbole terminalne i regu³y, w których wystêpuj±
+
+$end (0) 0
+'!' (33) 39
+'%' (37) 43
+'&' (38) 62
+'(' (40) 5 6 7 11 22 26 27 71 72 73 74 75
+')' (41) 5 6 7 11 22 26 27 71 72 73 74 75
+'*' (42) 41
+'+' (43) 45
+',' (44) 21
+'-' (45) 38 46
+'.' (46) 14 19
+'/' (47) 42
+';' (59) 72 82 83 85
+'<' (60) 51
+'=' (61) 67
+'>' (62) 52
+'[' (91) 13 18
+']' (93) 13 18
+'|' (124) 63
+'}' (125) 23 24 28
+error (256)
+END_WHILE (258) 71
+WHILE (259) 71
+IN (260) 73
+END_FOREACH (261) 73
+FOREACH (262) 73
+END_FOR (263) 72
+FOR (264) 72
+END_IF (265) 74 75
+ELSE (266) 75
+IF (267) 74 75
+ERROR (268)
+CONTINUE (269) 70
+EXIT (270) 69
+BREAK (271) 68
+AND (272) 61
+OR (273) 60
+DIFFERS (274) 57
+EQUALS_GREATER (275) 54
+EQUALS_LESS (276) 53
+EQUALS (277) 56
+NEG (278)
+MATCH (279) 58
+RIGHT (280) 49
+LEFT (281) 48
+DEC (282) 17 36
+INC (283) 16 35
+CONST (284) 25
+END_BLOCK (285) 22 23 24
+BLOCK (286) 22 23 24
+EXT (287) 26 27 28 29
+TYPEOF (288) 7
+TO_NUMBER (289) 6
+TO_STRING (290) 5
+NULL_CONST (291) 4
+NAME (292) 12 14 19
+TEXT (293) 1
+NUMBER (294) 3
+LITERAL (295) 2
+
+
+Symbole nieterminalne i regu³y, w których wystêpuj±
+
+$accept (60)
+    po lewej: 0
+value (61)
+    po lewej: 1 2 3 4, po prawej: 10
+type_conv (62)
+    po lewej: 5 6, po prawej: 8
+type_of (63)
+    po lewej: 7, po prawej: 9
+type_operator (64)
+    po lewej: 8 9, po prawej: 37
+primary_expression (65)
+    po lewej: 10 11, po prawej: 30
+reference (66)
+    po lewej: 12 13 14, po prawej: 13 14 15 16 17 35 36 67 73
+chng_operator (67)
+    po lewej: 15 16 17, po prawej: 32
+sub_variable (68)
+    po lewej: 18 19, po prawej: 31
+argument_expression_list (69)
+    po lewej: 20 21, po prawej: 21 22 26
+call_expression (70)
+    po lewej: 22 23 24 25 26 27 28 29, po prawej: 33
+postfix_expression (71)
+    po lewej: 30 31 32 33, po prawej: 18 19 34 38 39
+unary_expression (72)
+    po lewej: 34 35 36 37 38 39, po prawej: 40 41 42 43
+multiplicative_expression (73)
+    po lewej: 40 41 42 43, po prawej: 41 42 44 45 46
+additive_expression (74)
+    po lewej: 44 45 46, po prawej: 45 46 47 48 49
+shift_expression (75)
+    po lewej: 47 48 49, po prawej: 50 51 52 53 54
+relational_expression (76)
+    po lewej: 50 51 52 53 54, po prawej: 55 56 57 58
+equality_expression (77)
+    po lewej: 55 56 57 58, po prawej: 59 60 61 62 63
+logical_expression (78)
+    po lewej: 59 60 61 62 63, po prawej: 20 21 60 61 62 63 64
+expression (79)
+    po lewej: 64, po prawej: 5 6 7 11 13 18 65 66 67 71 72 73 74 75
+    80
+expressions (80)
+    po lewej: 65 66, po prawej: 24 28 29 65
+assignment_statement (81)
+    po lewej: 67, po prawej: 76
+jump_statement (82)
+    po lewej: 68 69 70, po prawej: 77
+iteration_statement (83)
+    po lewej: 71 72 73, po prawej: 78
+selection_statement (84)
+    po lewej: 74 75, po prawej: 79
+statement (85)
+    po lewej: 76 77 78 79 80, po prawej: 72 81 82 84 85
+statements (86)
+    po lewej: 81 82 83 84 85, po prawej: 22 23 24 71 72 73 74 75 81
+    82 83 86
+template (87)
+    po lewej: 86, po prawej: 0
+
+
+stan 0
+
+    0 $accept: . template $end
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 47
+    template                   przej¶cie do stanu 48
+
+
+stan 1
+
+   71 iteration_statement: WHILE . '(' expression ')' statements END_WHILE
+
+    '('  przesuniêcie, i przej¶cie do stanu 49
+
+
+stan 2
+
+   73 iteration_statement: FOREACH . '(' reference IN expression ')' statements END_FOREACH
+
+    '('  przesuniêcie, i przej¶cie do stanu 50
+
+
+stan 3
+
+   72 iteration_statement: FOR . '(' statement ';' expression ';' statement ')' statements END_FOR
+
+    '('  przesuniêcie, i przej¶cie do stanu 51
+
+
+stan 4
+
+   74 selection_statement: IF . '(' expression ')' statements END_IF
+   75                    | IF . '(' expression ')' statements ELSE statements END_IF
+
+    '('  przesuniêcie, i przej¶cie do stanu 52
+
+
+stan 5
+
+   70 jump_statement: CONTINUE .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 70 (jump_statement)
+
+
+stan 6
+
+   69 jump_statement: EXIT .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 69 (jump_statement)
+
+
+stan 7
+
+   68 jump_statement: BREAK .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 68 (jump_statement)
+
+
+stan 8
+
+   39 unary_expression: '!' . postfix_expression
+
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value               przej¶cie do stanu 24
+    primary_expression  przej¶cie do stanu 28
+    reference           przej¶cie do stanu 53
+    chng_operator       przej¶cie do stanu 30
+    sub_variable        przej¶cie do stanu 31
+    call_expression     przej¶cie do stanu 32
+    postfix_expression  przej¶cie do stanu 54
+
+
+stan 9
+
+   38 unary_expression: '-' . postfix_expression
+
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value               przej¶cie do stanu 24
+    primary_expression  przej¶cie do stanu 28
+    reference           przej¶cie do stanu 53
+    chng_operator       przej¶cie do stanu 30
+    sub_variable        przej¶cie do stanu 31
+    call_expression     przej¶cie do stanu 32
+    postfix_expression  przej¶cie do stanu 55
+
+
+stan 10
+
+   36 unary_expression: DEC . reference
+
+    NAME  przesuniêcie, i przej¶cie do stanu 19
+
+    reference  przej¶cie do stanu 56
+
+
+stan 11
+
+   35 unary_expression: INC . reference
+
+    NAME  przesuniêcie, i przej¶cie do stanu 19
+
+    reference  przej¶cie do stanu 57
+
+
+stan 12
+
+   25 call_expression: CONST .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 25 (call_expression)
+
+
+stan 13
+
+   22 call_expression: BLOCK . '(' argument_expression_list ')' statements END_BLOCK
+   23                | BLOCK . '}' statements END_BLOCK
+   24                | BLOCK . expressions '}' statements END_BLOCK
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 58
+    '}'         przesuniêcie, i przej¶cie do stanu 59
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 60
+    expressions                przej¶cie do stanu 61
+
+
+stan 14
+
+   26 call_expression: EXT . '(' argument_expression_list ')'
+   27                | EXT . '(' ')'
+   28                | EXT . expressions '}'
+   29                | EXT . expressions
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 62
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 60
+    expressions                przej¶cie do stanu 63
+
+
+stan 15
+
+    7 type_of: TYPEOF . '(' expression ')'
+
+    '('  przesuniêcie, i przej¶cie do stanu 64
+
+
+stan 16
+
+    6 type_conv: TO_NUMBER . '(' expression ')'
+
+    '('  przesuniêcie, i przej¶cie do stanu 65
+
+
+stan 17
+
+    5 type_conv: TO_STRING . '(' expression ')'
+
+    '('  przesuniêcie, i przej¶cie do stanu 66
+
+
+stan 18
+
+    4 value: NULL_CONST .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 4 (value)
+
+
+stan 19
+
+   12 reference: NAME .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 12 (reference)
+
+
+stan 20
+
+    1 value: TEXT .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 1 (value)
+
+
+stan 21
+
+    3 value: NUMBER .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 3 (value)
+
+
+stan 22
+
+    2 value: LITERAL .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 2 (value)
+
+
+stan 23
+
+   11 primary_expression: '(' . expression ')'
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 67
+
+
+stan 24
+
+   10 primary_expression: value .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 10 (primary_expression)
+
+
+stan 25
+
+    8 type_operator: type_conv .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 8 (type_operator)
+
+
+stan 26
+
+    9 type_operator: type_of .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 9 (type_operator)
+
+
+stan 27
+
+   37 unary_expression: type_operator .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 37 (unary_expression)
+
+
+stan 28
+
+   30 postfix_expression: primary_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 30 (postfix_expression)
+
+
+stan 29
+
+   13 reference: reference . '[' expression ']'
+   14          | reference . '.' NAME
+   15 chng_operator: reference .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')']
+   16              | reference . INC
+   17              | reference . DEC
+   67 assignment_statement: reference . '=' expression
+
+    DEC  przesuniêcie, i przej¶cie do stanu 68
+    INC  przesuniêcie, i przej¶cie do stanu 69
+    '.'  przesuniêcie, i przej¶cie do stanu 70
+    '['  przesuniêcie, i przej¶cie do stanu 71
+    '='  przesuniêcie, i przej¶cie do stanu 72
+
+    DEC         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    INC         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    '.'         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    '['         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 15 (chng_operator)
+
+
+stan 30
+
+   32 postfix_expression: chng_operator .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 32 (postfix_expression)
+
+
+stan 31
+
+   31 postfix_expression: sub_variable .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 31 (postfix_expression)
+
+
+stan 32
+
+   33 postfix_expression: call_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 33 (postfix_expression)
+
+
+stan 33
+
+   18 sub_variable: postfix_expression . '[' expression ']'
+   19             | postfix_expression . '.' NAME
+   34 unary_expression: postfix_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '.'  przesuniêcie, i przej¶cie do stanu 73
+    '['  przesuniêcie, i przej¶cie do stanu 74
+
+    '.'         [redukcja przy u¿yciu regu³y 34 (unary_expression)]
+    '['         [redukcja przy u¿yciu regu³y 34 (unary_expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 34 (unary_expression)
+
+
+stan 34
+
+   40 multiplicative_expression: unary_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+   43                          | unary_expression . '%' unary_expression
+
+    '%'  przesuniêcie, i przej¶cie do stanu 75
+
+    '%'         [redukcja przy u¿yciu regu³y 40 (multiplicative_expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 40 (multiplicative_expression)
+
+
+stan 35
+
+   41 multiplicative_expression: multiplicative_expression . '*' unary_expression
+   42                          | multiplicative_expression . '/' unary_expression
+   44 additive_expression: multiplicative_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '*'  przesuniêcie, i przej¶cie do stanu 76
+    '/'  przesuniêcie, i przej¶cie do stanu 77
+
+    '*'         [redukcja przy u¿yciu regu³y 44 (additive_expression)]
+    '/'         [redukcja przy u¿yciu regu³y 44 (additive_expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 44 (additive_expression)
+
+
+stan 36
+
+   45 additive_expression: additive_expression . '+' multiplicative_expression
+   46                    | additive_expression . '-' multiplicative_expression
+   47 shift_expression: additive_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+   48                 | additive_expression . LEFT additive_expression
+   49                 | additive_expression . RIGHT additive_expression
+
+    '+'    przesuniêcie, i przej¶cie do stanu 78
+    '-'    przesuniêcie, i przej¶cie do stanu 79
+    RIGHT  przesuniêcie, i przej¶cie do stanu 80
+    LEFT   przesuniêcie, i przej¶cie do stanu 81
+
+    '+'         [redukcja przy u¿yciu regu³y 47 (shift_expression)]
+    '-'         [redukcja przy u¿yciu regu³y 47 (shift_expression)]
+    RIGHT       [redukcja przy u¿yciu regu³y 47 (shift_expression)]
+    LEFT        [redukcja przy u¿yciu regu³y 47 (shift_expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 47 (shift_expression)
+
+
+stan 37
+
+   50 relational_expression: shift_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+   51                      | shift_expression . '<' shift_expression
+   52                      | shift_expression . '>' shift_expression
+   53                      | shift_expression . EQUALS_LESS shift_expression
+   54                      | shift_expression . EQUALS_GREATER shift_expression
+
+    '<'             przesuniêcie, i przej¶cie do stanu 82
+    '>'             przesuniêcie, i przej¶cie do stanu 83
+    EQUALS_GREATER  przesuniêcie, i przej¶cie do stanu 84
+    EQUALS_LESS     przesuniêcie, i przej¶cie do stanu 85
+
+    '<'             [redukcja przy u¿yciu regu³y 50 (relational_expression)]
+    '>'             [redukcja przy u¿yciu regu³y 50 (relational_expression)]
+    EQUALS_GREATER  [redukcja przy u¿yciu regu³y 50 (relational_expression)]
+    EQUALS_LESS     [redukcja przy u¿yciu regu³y 50 (relational_expression)]
+    $domy¶lnie      redukcja przy u¿yciu regu³y 50 (relational_expression)
+
+
+stan 38
+
+   55 equality_expression: relational_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+   56                    | relational_expression . EQUALS relational_expression
+   57                    | relational_expression . DIFFERS relational_expression
+   58                    | relational_expression . MATCH relational_expression
+
+    DIFFERS  przesuniêcie, i przej¶cie do stanu 86
+    EQUALS   przesuniêcie, i przej¶cie do stanu 87
+    MATCH    przesuniêcie, i przej¶cie do stanu 88
+
+    DIFFERS     [redukcja przy u¿yciu regu³y 55 (equality_expression)]
+    EQUALS      [redukcja przy u¿yciu regu³y 55 (equality_expression)]
+    MATCH       [redukcja przy u¿yciu regu³y 55 (equality_expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 55 (equality_expression)
+
+
+stan 39
+
+   59 logical_expression: equality_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 59 (logical_expression)
+
+
+stan 40
+
+   60 logical_expression: logical_expression . OR equality_expression
+   61                   | logical_expression . AND equality_expression
+   62                   | logical_expression . '&' equality_expression
+   63                   | logical_expression . '|' equality_expression
+   64 expression: logical_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    AND  przesuniêcie, i przej¶cie do stanu 89
+    OR   przesuniêcie, i przej¶cie do stanu 90
+    '&'  przesuniêcie, i przej¶cie do stanu 91
+    '|'  przesuniêcie, i przej¶cie do stanu 92
+
+    AND         [redukcja przy u¿yciu regu³y 64 (expression)]
+    OR          [redukcja przy u¿yciu regu³y 64 (expression)]
+    '&'         [redukcja przy u¿yciu regu³y 64 (expression)]
+    '|'         [redukcja przy u¿yciu regu³y 64 (expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 64 (expression)
+
+
+stan 41
+
+   80 statement: expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 80 (statement)
+
+
+stan 42
+
+   76 statement: assignment_statement .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 76 (statement)
+
+
+stan 43
+
+   77 statement: jump_statement .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 77 (statement)
+
+
+stan 44
+
+   78 statement: iteration_statement .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 78 (statement)
+
+
+stan 45
+
+   79 statement: selection_statement .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 79 (statement)
+
+
+stan 46
+
+   84 statements: statement .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, '!', '-', DEC, INC, CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(']
+   85           | statement . ';'
+
+    ';'  przesuniêcie, i przej¶cie do stanu 93
+
+    ';'         [redukcja przy u¿yciu regu³y 84 (statements)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 84 (statements)
+
+
+stan 47
+
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+   86 template: statements .  [$end]
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 86 (template)
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 48
+
+    0 $accept: template . $end
+
+    $end  przesuniêcie, i przej¶cie do stanu 96
+
+
+stan 49
+
+   71 iteration_statement: WHILE '(' . expression ')' statements END_WHILE
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 97
+
+
+stan 50
+
+   73 iteration_statement: FOREACH '(' . reference IN expression ')' statements END_FOREACH
+
+    NAME  przesuniêcie, i przej¶cie do stanu 19
+
+    reference  przej¶cie do stanu 98
+
+
+stan 51
+
+   72 iteration_statement: FOR '(' . statement ';' expression ';' statement ')' statements END_FOR
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 99
+
+
+stan 52
+
+   74 selection_statement: IF '(' . expression ')' statements END_IF
+   75                    | IF '(' . expression ')' statements ELSE statements END_IF
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 100
+
+
+stan 53
+
+   13 reference: reference . '[' expression ']'
+   14          | reference . '.' NAME
+   15 chng_operator: reference .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+   16              | reference . INC
+   17              | reference . DEC
+
+    DEC  przesuniêcie, i przej¶cie do stanu 68
+    INC  przesuniêcie, i przej¶cie do stanu 69
+    '.'  przesuniêcie, i przej¶cie do stanu 70
+    '['  przesuniêcie, i przej¶cie do stanu 71
+
+    DEC         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    INC         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    '.'         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    '['         [redukcja przy u¿yciu regu³y 15 (chng_operator)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 15 (chng_operator)
+
+
+stan 54
+
+   18 sub_variable: postfix_expression . '[' expression ']'
+   19             | postfix_expression . '.' NAME
+   39 unary_expression: '!' postfix_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '.'  przesuniêcie, i przej¶cie do stanu 73
+    '['  przesuniêcie, i przej¶cie do stanu 74
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 39 (unary_expression)
+
+
+stan 55
+
+   18 sub_variable: postfix_expression . '[' expression ']'
+   19             | postfix_expression . '.' NAME
+   38 unary_expression: '-' postfix_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '.'  przesuniêcie, i przej¶cie do stanu 73
+    '['  przesuniêcie, i przej¶cie do stanu 74
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 38 (unary_expression)
+
+
+stan 56
+
+   13 reference: reference . '[' expression ']'
+   14          | reference . '.' NAME
+   36 unary_expression: DEC reference .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '.'  przesuniêcie, i przej¶cie do stanu 70
+    '['  przesuniêcie, i przej¶cie do stanu 71
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 36 (unary_expression)
+
+
+stan 57
+
+   13 reference: reference . '[' expression ']'
+   14          | reference . '.' NAME
+   35 unary_expression: INC reference .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '.'  przesuniêcie, i przej¶cie do stanu 70
+    '['  przesuniêcie, i przej¶cie do stanu 71
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 35 (unary_expression)
+
+
+stan 58
+
+   11 primary_expression: '(' . expression ')'
+   22 call_expression: BLOCK '(' . argument_expression_list ')' statements END_BLOCK
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    argument_expression_list   przej¶cie do stanu 101
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 102
+    expression                 przej¶cie do stanu 67
+
+
+stan 59
+
+   23 call_expression: BLOCK '}' . statements END_BLOCK
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 103
+
+
+stan 60
+
+   66 expressions: expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 66 (expressions)
+
+
+stan 61
+
+   24 call_expression: BLOCK expressions . '}' statements END_BLOCK
+   65 expressions: expressions . expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+    '}'         przesuniêcie, i przej¶cie do stanu 104
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 105
+
+
+stan 62
+
+   11 primary_expression: '(' . expression ')'
+   26 call_expression: EXT '(' . argument_expression_list ')'
+   27                | EXT '(' . ')'
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+    ')'         przesuniêcie, i przej¶cie do stanu 106
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    argument_expression_list   przej¶cie do stanu 107
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 102
+    expression                 przej¶cie do stanu 67
+
+
+stan 63
+
+   28 call_expression: EXT expressions . '}'
+   29                | EXT expressions .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', END_BLOCK, '(', ')', ']', ',', '}']
+   65 expressions: expressions . expression
+
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+    '}'         przesuniêcie, i przej¶cie do stanu 108
+
+    CONST  b³±d (symbol nie³±cz±cy siê)
+    BLOCK  b³±d (symbol nie³±cz±cy siê)
+    EXT    b³±d (symbol nie³±cz±cy siê)
+
+    '('         [redukcja przy u¿yciu regu³y 29 (call_expression)]
+    '}'         [redukcja przy u¿yciu regu³y 29 (call_expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 29 (call_expression)
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 105
+
+
+stan 64
+
+    7 type_of: TYPEOF '(' . expression ')'
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 109
+
+
+stan 65
+
+    6 type_conv: TO_NUMBER '(' . expression ')'
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 110
+
+
+stan 66
+
+    5 type_conv: TO_STRING '(' . expression ')'
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 111
+
+
+stan 67
+
+   11 primary_expression: '(' expression . ')'
+
+    ')'  przesuniêcie, i przej¶cie do stanu 112
+
+
+stan 68
+
+   17 chng_operator: reference DEC .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 17 (chng_operator)
+
+
+stan 69
+
+   16 chng_operator: reference INC .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 16 (chng_operator)
+
+
+stan 70
+
+   14 reference: reference '.' . NAME
+
+    NAME  przesuniêcie, i przej¶cie do stanu 113
+
+
+stan 71
+
+   13 reference: reference '[' . expression ']'
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 114
+
+
+stan 72
+
+   67 assignment_statement: reference '=' . expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 115
+
+
+stan 73
+
+   19 sub_variable: postfix_expression '.' . NAME
+
+    NAME  przesuniêcie, i przej¶cie do stanu 116
+
+
+stan 74
+
+   18 sub_variable: postfix_expression '[' . expression ']'
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 117
+
+
+stan 75
+
+   43 multiplicative_expression: unary_expression '%' . unary_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value               przej¶cie do stanu 24
+    type_conv           przej¶cie do stanu 25
+    type_of             przej¶cie do stanu 26
+    type_operator       przej¶cie do stanu 27
+    primary_expression  przej¶cie do stanu 28
+    reference           przej¶cie do stanu 53
+    chng_operator       przej¶cie do stanu 30
+    sub_variable        przej¶cie do stanu 31
+    call_expression     przej¶cie do stanu 32
+    postfix_expression  przej¶cie do stanu 33
+    unary_expression    przej¶cie do stanu 118
+
+
+stan 76
+
+   41 multiplicative_expression: multiplicative_expression '*' . unary_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value               przej¶cie do stanu 24
+    type_conv           przej¶cie do stanu 25
+    type_of             przej¶cie do stanu 26
+    type_operator       przej¶cie do stanu 27
+    primary_expression  przej¶cie do stanu 28
+    reference           przej¶cie do stanu 53
+    chng_operator       przej¶cie do stanu 30
+    sub_variable        przej¶cie do stanu 31
+    call_expression     przej¶cie do stanu 32
+    postfix_expression  przej¶cie do stanu 33
+    unary_expression    przej¶cie do stanu 119
+
+
+stan 77
+
+   42 multiplicative_expression: multiplicative_expression '/' . unary_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value               przej¶cie do stanu 24
+    type_conv           przej¶cie do stanu 25
+    type_of             przej¶cie do stanu 26
+    type_operator       przej¶cie do stanu 27
+    primary_expression  przej¶cie do stanu 28
+    reference           przej¶cie do stanu 53
+    chng_operator       przej¶cie do stanu 30
+    sub_variable        przej¶cie do stanu 31
+    call_expression     przej¶cie do stanu 32
+    postfix_expression  przej¶cie do stanu 33
+    unary_expression    przej¶cie do stanu 120
+
+
+stan 78
+
+   45 additive_expression: additive_expression '+' . multiplicative_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 121
+
+
+stan 79
+
+   46 additive_expression: additive_expression '-' . multiplicative_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 122
+
+
+stan 80
+
+   49 shift_expression: additive_expression RIGHT . additive_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 123
+
+
+stan 81
+
+   48 shift_expression: additive_expression LEFT . additive_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 124
+
+
+stan 82
+
+   51 relational_expression: shift_expression '<' . shift_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 125
+
+
+stan 83
+
+   52 relational_expression: shift_expression '>' . shift_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 126
+
+
+stan 84
+
+   54 relational_expression: shift_expression EQUALS_GREATER . shift_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 127
+
+
+stan 85
+
+   53 relational_expression: shift_expression EQUALS_LESS . shift_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 128
+
+
+stan 86
+
+   57 equality_expression: relational_expression DIFFERS . relational_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 129
+
+
+stan 87
+
+   56 equality_expression: relational_expression EQUALS . relational_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 130
+
+
+stan 88
+
+   58 equality_expression: relational_expression MATCH . relational_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 131
+
+
+stan 89
+
+   61 logical_expression: logical_expression AND . equality_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 132
+
+
+stan 90
+
+   60 logical_expression: logical_expression OR . equality_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 133
+
+
+stan 91
+
+   62 logical_expression: logical_expression '&' . equality_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 134
+
+
+stan 92
+
+   63 logical_expression: logical_expression '|' . equality_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 135
+
+
+stan 93
+
+   85 statements: statement ';' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 85 (statements)
+
+
+stan 94
+
+   82 statements: statements ';' . statement
+   83           | statements ';' .  [$end, ';', END_WHILE, END_FOREACH, END_FOR, END_IF, ELSE, END_BLOCK, '(']
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    '('         [redukcja przy u¿yciu regu³y 83 (statements)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 83 (statements)
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 136
+
+
+stan 95
+
+   81 statements: statements statement .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 81 (statements)
+
+
+stan 96
+
+    0 $accept: template $end .
+
+    $domy¶lnie  akceptowanie
+
+
+stan 97
+
+   71 iteration_statement: WHILE '(' expression . ')' statements END_WHILE
+
+    ')'  przesuniêcie, i przej¶cie do stanu 137
+
+
+stan 98
+
+   13 reference: reference . '[' expression ']'
+   14          | reference . '.' NAME
+   73 iteration_statement: FOREACH '(' reference . IN expression ')' statements END_FOREACH
+
+    IN   przesuniêcie, i przej¶cie do stanu 138
+    '.'  przesuniêcie, i przej¶cie do stanu 70
+    '['  przesuniêcie, i przej¶cie do stanu 71
+
+
+stan 99
+
+   72 iteration_statement: FOR '(' statement . ';' expression ';' statement ')' statements END_FOR
+
+    ';'  przesuniêcie, i przej¶cie do stanu 139
+
+
+stan 100
+
+   74 selection_statement: IF '(' expression . ')' statements END_IF
+   75                    | IF '(' expression . ')' statements ELSE statements END_IF
+
+    ')'  przesuniêcie, i przej¶cie do stanu 140
+
+
+stan 101
+
+   21 argument_expression_list: argument_expression_list . ',' logical_expression
+   22 call_expression: BLOCK '(' argument_expression_list . ')' statements END_BLOCK
+
+    ')'  przesuniêcie, i przej¶cie do stanu 141
+    ','  przesuniêcie, i przej¶cie do stanu 142
+
+
+stan 102
+
+   20 argument_expression_list: logical_expression .  [')', ',']
+   60 logical_expression: logical_expression . OR equality_expression
+   61                   | logical_expression . AND equality_expression
+   62                   | logical_expression . '&' equality_expression
+   63                   | logical_expression . '|' equality_expression
+   64 expression: logical_expression .  [')']
+
+    AND  przesuniêcie, i przej¶cie do stanu 89
+    OR   przesuniêcie, i przej¶cie do stanu 90
+    '&'  przesuniêcie, i przej¶cie do stanu 91
+    '|'  przesuniêcie, i przej¶cie do stanu 92
+
+    ')'         redukcja przy u¿yciu regu³y 20 (argument_expression_list)
+    ')'         [redukcja przy u¿yciu regu³y 64 (expression)]
+    $domy¶lnie  redukcja przy u¿yciu regu³y 20 (argument_expression_list)
+
+
+stan 103
+
+   23 call_expression: BLOCK '}' statements . END_BLOCK
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    END_BLOCK   przesuniêcie, i przej¶cie do stanu 143
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 104
+
+   24 call_expression: BLOCK expressions '}' . statements END_BLOCK
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 144
+
+
+stan 105
+
+   65 expressions: expressions expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 65 (expressions)
+
+
+stan 106
+
+   27 call_expression: EXT '(' ')' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 27 (call_expression)
+
+
+stan 107
+
+   21 argument_expression_list: argument_expression_list . ',' logical_expression
+   26 call_expression: EXT '(' argument_expression_list . ')'
+
+    ')'  przesuniêcie, i przej¶cie do stanu 145
+    ','  przesuniêcie, i przej¶cie do stanu 142
+
+
+stan 108
+
+   28 call_expression: EXT expressions '}' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 28 (call_expression)
+
+
+stan 109
+
+    7 type_of: TYPEOF '(' expression . ')'
+
+    ')'  przesuniêcie, i przej¶cie do stanu 146
+
+
+stan 110
+
+    6 type_conv: TO_NUMBER '(' expression . ')'
+
+    ')'  przesuniêcie, i przej¶cie do stanu 147
+
+
+stan 111
+
+    5 type_conv: TO_STRING '(' expression . ')'
+
+    ')'  przesuniêcie, i przej¶cie do stanu 148
+
+
+stan 112
+
+   11 primary_expression: '(' expression ')' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 11 (primary_expression)
+
+
+stan 113
+
+   14 reference: reference '.' NAME .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 14 (reference)
+
+
+stan 114
+
+   13 reference: reference '[' expression . ']'
+
+    ']'  przesuniêcie, i przej¶cie do stanu 149
+
+
+stan 115
+
+   67 assignment_statement: reference '=' expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 67 (assignment_statement)
+
+
+stan 116
+
+   19 sub_variable: postfix_expression '.' NAME .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 19 (sub_variable)
+
+
+stan 117
+
+   18 sub_variable: postfix_expression '[' expression . ']'
+
+    ']'  przesuniêcie, i przej¶cie do stanu 150
+
+
+stan 118
+
+   43 multiplicative_expression: unary_expression '%' unary_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 43 (multiplicative_expression)
+
+
+stan 119
+
+   41 multiplicative_expression: multiplicative_expression '*' unary_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 41 (multiplicative_expression)
+
+
+stan 120
+
+   42 multiplicative_expression: multiplicative_expression '/' unary_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 42 (multiplicative_expression)
+
+
+stan 121
+
+   41 multiplicative_expression: multiplicative_expression . '*' unary_expression
+   42                          | multiplicative_expression . '/' unary_expression
+   45 additive_expression: additive_expression '+' multiplicative_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '*'  przesuniêcie, i przej¶cie do stanu 76
+    '/'  przesuniêcie, i przej¶cie do stanu 77
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 45 (additive_expression)
+
+
+stan 122
+
+   41 multiplicative_expression: multiplicative_expression . '*' unary_expression
+   42                          | multiplicative_expression . '/' unary_expression
+   46 additive_expression: additive_expression '-' multiplicative_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    '*'  przesuniêcie, i przej¶cie do stanu 76
+    '/'  przesuniêcie, i przej¶cie do stanu 77
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 46 (additive_expression)
+
+
+stan 123
+
+   45 additive_expression: additive_expression . '+' multiplicative_expression
+   46                    | additive_expression . '-' multiplicative_expression
+   49 shift_expression: additive_expression RIGHT additive_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 49 (shift_expression)
+
+
+stan 124
+
+   45 additive_expression: additive_expression . '+' multiplicative_expression
+   46                    | additive_expression . '-' multiplicative_expression
+   48 shift_expression: additive_expression LEFT additive_expression .  [$end, ';', END_WHILE, WHILE, END_FOREACH, FOREACH, END_FOR, FOR, END_IF, ELSE, IF, CONTINUE, EXIT, BREAK, AND, OR, '<', '>', DIFFERS, EQUALS_GREATER, EQUALS_LESS, EQUALS, '!', '+', '-', '*', '/', '%', '&', '|', MATCH, RIGHT, LEFT, DEC, INC, '.', '[', CONST, END_BLOCK, BLOCK, EXT, TYPEOF, TO_NUMBER, TO_STRING, NULL_CONST, NAME, TEXT, NUMBER, LITERAL, '(', ')', ']', ',', '}']
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 48 (shift_expression)
+
+
+stan 125
+
+   51 relational_expression: shift_expression '<' shift_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 51 (relational_expression)
+
+
+stan 126
+
+   52 relational_expression: shift_expression '>' shift_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 52 (relational_expression)
+
+
+stan 127
+
+   54 relational_expression: shift_expression EQUALS_GREATER shift_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 54 (relational_expression)
+
+
+stan 128
+
+   53 relational_expression: shift_expression EQUALS_LESS shift_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 53 (relational_expression)
+
+
+stan 129
+
+   57 equality_expression: relational_expression DIFFERS relational_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 57 (equality_expression)
+
+
+stan 130
+
+   56 equality_expression: relational_expression EQUALS relational_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 56 (equality_expression)
+
+
+stan 131
+
+   58 equality_expression: relational_expression MATCH relational_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 58 (equality_expression)
+
+
+stan 132
+
+   61 logical_expression: logical_expression AND equality_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 61 (logical_expression)
+
+
+stan 133
+
+   60 logical_expression: logical_expression OR equality_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 60 (logical_expression)
+
+
+stan 134
+
+   62 logical_expression: logical_expression '&' equality_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 62 (logical_expression)
+
+
+stan 135
+
+   63 logical_expression: logical_expression '|' equality_expression .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 63 (logical_expression)
+
+
+stan 136
+
+   82 statements: statements ';' statement .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 82 (statements)
+
+
+stan 137
+
+   71 iteration_statement: WHILE '(' expression ')' . statements END_WHILE
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 151
+
+
+stan 138
+
+   73 iteration_statement: FOREACH '(' reference IN . expression ')' statements END_FOREACH
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 152
+
+
+stan 139
+
+   72 iteration_statement: FOR '(' statement ';' . expression ';' statement ')' statements END_FOR
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 153
+
+
+stan 140
+
+   74 selection_statement: IF '(' expression ')' . statements END_IF
+   75                    | IF '(' expression ')' . statements ELSE statements END_IF
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 154
+
+
+stan 141
+
+   22 call_expression: BLOCK '(' argument_expression_list ')' . statements END_BLOCK
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 155
+
+
+stan 142
+
+   21 argument_expression_list: argument_expression_list ',' . logical_expression
+
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 53
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 156
+
+
+stan 143
+
+   23 call_expression: BLOCK '}' statements END_BLOCK .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 23 (call_expression)
+
+
+stan 144
+
+   24 call_expression: BLOCK expressions '}' statements . END_BLOCK
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    END_BLOCK   przesuniêcie, i przej¶cie do stanu 157
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 145
+
+   26 call_expression: EXT '(' argument_expression_list ')' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 26 (call_expression)
+
+
+stan 146
+
+    7 type_of: TYPEOF '(' expression ')' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 7 (type_of)
+
+
+stan 147
+
+    6 type_conv: TO_NUMBER '(' expression ')' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 6 (type_conv)
+
+
+stan 148
+
+    5 type_conv: TO_STRING '(' expression ')' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 5 (type_conv)
+
+
+stan 149
+
+   13 reference: reference '[' expression ']' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 13 (reference)
+
+
+stan 150
+
+   18 sub_variable: postfix_expression '[' expression ']' .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 18 (sub_variable)
+
+
+stan 151
+
+   71 iteration_statement: WHILE '(' expression ')' statements . END_WHILE
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    END_WHILE   przesuniêcie, i przej¶cie do stanu 158
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 152
+
+   73 iteration_statement: FOREACH '(' reference IN expression . ')' statements END_FOREACH
+
+    ')'  przesuniêcie, i przej¶cie do stanu 159
+
+
+stan 153
+
+   72 iteration_statement: FOR '(' statement ';' expression . ';' statement ')' statements END_FOR
+
+    ';'  przesuniêcie, i przej¶cie do stanu 160
+
+
+stan 154
+
+   74 selection_statement: IF '(' expression ')' statements . END_IF
+   75                    | IF '(' expression ')' statements . ELSE statements END_IF
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    END_IF      przesuniêcie, i przej¶cie do stanu 161
+    ELSE        przesuniêcie, i przej¶cie do stanu 162
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 155
+
+   22 call_expression: BLOCK '(' argument_expression_list ')' statements . END_BLOCK
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    END_BLOCK   przesuniêcie, i przej¶cie do stanu 163
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 156
+
+   21 argument_expression_list: argument_expression_list ',' logical_expression .  [')', ',']
+   60 logical_expression: logical_expression . OR equality_expression
+   61                   | logical_expression . AND equality_expression
+   62                   | logical_expression . '&' equality_expression
+   63                   | logical_expression . '|' equality_expression
+
+    AND  przesuniêcie, i przej¶cie do stanu 89
+    OR   przesuniêcie, i przej¶cie do stanu 90
+    '&'  przesuniêcie, i przej¶cie do stanu 91
+    '|'  przesuniêcie, i przej¶cie do stanu 92
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 21 (argument_expression_list)
+
+
+stan 157
+
+   24 call_expression: BLOCK expressions '}' statements END_BLOCK .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 24 (call_expression)
+
+
+stan 158
+
+   71 iteration_statement: WHILE '(' expression ')' statements END_WHILE .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 71 (iteration_statement)
+
+
+stan 159
+
+   73 iteration_statement: FOREACH '(' reference IN expression ')' . statements END_FOREACH
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 164
+
+
+stan 160
+
+   72 iteration_statement: FOR '(' statement ';' expression ';' . statement ')' statements END_FOR
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 165
+
+
+stan 161
+
+   74 selection_statement: IF '(' expression ')' statements END_IF .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 74 (selection_statement)
+
+
+stan 162
+
+   75 selection_statement: IF '(' expression ')' statements ELSE . statements END_IF
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 166
+
+
+stan 163
+
+   22 call_expression: BLOCK '(' argument_expression_list ')' statements END_BLOCK .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 22 (call_expression)
+
+
+stan 164
+
+   73 iteration_statement: FOREACH '(' reference IN expression ')' statements . END_FOREACH
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'          przesuniêcie, i przej¶cie do stanu 94
+    WHILE        przesuniêcie, i przej¶cie do stanu 1
+    END_FOREACH  przesuniêcie, i przej¶cie do stanu 167
+    FOREACH      przesuniêcie, i przej¶cie do stanu 2
+    FOR          przesuniêcie, i przej¶cie do stanu 3
+    IF           przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE     przesuniêcie, i przej¶cie do stanu 5
+    EXIT         przesuniêcie, i przej¶cie do stanu 6
+    BREAK        przesuniêcie, i przej¶cie do stanu 7
+    '!'          przesuniêcie, i przej¶cie do stanu 8
+    '-'          przesuniêcie, i przej¶cie do stanu 9
+    DEC          przesuniêcie, i przej¶cie do stanu 10
+    INC          przesuniêcie, i przej¶cie do stanu 11
+    CONST        przesuniêcie, i przej¶cie do stanu 12
+    BLOCK        przesuniêcie, i przej¶cie do stanu 13
+    EXT          przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF       przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER    przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING    przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST   przesuniêcie, i przej¶cie do stanu 18
+    NAME         przesuniêcie, i przej¶cie do stanu 19
+    TEXT         przesuniêcie, i przej¶cie do stanu 20
+    NUMBER       przesuniêcie, i przej¶cie do stanu 21
+    LITERAL      przesuniêcie, i przej¶cie do stanu 22
+    '('          przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 165
+
+   72 iteration_statement: FOR '(' statement ';' expression ';' statement . ')' statements END_FOR
+
+    ')'  przesuniêcie, i przej¶cie do stanu 168
+
+
+stan 166
+
+   75 selection_statement: IF '(' expression ')' statements ELSE statements . END_IF
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    END_IF      przesuniêcie, i przej¶cie do stanu 169
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 167
+
+   73 iteration_statement: FOREACH '(' reference IN expression ')' statements END_FOREACH .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 73 (iteration_statement)
+
+
+stan 168
+
+   72 iteration_statement: FOR '(' statement ';' expression ';' statement ')' . statements END_FOR
+
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 46
+    statements                 przej¶cie do stanu 170
+
+
+stan 169
+
+   75 selection_statement: IF '(' expression ')' statements ELSE statements END_IF .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 75 (selection_statement)
+
+
+stan 170
+
+   72 iteration_statement: FOR '(' statement ';' expression ';' statement ')' statements . END_FOR
+   81 statements: statements . statement
+   82           | statements . ';' statement
+   83           | statements . ';'
+
+    ';'         przesuniêcie, i przej¶cie do stanu 94
+    WHILE       przesuniêcie, i przej¶cie do stanu 1
+    FOREACH     przesuniêcie, i przej¶cie do stanu 2
+    END_FOR     przesuniêcie, i przej¶cie do stanu 171
+    FOR         przesuniêcie, i przej¶cie do stanu 3
+    IF          przesuniêcie, i przej¶cie do stanu 4
+    CONTINUE    przesuniêcie, i przej¶cie do stanu 5
+    EXIT        przesuniêcie, i przej¶cie do stanu 6
+    BREAK       przesuniêcie, i przej¶cie do stanu 7
+    '!'         przesuniêcie, i przej¶cie do stanu 8
+    '-'         przesuniêcie, i przej¶cie do stanu 9
+    DEC         przesuniêcie, i przej¶cie do stanu 10
+    INC         przesuniêcie, i przej¶cie do stanu 11
+    CONST       przesuniêcie, i przej¶cie do stanu 12
+    BLOCK       przesuniêcie, i przej¶cie do stanu 13
+    EXT         przesuniêcie, i przej¶cie do stanu 14
+    TYPEOF      przesuniêcie, i przej¶cie do stanu 15
+    TO_NUMBER   przesuniêcie, i przej¶cie do stanu 16
+    TO_STRING   przesuniêcie, i przej¶cie do stanu 17
+    NULL_CONST  przesuniêcie, i przej¶cie do stanu 18
+    NAME        przesuniêcie, i przej¶cie do stanu 19
+    TEXT        przesuniêcie, i przej¶cie do stanu 20
+    NUMBER      przesuniêcie, i przej¶cie do stanu 21
+    LITERAL     przesuniêcie, i przej¶cie do stanu 22
+    '('         przesuniêcie, i przej¶cie do stanu 23
+
+    value                      przej¶cie do stanu 24
+    type_conv                  przej¶cie do stanu 25
+    type_of                    przej¶cie do stanu 26
+    type_operator              przej¶cie do stanu 27
+    primary_expression         przej¶cie do stanu 28
+    reference                  przej¶cie do stanu 29
+    chng_operator              przej¶cie do stanu 30
+    sub_variable               przej¶cie do stanu 31
+    call_expression            przej¶cie do stanu 32
+    postfix_expression         przej¶cie do stanu 33
+    unary_expression           przej¶cie do stanu 34
+    multiplicative_expression  przej¶cie do stanu 35
+    additive_expression        przej¶cie do stanu 36
+    shift_expression           przej¶cie do stanu 37
+    relational_expression      przej¶cie do stanu 38
+    equality_expression        przej¶cie do stanu 39
+    logical_expression         przej¶cie do stanu 40
+    expression                 przej¶cie do stanu 41
+    assignment_statement       przej¶cie do stanu 42
+    jump_statement             przej¶cie do stanu 43
+    iteration_statement        przej¶cie do stanu 44
+    selection_statement        przej¶cie do stanu 45
+    statement                  przej¶cie do stanu 95
+
+
+stan 171
+
+   72 iteration_statement: FOR '(' statement ';' expression ';' statement ')' statements END_FOR .
+
+    $domy¶lnie  redukcja przy u¿yciu regu³y 72 (iteration_statement)
