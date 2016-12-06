@@ -41,7 +41,7 @@
 
 						$actions[$row['id']] = 'javascript:pinv(\''.$row['id'].'\',\''.$row['pricebuynet'].'\',\''.$row['pricebuygross'].'\', \''.$row['ql'].'\')';
 						$eglible[$row['id']] = escape_js(($row['deleted'] ? '<font class="blend">' : '')
-						.truncate_str($desc, 100).($row['deleted'] ? '</font>' : ''));
+						.$desc.($row['deleted'] ? '</font>' : ''));
 
 						$descriptions[$row['id']] = '('.$row['id'].') '.trans("Bought:")." ".date("d/m/Y", $row['bdate']);;
 

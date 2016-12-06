@@ -54,7 +54,9 @@ if (!isset($_GET['sent']) && isset($_SERVER['HTTP_REFERER']) && !preg_match('/m=
 	$add_message = ConfigHelper::checkConfig('sendinvoices.add_message');
 	$dsn_email = ConfigHelper::getConfig('sendinvoices.dsn_email', '', true);
 	$mdn_email = ConfigHelper::getConfig('sendinvoices.mdn_email', '', true);
-
+//echo ConfigHelper::getConfig('sendinvoices.smtp_host')." ".$smtp_port = ConfigHelper::getConfig('sendinvoices.smtp_port')." ".ConfigHelper::getConfig('sendinvoices.smtp_user');
+//echo ConfigHelper::getConfig('sendinvoices.smtp_pass')." ".ConfigHelper::getConfig('sendinvoices.smtp_auth');
+//exit;
 	if (empty($sender_email))
 		echo '<span class="red">' . trans("Fatal error: sender_email unset! Can't continue, exiting.") . '</span><br>';
 

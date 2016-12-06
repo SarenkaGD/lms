@@ -90,7 +90,7 @@ switch($type)
 		$SMARTY->assign('params', $params);
 		$SMARTY->assign('productlist', $pgl);
 
-		$SMARTY->display('printstocklist.html');
+		$SMARTY->display('stck/printstocklist.html');
 	}
 
 	break;
