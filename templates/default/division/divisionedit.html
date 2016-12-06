@@ -213,7 +213,11 @@
 </TABLE>
 <SCRIPT type="text/javascript">
 <!--
-document.forms['division'].elements['division[shortname]'].focus();
+$(function() {
+	$('form[name="division"] [name="division[shortname]"]').focus();
+
+	check_teryt(['location', 'location_city'], true);
+});
 //-->
 </SCRIPT>
 {/block}
