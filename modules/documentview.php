@@ -37,6 +37,30 @@ if (!empty($_POST['marks'])) {
 
 		$list = $DB->GetAll('SELECT filename, contenttype, md5sum FROM documentattachments
 			WHERE docid IN (' . implode(',', $list) . ')');
+
+		$html = $pdf = $other = false;
+		foreach ($list as $doc) {
+			$ctype = $doc['contenttype'];
+			if (!$html && !$pdf)
+				if (preg_match('/html$/i', $ctype))
+					$html = true;
+				elseif (preg_match('/pdf$/i', $ctype))
+					$pdf = true;
+				else {
+					$other = true;
+					break;
+				}
+			else
+				if (($html && !preg_match('/html$/i', $ctype))
+					|| ($pdf && !preg_match('/pdf$/i', $ctype))) {
+					$other = true;
+					break;
+				}
+		}
+
+		if ($other && sizeof($list) > 1)
+			die('Currently you can only print many documents of type text/html or application/pdf!');
+
 		$ctype = $list[0]['contenttype'];
 
 		if (!preg_match('/^text/i', $ctype)) {

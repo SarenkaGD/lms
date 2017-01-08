@@ -132,6 +132,7 @@ DROP TABLE IF EXISTS location_cities;
 DROP TABLE IF EXISTS location_boroughs;
 DROP TABLE IF EXISTS location_districts;
 DROP TABLE IF EXISTS location_states;
+DROP TABLE IF EXISTS location_buildings;
 DROP TABLE IF EXISTS receiptcontents;
 DROP TABLE IF EXISTS documentattachments;
 DROP TABLE IF EXISTS documentcontents;
@@ -412,6 +413,8 @@ CREATE TABLE documents (
 	div_inv_cplace text NOT NULL DEFAULT '',
 	fullnumber varchar(50) DEFAULT NULL,
 	cancelled smallint DEFAULT 0 NOT NULL,
+	published tinyint(1) NOT NULL DEFAULT 0,
+	cuserid int(11) NOT NULL DEFAULT '0',
 	PRIMARY KEY (id),
 	INDEX cdate (cdate),
 	INDEX numberplanid (numberplanid),
@@ -550,6 +553,25 @@ CREATE TABLE location_streets (
     FOREIGN KEY (typeid) REFERENCES location_street_types (id) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (cityid) REFERENCES location_cities (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=INNODB;
+
+# --------------------------------------------------------
+#
+# Structure of table location_streets
+#
+CREATE TABLE location_buildings (
+    id           int(11) auto_increment,
+    city_id      int(11) NOT NULL,
+    street_id    int(11) NULL,
+    building_num varchar(20) NULL,
+    flats        int(11) NULL,
+    latitude     numeric(10,6) NULL,
+    longitude    numeric(10,6) NULL,
+    updated      smallint DEFAULT 0,
+    PRIMARY KEY (id),
+    FOREIGN KEY (city_id) REFERENCES location_cities (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (street_id) REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
+    INDEX location_cityid_index (city_id)
+) ENGINE=InnoDB;
 
 # --------------------------------------------------------
 #
@@ -1618,6 +1640,7 @@ CREATE TABLE cashsources (
     id      int(11)         NOT NULL auto_increment,
     name	varchar(32)     DEFAULT '' NOT NULL,
     description text		DEFAULT NULL,
+    account varchar(48)		NOT NULL DEFAULT '',
     deleted smallint		NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY name (name)
@@ -2738,4 +2761,4 @@ INSERT INTO netdevicemodels (name, alternative_name, netdeviceproducerid) VALUES
 ('XR7', 'XR7 MINI PCI PCBA', 2),
 ('XR9', 'MINI PCI 600MW 900MHZ', 2);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016091300');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016122100');

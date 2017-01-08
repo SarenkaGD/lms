@@ -43,6 +43,23 @@ version ?.??.?? (????-??-??):
   - enhancement: allow to define teryt addresses and tax office codes for divisions [chilan]
   - improvement: JPK FA (invoices) report uses recently added division teryt location
     and division tax office assigned [chilan]
+  - improvement: allow to print web layout without left menu bar, top autosuggest fields
+    and toolbar [chilan]
+  - enhancement: show document creator on document lists [chilan]
+  - enhancement: added support for confirmation user storage in documents [chilan]
+  - enhancement: allow to select which helpdesk ticket details are printed [chilan]
+  - enhancement: added document number sort cryterion to invoice report [chilan]
+  - added script to load and bind buildings with teryt localizations [kosa/chilan]
+  - improvement: switched to new multi attachment code for new mail messages [chilan]
+  - improvement: when we try to send messages to more than 50 customers at once, confirmation
+    dialog is displayed [chilan]
+  - enhancement: cash source: added suport for main bank account definition [chilan]
+  - enhancement: lms-notify.php: all actions are logged into transaction log [chilan]
+  - improvement: voip.cdr_billing_record_format configuration variable describes
+    format of billing record [chilan]
+  - improvement: allow to print invoices manually issued [chilan]
+  - enhacement: added documents flag to email and phone customer contacts which allows
+    to decide if those contacts should be printed on documents [chilan]
 
 version 1.11.21 (2016-10-14):
 

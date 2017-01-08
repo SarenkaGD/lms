@@ -188,17 +188,22 @@ if (isset($_POST['document'])) {
 				account, inv_header, inv_footer, inv_author, inv_cplace 
 				FROM divisions WHERE id = ? ;',array($customer['divisionid']));
 
-		$fullnumber = docnumber($document['number'],
-			$DB->GetOne('SELECT template FROM numberplans WHERE id = ?', array($document['numberplanid'])),
-			$time);
-		$DB->Execute('INSERT INTO documents (type, number, numberplanid, cdate, 
+		$fullnumber = docnumber(array(
+			'number' => $document['number'],
+			'template' => $DB->GetOne('SELECT template FROM numberplans WHERE id = ?', array($document['numberplanid'])),
+			'cdate' => $time,
+			'customerid' => $document['customerid'],
+		));
+		$DB->Execute('INSERT INTO documents (type, number, numberplanid, cdate, sdate, cuserid,
 			customerid, userid, name, address, zip, city, ten, ssn, divisionid, 
 			div_name, div_shortname, div_address, div_city, div_zip, div_countryid, div_ten, div_regon,
 			div_account, div_inv_header, div_inv_footer, div_inv_author, div_inv_cplace, closed, fullnumber)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array($document['type'],
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array($document['type'],
 				$document['number'],
 				$document['numberplanid'],
 				$time,
+				isset($document['closed']) ? $time : 0,
+				isset($document['closed']) ? $AUTH->id : 0,
 				$document['customerid'],
 				$AUTH->id,
 				trim($customer['lastname'] . ' ' . $customer['name']),

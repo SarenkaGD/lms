@@ -258,7 +258,27 @@ CREATE TABLE location_streets (
     UNIQUE (cityid, name, ident)
 );
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
+  Structure of table "location_buildings"
+-------------------------------------------------------- */
+DROP SEQUENCE IF EXISTS location_buildings_id_seq;
+CREATE SEQUENCE location_buildings_id_seq;
+DROP TABLE IF EXISTS location_buildings CASCADE;
+CREATE TABLE location_buildings (
+    id           integer DEFAULT nextval('location_buildings_id_seq'::text) NOT NULL,
+    city_id      integer NOT NULL REFERENCES location_cities  (id) ON DELETE CASCADE  ON UPDATE CASCADE,
+    street_id    integer NULL     REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
+    building_num varchar(20) NULL,
+    flats        integer NULL,
+    latitude     numeric(10,6) NULL,
+    longitude    numeric(10,6) NULL,
+    updated      smallint DEFAULT 0,
+    PRIMARY KEY (id)
+);
+DROP INDEX IF EXISTS location_cityid_index;
+CREATE INDEX location_cityid_index ON location_buildings (city_id);
+
+/* --------------------------------------------------------
   Structure of table "pna"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS pna_id_seq;
@@ -406,6 +426,13 @@ CREATE TABLE divisions (
 	inv_paytype	smallint	DEFAULT NULL,
 	description 	text		NOT NULL DEFAULT '',
 	status 		smallint 	NOT NULL DEFAULT 0,
+	location_city integer DEFAULT NULL
+		REFERENCES location_cities (id) ON UPDATE CASCADE ON DELETE SET NULL,
+	location_street integer DEFAULT NULL
+		REFERENCES location_streets (id) ON UPDATE CASCADE ON DELETE SET NULL,
+	location_house varchar(32) DEFAULT NULL,
+	location_flat varchar(32) DEFAULT NULL,
+	tax_office_code varchar(8) DEFAULT NULL,
 	PRIMARY KEY (id),
 	UNIQUE (shortname)
 );
@@ -1106,6 +1133,8 @@ CREATE TABLE documents (
 	div_inv_cplace text	DEFAULT '' NOT NULL,
 	fullnumber varchar(50)	DEFAULT NULL,
 	cancelled smallint	DEFAULT 0 NOT NULL,
+	published smallint	DEFAULT 0 NOT NULL,
+	cuserid integer		DEFAULT 0 NOT NULL,
 	PRIMARY KEY (id)
 );
 CREATE INDEX documents_cdate_idx ON documents(cdate);
@@ -1694,6 +1723,7 @@ CREATE TABLE cashsources (
     id integer      	DEFAULT nextval('cashsources_id_seq'::text) NOT NULL,
     name varchar(32)    DEFAULT '' NOT NULL,
     description text	DEFAULT NULL,
+    account varchar(48) NOT NULL DEFAULT '',
     deleted smallint	NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE (name)
@@ -1956,7 +1986,7 @@ DROP SEQUENCE IF EXISTS zipcodes_id_seq;
 CREATE SEQUENCE zipcodes_id_seq;
 DROP TABLE IF EXISTS zipcodes CASCADE;
 CREATE TABLE zipcodes (
-    	id 		integer 	DEFAULT nextval('customerassignments_id_seq'::text) NOT NULL,
+    	id 		integer 	DEFAULT nextval('zipcodes_id_seq'::text) NOT NULL,
 	zip 		varchar(10) 	NOT NULL DEFAULT '',
 	stateid 	integer 	NOT NULL DEFAULT 0,
 	PRIMARY KEY (id),
@@ -2350,6 +2380,10 @@ CREATE VIEW customermailsview AS
 			FROM customercontacts
 			WHERE (type & 8) > 0 AND contact <> ''
 			GROUP BY customerid;
+
+CREATE VIEW vusers AS
+	SELECT *, (firstname || ' ' || lastname) AS name, (lastname || ' ' || firstname) AS rname
+	FROM users;
 
 /* ---------------------------------------------------
  Data records
@@ -2847,6 +2881,6 @@ INSERT INTO netdevicemodels (name, alternative_name, netdeviceproducerid) VALUES
 ('XR7', 'XR7 MINI PCI PCBA', 2),
 ('XR9', 'MINI PCI 600MW 900MHZ', 2);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016091300');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016122100');
 
 COMMIT;

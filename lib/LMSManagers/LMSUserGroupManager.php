@@ -69,9 +69,9 @@ class LMSUserGroupManager extends LMSManager implements LMSUserGroupManagerInter
     
     public function UsergroupGet($id){
         $result = $this->db->GetRow('SELECT id, name, description FROM usergroups WHERE id=?', array($id));
-        $result['users'] = $this->db->GetAll('SELECT u.id AS id, u.name AS username FROM userassignments, users u '
-                . 'WHERE u.id = userid AND usergroupid = ? '
-                . ' GROUP BY u.id, u.name ORDER BY u.name', array($id));
+        $result['users'] = $this->db->GetAll('SELECT vu.id AS id, vu.name AS username FROM userassignments, vusers vu '
+                . 'WHERE vu.id = userid AND usergroupid = ? '
+                . ' GROUP BY vu.id, vu.name, vu.lastname ORDER BY vu.lastname', array($id));
 
         $result['userscount'] = sizeof($result['users']);
         $result['count'] = $result['userscount'];

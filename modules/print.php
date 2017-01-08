@@ -72,8 +72,8 @@ switch($type)
 				    taxes.label AS taxlabel, customerid, comment, name AS username 
 				    FROM cash c
 				    LEFT JOIN taxes ON (c.taxid = taxes.id)
-				    LEFT JOIN users ON (users.id = userid)
-				    WHERE c.customerid = ? 
+				    LEFT JOIN vusers ON (vusers.id = userid)
+				    WHERE c.customerid = ?
 					    AND NOT EXISTS (
 				                    SELECT 1 FROM customerassignments a
 					            JOIN excludedgroups e ON (a.customergroupid = e.customergroupid)
@@ -434,6 +434,7 @@ switch($type)
 			.(!empty($_POST['numberplan']) ? '&numberplanid='.intval($_POST['numberplan']) : '')
 			.(!empty($_POST['groupexclude']) ? '&groupexclude=1' : '')
 			.(!empty($_POST['autoissued']) ? '&autoissued=1' : '')
+			.(!empty($_POST['manualissued']) ? '&manualissued=1' : '')
 		);
 	break;
 

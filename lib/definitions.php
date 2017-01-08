@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2013 LMS Developers
+ *  (C) Copyright 2001-2016 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -328,6 +328,7 @@ define('CONTACT_BANKACCOUNT', 64);
 define('CONTACT_TECHNICAL', 128);
 define('CONTACT_URL', 256);
 define('CONTACT_DISABLED', 16384);
+define('CONTACT_DOCUMENTS', 32768);
 
 $CONTACTTYPES = array(
     CONTACT_MOBILE          =>	trans('mobile'),
@@ -336,6 +337,11 @@ $CONTACTTYPES = array(
     CONTACT_DISABLED        =>	trans('disabled'),
     CONTACT_NOTIFICATIONS   =>	trans('notifications'),
     CONTACT_TECHNICAL       =>	trans('technical'),
+    CONTACT_IM_GG           =>	trans('Gadu-Gadu'),
+    CONTACT_IM_YAHOO        =>	trans('Yahoo'),
+    CONTACT_IM_SKYPE        =>	trans('Skype'),
+    CONTACT_IM_FACEBOOK     =>	trans('Facebook'),
+    CONTACT_DOCUMENTS		=>	trans('documents'),
 );
 
 define('DISCOUNT_PERCENTAGE', 1);
@@ -568,7 +574,6 @@ if(isset($SMARTY))
 	$SMARTY->assign('_NUM_PERIODS', $NUM_PERIODS);
 	$SMARTY->assign('_RT_STATES', $RT_STATES);
 	$SMARTY->assign('_CONFIG_TYPES', $CONFIG_TYPES);
-	$SMARTY->assign('_MESSENGERS', $MESSENGERS);
 	$SMARTY->assign('_TARIFFTYPES', $TARIFFTYPES);
 	$SMARTY->assign('_PAYTYPES', $PAYTYPES);
 	$SMARTY->assign('_CONTACTTYPES', $CONTACTTYPES);
@@ -592,6 +597,6 @@ define('DEFAULT_NUMBER_TEMPLATE', '%N/LMS/%Y');
 
 // Investment project types
 define('INV_PROJECT_REGULAR', 0);
-define('INV_PROJECT_SYSTEM', 1)
+define('INV_PROJECT_SYSTEM', 1);
 
 ?>

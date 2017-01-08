@@ -211,6 +211,22 @@ function submit_location()
 			city.value ? city.options[city.selectedIndex].text : '',
 			street.value ? street.options[street.selectedIndex].text : '',
 			house.value, flat.value);
+		if (!/^(.+)\s*,\s*(.+)$/.test(locat)) {
+			// handle variant with city without street names
+			/^.+\((.+)\)$/.test(city.options[city.selectedIndex].text);
+			var borough = RegExp.$1;
+			{foreach $_BOROUGHTYPES as $key => $item}
+			borough = borough.replace('{$item} ', '');
+			{/foreach}
+			locat = borough + ', ' + locat;
+			/^(.+)\s*,\s*(.+)$/.test(locat);
+		}
+		if (loc_city) {
+			loc.value = RegExp.$2;
+			loc_city.value = RegExp.$1;
+		} else {
+			loc.value = locat;
+		}
 	}
 
 	window.parent.popclick();

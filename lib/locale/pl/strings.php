@@ -23,6 +23,18 @@
  *
  *  $Id$
  */
+
+$_LANG['documents'] = 'dokumenty';
+$_LANG['Check if contact should be printed on documents'] = 'Zaznacz jeśli kontakt powinien być drukowany na dokumentach';
+
+$_LANG['Are you sure you want to send messages to $a customer(s)?'] = 'Jesteś pewien, że chcesz wysłać wiadmości do $a klient(a/ów)?';
+
+$_LANG['Export to JPK format'] = 'Eksport do formatu JPK';
+$_LANG['Division not selected!'] = 'Nie wybrano firmy!';
+$_LANG['Tax Office Code:'] = 'Kod Urzędu Podatkowego:';
+$_LANG['Enter Tax Office Code (optional)'] = 'Wprowadź Kod Urzędu Podatkowego (opcjpnalnie)';
+$_LANG['Invalid format of Tax Office Code!'] = 'Niepoprawny format Kodu Urzędu Podatkowego!';
+
 $_LANG['billing'] = 'biling';
 $_LANG['Billing'] = 'Biling';
 $_LANG['Billings'] = 'Bilingi';
@@ -2788,6 +2800,7 @@ $_LANG['Management URL cannot be empty!'] = 'Adres URL do zarządzania nie może
 $_LANG['Management URL is too short!'] = 'Adres URL do zarządzania jest zbyt krótki!';
 
 $_LANG['only automatically issued'] = 'tylko wystawione automatycznie';
+$_LANG['only manually issued'] = 'tylko wystawione ręcznie';
 
 $_LANG['Password expiration:'] = 'Wygasanie hasła:';
 $_LANG['Last password change:'] = 'Ostatnia zmiana hasła:';
@@ -3440,5 +3453,20 @@ $_LANG['LMS: operation failed!'] = 'LMS: operacja nie powiodła się!';
 $_LANG['AJAX: Invalid result - status:'] = 'AJAX: niepoprawny wynik - status:';
 
 $_LANG['Columns'] = 'Kolumny';
+
+$_LANG['Creation date<!document>'] = 'Data utworzenia';
+$_LANG['Confirmation date<!document>'] = 'Data zatwierdzenia';
+$_LANG['Created by<!document>'] = 'Utworzono przez';
+$_LANG['Confirmed by<!document>'] = 'Zatwierdzono przez';
+
+$_LANG['Notes<!rt>'] = 'Notatki';
+$_LANG['History<!rt>'] = 'Historia';
+
+$_LANG['sort by'] = 'sortuj wg';
+$_LANG['Select sort cryterion'] = 'Wybierz kryterium sortowania';
+$_LANG['Document number'] = 'Numer dokumentu';
+
+$_LANG['Enter main bank account number'] = 'Wprowadź główny numer rachunku bankowego (opcjonalnie)';
+$_LANG['Main bank account:'] = 'Główny numer rachunku:';
 
 ?>

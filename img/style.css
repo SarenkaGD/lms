@@ -582,7 +582,25 @@ div.multiselectlayer ul span {
     color: black;
   }
 }
-table.lmsbox, table.lmsbox-inner, table.lmsbox-innerbox {
+@media print {
+  .ui-tooltip,
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+}
+.lms-ui-multi-check-all {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+table.lmsbox {
+  margin: 0px 2px 4px 0px;
+}
+table.lmsbox,
+table.lmsbox-inner,
+table.lmsbox-innerbox {
   width: 100%;
 }
 table.lmsbox td, table.lmsbox-inner td, table.lmsbox-innerbox td {
