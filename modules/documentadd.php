@@ -184,9 +184,23 @@ if (isset($_POST['document'])) {
 
 		$DB->BeginTrans();
 
-		$division = $DB->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
-				account, inv_header, inv_footer, inv_author, inv_cplace 
-				FROM divisions WHERE id = ? ;',array($customer['divisionid']));
+		$division = $DB->GetRow('SELECT d.name, d.shortname, d.ten, d.regon,
+									d.account, d.inv_header, d.inv_footer, d.inv_author, d.inv_cplace,
+									addr.country_id as countryid, addr.zip,
+									addr.city, addr.house, addr.flat, addr.street
+								FROM
+									divisions d
+									LEFT JOIN addresses addr ON d.address_id = addr.id
+								WHERE d.id = ?;',array($customer['divisionid']));
+
+		if ($division) {
+			$tmp = array('city_name'     => $division['city'],
+						'location_house' => $division['house'],
+						'location_flat'  => $division['flat'],
+						'street_name'    => $division['street']);
+
+			$division['address'] = location_str( $tmp );
+		}
 
 		$fullnumber = docnumber(array(
 			'number' => $document['number'],
@@ -289,19 +303,12 @@ if (!$rights) {
 	die;
 }
 
-$allnumberplans = array();
-$numberplans = array();
-
-if ($templist = $LMS->GetNumberPlans())
-	foreach ($templist as $item)
-		if ($item['doctype'] < 0)
-			$allnumberplans[] = $item;
-
 if (isset($document['type'])) {
-	foreach ($allnumberplans as $plan)
-		if ($plan['doctype'] == $document['type'])
-			$numberplans[] = $plan;
-}
+	$customerid = isset($document['customerid']) ? $document['customerid'] : null;
+	$numberplans = GetDocumentNumberPlans($document['type'], $customerid);
+} else
+	$numberplans = array();
+$SMARTY->assign('numberplans', $numberplans);
 
 $docengines = GetDocumentTemplates($rights, isset($document['type']) ? $document['type'] : NULL);
 
@@ -313,9 +320,7 @@ if (!ConfigHelper::checkConfig('phpui.big_networks'))
 	$SMARTY->assign('customers', $LMS->GetCustomerNames());
 
 $SMARTY->assign('error', $error);
-$SMARTY->assign('numberplans', $numberplans);
 $SMARTY->assign('docrights', $rights);
-$SMARTY->assign('allnumberplans', $allnumberplans);
 $SMARTY->assign('docengines', $docengines);
 $SMARTY->assign('document', $document);
 $SMARTY->display('document/documentadd.html');

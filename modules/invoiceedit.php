@@ -24,6 +24,8 @@
  *  $Id$
  */
 
+include(MODULES_DIR . DIRECTORY_SEPARATOR . 'invoicexajax.inc.php');
+
 $taxeslist = $LMS->GetTaxes();
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
@@ -250,7 +252,7 @@ switch($action)
 
 		$division = $DB->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
 			account, inv_header, inv_footer, inv_author, inv_cplace 
-			FROM divisions WHERE id = ? ;',array($customer['divisionid']));
+			FROM vdivisions WHERE id = ? ;',array($customer['divisionid']));
 
 		$args = array(
 			'cdate' => $cdate,
@@ -419,8 +421,20 @@ $SMARTY->assign('customer', $customer);
 $SMARTY->assign('invoice', $invoice);
 $SMARTY->assign('tariffs', $LMS->GetTariffs());
 $SMARTY->assign('taxeslist', $taxeslist);
+
+$args = array(
+	'doctype' => DOC_INVOICE,
+	'cdate' => date('Y/m', $invoice['cdate']),
+);
+if (isset($customer) && !empty($customer)) {
+	$args['customerid'] = $customer['id'];
+	$args['division'] = $DB->GetOne('SELECT divisionid FROM customers WHERE id = ?', array($customer['id']));
+}
+$SMARTY->assign('numberplanlist', $LMS->GetNumberPlans($args));
+
 if (ConfigHelper::getConfig('phpui.stock'))
 	$SMARTY->display('stck/invoiceedit.stck.html');
 else
 	$SMARTY->display('invoice/invoiceedit.html');
+
 ?>

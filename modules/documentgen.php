@@ -223,7 +223,7 @@ if (isset($_POST['document'])) {
 
 			$division = $DB->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
 				account, inv_header, inv_footer, inv_author, inv_cplace 
-				FROM divisions WHERE id = ? ;',array($gencust['divisionid']));
+				FROM vdivisions WHERE id = ? ;',array($gencust['divisionid']));
 
 			$fullnumber = docnumber($document['number'],
 				$DB->GetOne('SELECT template FROM numberplans WHERE id = ?', array($document['numberplanid'])),
@@ -340,12 +340,13 @@ if ($templist = $LMS->GetNumberPlans())
 		if ($item['doctype'] < 0)
 			$numberplans[] = $item;
 
+$SMARTY->assign('numberplans', $numberplans);
+
 $docengines = GetDocumentTemplates($rights, isset($document['type']) ? $document['type'] : NULL);
 
 $SMARTY->assign('networks', $LMS->GetNetworks());
 $SMARTY->assign('customergroups', $LMS->CustomergroupGetAll());
 $SMARTY->assign('error', $error);
-$SMARTY->assign('numberplans', $numberplans);
 $SMARTY->assign('docrights', $rights);
 $SMARTY->assign('docengines', $docengines);
 $SMARTY->assign('document', $document);

@@ -436,6 +436,23 @@ $(function() {
 					$('div#pagecontent').show();
 				}
 			}
+		}).on('column-visibility.dt', function(e, settings, column, visible) {
+			if (!visible)
+				return;
+			var api = $(this).data('api');
+			var searchValue = api.columns(column).search()[0];
+			var columnStates = api.state().columns;
+			var i = 0;
+			api.columns().every(function(index) {
+				if (index == column) {
+					$('thead tr:last-child th:nth-child(' + (i + 1) + ') :input', elem).val(searchValue);
+					//console.log(i + ' ' + index + ' ' + column);
+				}
+				if (!columnStates[index].visible) {
+					return;
+				}
+				i++;
+			});
 		});
 
 		$(elem).DataTable({
@@ -689,15 +706,15 @@ $(function() {
 			skin: "lms",
 		});
 
-		editors.each(function() {
-			function toggle_visual_editor(id) {
-				if (tinyMCE.get(id)) {
-					tinyMCE.execCommand('mceToggleEditor', false, id);
-				} else {
-					tinyMCE.execCommand('mceAddControl', true, id);
-				}
+		function toggle_visual_editor(id) {
+			if (tinyMCE.get(id)) {
+				tinyMCE.execCommand('mceToggleEditor', false, id);
+			} else {
+				tinyMCE.execCommand('mceAddControl', true, id);
 			}
+		}
 
+		editors.each(function() {
 			var parent = $(this).parent();
 			var textareaid = $(this).uniqueId().attr('id');
 			var wysiwyg = $(this).attr('data-wysiwyg');
@@ -713,6 +730,13 @@ $(function() {
 				lmsMessages.visualEditor + '</label></TD></TR>' +
 				'<TR><TD>' + textarea + '</TD></TR>' +
 				'</TBODY>'));
+			// it is required as textarea changed value is not propagated automatically to editor instance content
+			$('textarea', parent).change(function(e) {
+				if (ed = tinyMCE.get(textareaid)) {
+					//console.log(e.target.value);
+					ed.load();
+				}
+			});
 			$('[name="' + inputname + '"]:checkbox', parent).click(function() {
 				toggle_visual_editor(textareaid);
 			});

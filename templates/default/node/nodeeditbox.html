@@ -134,25 +134,6 @@
 									</td>
 								</tr>
 
-								<tr>
-									<td>
-										<img src="img/home.gif" alt="">
-									</td>
-									<td>
-										{trans("Location:")}
-									</td>
-									<td class="nobr">
-										<input type="text" SIZE="40" value="{$nodeinfo.location}" id="location" name="nodeedit[location]"  {tip text="Enter location (optional)" trigger="location"}>
-										<A href="javascript: void(0);" onclick="if (check_teryt()) return locationchoosewin('nodeedit', 'editnode', document.forms['editnode'].elements['nodeedit[location_city]'].value,  document.forms['editnode'].elements['nodeedit[location_street]'].value, {ConfigHelper::getConfig('phpui.default_teryt_city')})" {tip text="Click to select location"}>&raquo;&raquo;&raquo;</A>
-										<br>
-										<input type="hidden" name="nodeedit[location_city]" value="{$nodeinfo.location_city}">
-										<input type="hidden" name="nodeedit[location_street]" value="{$nodeinfo.location_street}">
-										<input type="hidden" name="nodeedit[location_house]" value="{$nodeinfo.location_house}">
-										<input type="hidden" name="nodeedit[location_flat]" value="{$nodeinfo.location_flat}">
-										<input type="checkbox" name="nodeedit[teryt]" id="teryt" onchange="check_teryt('location')"{if $nodeinfo.teryt} checked{/if}> <label for="teryt">{trans("TERRIT-DB")}</label>
-									</td>
-								</tr>
-
 								{if $netdevices}
 								<tr>
 									<td>
@@ -231,7 +212,29 @@
 										{trans("Customer:")}
 									</td>
 									<td class="nobr">
-										{customerlist form="editnode" customers=$customers selected=$nodeinfo.ownerid selectname="nodeedit[customerid]" inputname="nodeedit[ownerid]" firstoption="" selecttip="Assign node to customer"}
+										{customerlist
+											form        = "editnode"
+											customers   = $customers
+											selected    = $nodeinfo.ownerid
+											selectname  = "nodeedit[customerid]"
+											select_id   = "customerid_select"
+											inputname   = "nodeedit[ownerid]"
+											input_id    = "customerid_input"
+											firstoption = ""
+											selecttip   = "Assign node to customer"
+										}
+									</td>
+								</tr>
+
+								<tr>
+									<td>
+										<img src="img/home.gif" alt="">
+									</td>
+									<td>
+										{trans("Location:")}
+									</td>
+									<td class="nobr">
+										<select id="customer_addresses" name="nodeedit[address_id]" {tip trigger="address_id"}></select>
 									</td>
 								</tr>
 
@@ -286,7 +289,7 @@
 						                <img src="img/network.gif" alt="">
 						            </td>
 						            <td colspan="2" class="font-normal">
-						                <a href="javascript:set_lat_lon()" accesskey="s">{trans("Determine GPS coordinates automatically")}</a>
+						                <span class="lms-ui-button" id="set_gps">{trans("Determine GPS coordinates automatically")}</span>
 						            </td>
 						        </tr>
 
@@ -375,102 +378,45 @@
 		</td>
 	</tr>
 	<tr>
-            <td width="1%">
-                <img src="img/network.gif" alt="">
-            </td>
-            <td colspan="2" width="99%">
-                <a href="javascript:set_lat_lon()" accesskey="s">{trans("Determine GPS coordinates automatically")}</a>
-            </td>
-        </tr>
-        <TR>
-		<TD style="width: 1%;">
-			<IMG SRC="img/home.gif" ALT="{trans("GPS coordinates:")}">
-		</TD>
-		<TD style="width: 1%; white-space: nowrap;">
-			<span class="bold">{trans("GPS longitude:")}</span>
-		</TD>
-		<TD style="width: 98%; white-space: nowrap;">
-			<INPUT ID="longitude" TYPE="text" NAME="nodeedit[longitude]" VALUE="{if $nodeinfo.longitude}{$nodeinfo.longitude}{else}{/if}" {tip text="Enter device longitude (optional)" trigger="longitude"}>
-			<a href="javascript: void(0);" onClick="return gpscoordschoosewin(document.editnode.elements['nodeedit[longitude]'], document.editnode.elements['nodeedit[latitude]']);" {tip text="Click to select gps coordinates from map"}>&raquo;&raquo;&raquo;</A>
-		</TD>
-	</TR>
-	<TR>
-		<TD style="width: 1%;">
-			<IMG SRC="img/home.gif" ALT="{trans("GPS coordinates:")}">
-		</TD>
-		<TD style="width: 1%; white-space: nowrap;">
-			<span class="bold">{trans("GPS latitude:")}</span>
-		</TD>
-		<TD style="width; 98%; white-space: nowrap;">
-			<INPUT ID="latitude" TYPE="text" NAME="nodeedit[latitude]" VALUE="{if $nodeinfo.latitude}{$nodeinfo.latitude}{else}{/if}" {tip text="Enter device latitude (optional)" trigger="latitude"}>
-			<a href="javascript: void(0);" onClick="return gpscoordschoosewin(document.editnode.elements['nodeedit[longitude]'], document.editnode.elements['nodeedit[latitude]']);" {tip text="Click to select gps coordinates from map"}>&raquo;&raquo;&raquo;</A>
-		</TD>
-	</TR>
-	<TR>
-		<TD style="width: 1%;">
-			<IMG SRC="img/info1.gif" ALT="{trans("Description:")}">
-		</TD>
-		<TD style="width: 99%;" COLSPAN="2">
-			<input type="checkbox" id="info_label" onclick="javascript:toggle_visual_editor('info');"{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'} checked{/if}>
-			<label for="info_label">{trans("visual editor")}</label><br>
-			<TEXTAREA NAME="nodeedit[info]" id="info" COLS="50" ROWS="5" {tip text="Enter additional information (optional)"}>{$nodeinfo.info}</TEXTAREA>
-		</TD>
-	</TR>
-	<TR>
-		<TD style="width: 1%;">
-			<IMG SRC="img/{if ! $nodeinfo.access}no{/if}access.gif" ALT="">
-		</TD>
-		<TD style="width: 99%;" COLSPAN="2">
-			<SELECT SIZE="1" NAME="nodeedit[access]" {tip text="Select node status" trigger="access"}>
-				<OPTION VALUE="1"{if $nodeinfo.access} SELECTED{/if}>{trans("connected<!singular>")}</OPTION>
-				<OPTION VALUE="0"{if ! $nodeinfo.access} SELECTED{/if}>{trans("disconnected<!singular>")}</OPTION>
-			</SELECT>
-		</TD>
-	</TR>
-	<TR>
-		<TD style="width: 1%;">
-			<IMG SRC="img/warning{if !$nodeinfo.warning}off{else}on{/if}.gif" ALT="">
-		</TD>
-		<TD style="width: 99%;" COLSPAN="2">
-			<SELECT SIZE="1" NAME="nodeedit[warning]" {tip text="Set notice for node"}>
-				<OPTION VALUE="1"{if $nodeinfo.warning} SELECTED{/if}>{trans("enabled")}</OPTION>
-				<OPTION VALUE="0"{if ! $nodeinfo.warning} SELECTED{/if}>{trans("disabled")}</OPTION>
-			</SELECT>
-		</TD>
-	</TR>
-	<TR>
-		<TD style="width: 1%;">
-			<IMG SRC="img/users.gif" ALT="">
-		</TD>
-		<TD style="width: 1%;">
-			<span class="bold">{trans("Created:")}<BR>
-			{trans("Modified:")}</span>
-		</TD>
-		<TD style="width: 98%;">
-			{$nodeinfo.createdby}, {$nodeinfo.creationdateh}<BR>
-			{if $nodeinfo.moddate}{$nodeinfo.modifiedby}, {$nodeinfo.moddateh}{else}-{/if}
-		</TD>
-	</TR>
+		<td width="100%" class="text-right" COLSPAN="3">
+			<a href="javascript:document.editnode.submit();" ACCESSKEY="s">{trans("Submit")} <img src="img/save.gif" alt=""></a>
+			<a href="?m=nodeinfo&amp;id={$nodeinfo.id}">{trans("Cancel")} <img src="img/cancel.gif" alt=""></a>
+		</td>
+	</tr>
+    </tbody>
+</table>
+</form>
 
-
-						</TABLE>
-					</TD>
-				</TR>
-			</TABLE>
-		</TD>
-	</TR>
-	<TR>
-		<TD style="width: 100%; text-align: right;" COLSPAN="3">
-			<A HREF="javascript:document.editnode.submit();" ACCESSKEY="s">{trans("Submit")} <IMG SRC="img/save.gif" alt=""></A>
-			<A HREF="?m=nodeinfo&amp;id={$nodeinfo.id}">{trans("Cancel")} <IMG SRC="img/cancel.gif" alt=""></A>
-		</TD>
-	</TR>
-    </TBODY>
-</TABLE>
-</FORM>
-<SCRIPT type="text/javascript">
+<script type="text/javascript" src="img/lms-ui-iconselectmenu.js"></script>
+<script type="text/javascript">
 <!--
-	document.forms['editnode'].elements['nodeedit[name]'].focus();
+	var customer_addresses = new LmsUiIconSelectMenu( "#customer_addresses" );
+
+	$(function() {
+		$('form[name="editnode"] [name="nodeedit[name]"]').focus();
+	});
+
+	// ---------------------
+	//  NOTICE ICON UPDATE
+	// ---------------------
+	noticeIcoUpdate();
+
+	$( '#notices' ).change( function() {
+		noticeIcoUpdate();
+	});
+
+	function noticeIcoUpdate() {
+		if ( $('#notices').val() == 1 ) {
+			$( '#noticesico' ).attr('src', 'img/warningon.gif');
+		} else {
+			$( '#noticesico' ).attr('src', 'img/warningoff.gif');
+		}
+	}
+
+	// ---------------------
+	//  STATUS ICON UPDATE
+	// ---------------------
+	statusIcoUpdate();
 
 	function GenPasswd() {
 		if(! confirm('{trans("Are you sure, you want to generate new password?")}'))
@@ -590,24 +536,43 @@
 
 	xajax_getRadioSectors({$nodeinfo.netdev}, {$nodeinfo.linktechnology});
 
-	check_teryt('location', true);
-
-	tinymce_init('{$_ui_language}');
-	{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'}
-	toggle_visual_editor('info');
-	{/if}
 	setNNProject();
 
-    function set_lat_lon(){
-        var loc = document.getElementById('location').value;
-        var geocoder = new google.maps.Geocoder();
-        geocoder.geocode( { 'address': loc}, function(results, status) {
-            if (status == google.maps.GeocoderStatus.OK) {
-                document.getElementById('latitude').value = results[0].geometry.location.lat();
-                document.getElementById('longitude').value = results[0].geometry.location.lng();
-            }
-        });
-    }
+    /*
+     * \brief Update address location update. Require google API key.
+     */
+    $( '#set_gps' ).click( function() {
+        setAddressLocation( $("#customer_addresses option:selected").text(), "#latitude", "#longitude" );
+    });
+
+    /*!
+     * \brief Update addresses list on customer input change.
+     */
+    $( '#customerid_input' ).on('input reset_customer', function() {
+        customer_addresses.setAddressList( getCustomerAddresses($(this).val()) );
+    });
+
+    {if !ConfigHelper::checkConfig('phpui.big_networks')}
+    /*!
+     * \brief Update customer addresses list on select change.
+     * Using when big_networks is set as false.
+     */
+    $( '#customerid_select' ).on('change reset_customer', function() {
+        var id = $(this).val();
+
+        if ( id != 'undefined' && id > 0 ) {
+            customer_addresses.setAddressList( getCustomerAddresses(id) );
+        }
+    });
+    {/if}
+
+    customer_addresses.setAddressList( getCustomerAddresses( {intval($nodeinfo.ownerid)} ) );
+
+    {if $nodeinfo.address_id && $nodeinfo.ownerid}
+        $( '#customer_addresses' ).val( {$nodeinfo.address_id} );
+    {/if}
+
+    customer_addresses.init();
 //-->
 </SCRIPT>
 

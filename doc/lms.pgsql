@@ -48,23 +48,11 @@ CREATE TABLE customers (
 	name varchar(128)	DEFAULT '' NOT NULL,
 	status smallint 	DEFAULT 0 NOT NULL,
 	type smallint		DEFAULT 0 NOT NULL,
-	street varchar(255) DEFAULT '' NOT NULL,
-	building varchar(20) DEFAULT NULL,
-	apartment varchar(20) DEFAULT NULL,
-	zip varchar(10)		DEFAULT '' NOT NULL,
-	city varchar(32) 	DEFAULT '' NOT NULL,
-	countryid integer	DEFAULT NULL,
-	post_name varchar(255) DEFAULT NULL,
-	post_street varchar(255) DEFAULT NULL,
-	post_building varchar(20) DEFAULT NULL,
-	post_apartment varchar(20) DEFAULT NULL,
-	post_zip varchar(10)	DEFAULT NULL,
-	post_city varchar(32) 	DEFAULT NULL,
-	post_countryid integer	DEFAULT NULL,
 	ten varchar(16) 	DEFAULT '' NOT NULL,
 	ssn varchar(11) 	DEFAULT '' NOT NULL,
 	regon varchar(255) 	DEFAULT '' NOT NULL,
 	rbe varchar(255) 	DEFAULT '' NOT NULL, -- EDG/KRS
+	rbename varchar(255)	DEFAULT '' NOT NULL,
 	icn varchar(255) 	DEFAULT '' NOT NULL, -- dow.os.
 	info text		DEFAULT '' NOT NULL,
 	notes text		DEFAULT '' NOT NULL,
@@ -86,7 +74,6 @@ CREATE TABLE customers (
 	PRIMARY KEY (id)
 );
 
-CREATE INDEX customers_zip_idx ON customers (zip);
 CREATE INDEX customers_lastname_idx ON customers (lastname, name);
 
 /* -------------------------------------------------------- 
@@ -104,63 +91,33 @@ CREATE TABLE numberplans (
 	PRIMARY KEY (id)
 );
 
-/* ----------------------------------------------------
- Structure of table "assignments"
----------------------------------------------------*/
-DROP SEQUENCE IF EXISTS assignments_id_seq;
-CREATE SEQUENCE assignments_id_seq;
-DROP TABLE IF EXISTS assignments CASCADE;
-CREATE TABLE assignments (
-	id integer default nextval('assignments_id_seq'::text) NOT NULL,
-	tariffid integer 	DEFAULT 0 NOT NULL,
-	liabilityid integer 	DEFAULT 0 NOT NULL,
-	customerid integer	NOT NULL
-	    REFERENCES customers (id) ON DELETE CASCADE ON UPDATE CASCADE,
-	period smallint 	DEFAULT 0 NOT NULL,
-	at integer 		DEFAULT 0 NOT NULL,
-	datefrom integer	DEFAULT 0 NOT NULL,
-	dateto integer		DEFAULT 0 NOT NULL,
-	invoice smallint 	DEFAULT 0 NOT NULL,
-	suspended smallint	DEFAULT 0 NOT NULL,
-	settlement smallint	DEFAULT 0 NOT NULL,
-	pdiscount numeric(4,2)	DEFAULT 0 NOT NULL,
-	vdiscount numeric(9,2) DEFAULT 0 NOT NULL,
-	paytype smallint    DEFAULT NULL,
-	numberplanid integer DEFAULT NULL
-	    REFERENCES numberplans (id) ON DELETE SET NULL ON UPDATE CASCADE,
-        attribute varchar(255) DEFAULT NULL,
-	PRIMARY KEY (id)
+/* ---------------------------------------------------
+ Structure of table "countries"
+------------------------------------------------------*/
+DROP SEQUENCE IF EXISTS countries_id_seq;
+CREATE SEQUENCE countries_id_seq;
+DROP TABLE IF EXISTS countries CASCADE;
+CREATE TABLE countries (
+	id      integer DEFAULT nextval('countries_id_seq'::text) NOT NULL,
+	name    varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id),
+	UNIQUE (name)
 );
-CREATE INDEX assignments_tariffid_idx ON assignments (tariffid);
-CREATE INDEX assignments_customerid_idx ON assignments (customerid);
-CREATE INDEX assignments_numberplanid_idx ON assignments (numberplanid);
 
-/* -------------------------------------------------------- 
-  Structure of table "cash" 
--------------------------------------------------------- */
-DROP SEQUENCE IF EXISTS cash_id_seq;
-CREATE SEQUENCE cash_id_seq;
-DROP TABLE IF EXISTS cash CASCADE;
-CREATE TABLE cash (
-	id integer 		DEFAULT nextval('cash_id_seq'::text) NOT NULL,
-	time integer 		DEFAULT 0 NOT NULL,
-	type smallint 		DEFAULT 0 NOT NULL,
-	userid integer 		DEFAULT 0 NOT NULL,
-	value numeric(9,2) 	DEFAULT 0 NOT NULL,
-	taxid integer		DEFAULT 0 NOT NULL,
-	customerid integer 	DEFAULT 0 NOT NULL,
-	comment text 		DEFAULT '' NOT NULL,
-	docid integer 		DEFAULT 0 NOT NULL,
-	itemid smallint		DEFAULT 0 NOT NULL,
-	importid integer	DEFAULT NULL,
-	sourceid integer	DEFAULT NULL,
-	PRIMARY KEY (id)
+/* ---------------------------------------------------
+ Structure of table "zipcodes"
+------------------------------------------------------*/
+DROP SEQUENCE IF EXISTS zipcodes_id_seq;
+CREATE SEQUENCE zipcodes_id_seq;
+DROP TABLE IF EXISTS zipcodes CASCADE;
+CREATE TABLE zipcodes (
+    	id 		integer 	DEFAULT nextval('customerassignments_id_seq'::text) NOT NULL,
+	zip 		varchar(10) 	NOT NULL DEFAULT '',
+	stateid 	integer 	NOT NULL DEFAULT 0,
+	PRIMARY KEY (id),
+	UNIQUE (zip)
 );
-CREATE INDEX cash_customerid_idx ON cash (customerid);
-CREATE INDEX cash_docid_idx ON cash (docid);
-CREATE INDEX cash_importid_idx ON cash (importid);
-CREATE INDEX cash_sourceid_idx ON cash (sourceid);
-CREATE INDEX cash_time_idx ON cash (time);
+CREATE INDEX zipcodes_stateid_idx ON zipcodes (stateid);
 
 /* -------------------------------------------------------- 
   Structure of table "location_states"
@@ -269,7 +226,6 @@ CREATE TABLE location_buildings (
     city_id      integer NOT NULL REFERENCES location_cities  (id) ON DELETE CASCADE  ON UPDATE CASCADE,
     street_id    integer NULL     REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
     building_num varchar(20) NULL,
-    flats        integer NULL,
     latitude     numeric(10,6) NULL,
     longitude    numeric(10,6) NULL,
     updated      smallint DEFAULT 0,
@@ -277,6 +233,103 @@ CREATE TABLE location_buildings (
 );
 DROP INDEX IF EXISTS location_cityid_index;
 CREATE INDEX location_cityid_index ON location_buildings (city_id);
+
+/* ---------------------------------------------------
+ Structure of table "addresses"
+------------------------------------------------------*/
+DROP SEQUENCE IF EXISTS addresses_id_seq;
+CREATE SEQUENCE addresses_id_seq;
+DROP TABLE IF EXISTS addresses CASCADE;
+CREATE TABLE addresses (
+    id         integer DEFAULT nextval('addresses_id_seq'::text) NOT NULL,
+    name       text NULL,
+    state      varchar(64) NULL,
+    state_id   integer REFERENCES location_states (id) ON DELETE SET NULL ON UPDATE CASCADE,
+    city       varchar(32) NULL,
+    city_id    integer REFERENCES location_cities (id) ON DELETE SET NULL ON UPDATE CASCADE,
+    street     varchar(255) NULL,
+    street_id  integer REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
+    zip        varchar(10) NULL,
+    country_id integer REFERENCES countries (id) ON DELETE SET NULL ON UPDATE CASCADE,
+    house      varchar(20) NULL,
+    flat       varchar(20) NULL,
+    PRIMARY KEY (id)
+);
+
+/* ---------------------------------------------------
+ Structure of table "customer_addresses"
+------------------------------------------------------*/
+DROP SEQUENCE IF EXISTS customer_addresses_id_seq;
+CREATE SEQUENCE customer_addresses_id_seq;
+DROP TABLE IF EXISTS customer_addresses CASCADE;
+CREATE TABLE customer_addresses (
+    id          integer DEFAULT nextval('customer_addresses_id_seq'::text) NOT NULL,
+    customer_id integer REFERENCES customers (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    address_id  integer REFERENCES addresses (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    type        smallint NULL,
+    PRIMARY KEY (id),
+    UNIQUE(customer_id, address_id)
+);
+
+/* ----------------------------------------------------
+ Structure of table "assignments"
+---------------------------------------------------*/
+DROP SEQUENCE IF EXISTS assignments_id_seq;
+CREATE SEQUENCE assignments_id_seq;
+DROP TABLE IF EXISTS assignments CASCADE;
+CREATE TABLE assignments (
+	id integer default nextval('assignments_id_seq'::text) NOT NULL,
+	tariffid integer 	DEFAULT 0 NOT NULL,
+	liabilityid integer 	DEFAULT 0 NOT NULL,
+	customerid integer	NOT NULL
+	    REFERENCES customers (id) ON DELETE CASCADE ON UPDATE CASCADE,
+	period smallint 	DEFAULT 0 NOT NULL,
+	at integer 		DEFAULT 0 NOT NULL,
+	datefrom integer	DEFAULT 0 NOT NULL,
+	dateto integer		DEFAULT 0 NOT NULL,
+	invoice smallint 	DEFAULT 0 NOT NULL,
+	suspended smallint	DEFAULT 0 NOT NULL,
+	settlement smallint	DEFAULT 0 NOT NULL,
+	pdiscount numeric(4,2)	DEFAULT 0 NOT NULL,
+	vdiscount numeric(9,2) DEFAULT 0 NOT NULL,
+	paytype smallint    DEFAULT NULL,
+	numberplanid integer DEFAULT NULL
+	    REFERENCES numberplans (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	attribute varchar(255) DEFAULT NULL,
+	recipient_address_id integer DEFAULT NULL
+		CONSTRAINT recipient_address_id_fk2 REFERENCES addresses (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	PRIMARY KEY (id)
+);
+CREATE INDEX assignments_tariffid_idx ON assignments (tariffid);
+CREATE INDEX assignments_customerid_idx ON assignments (customerid);
+CREATE INDEX assignments_numberplanid_idx ON assignments (numberplanid);
+
+/* --------------------------------------------------------
+  Structure of table "cash"
+-------------------------------------------------------- */
+DROP SEQUENCE IF EXISTS cash_id_seq;
+CREATE SEQUENCE cash_id_seq;
+DROP TABLE IF EXISTS cash CASCADE;
+CREATE TABLE cash (
+	id integer 		DEFAULT nextval('cash_id_seq'::text) NOT NULL,
+	time integer 		DEFAULT 0 NOT NULL,
+	type smallint 		DEFAULT 0 NOT NULL,
+	userid integer 		DEFAULT 0 NOT NULL,
+	value numeric(9,2) 	DEFAULT 0 NOT NULL,
+	taxid integer		DEFAULT 0 NOT NULL,
+	customerid integer 	DEFAULT 0 NOT NULL,
+	comment text 		DEFAULT '' NOT NULL,
+	docid integer 		DEFAULT 0 NOT NULL,
+	itemid smallint		DEFAULT 0 NOT NULL,
+	importid integer	DEFAULT NULL,
+	sourceid integer	DEFAULT NULL,
+	PRIMARY KEY (id)
+);
+CREATE INDEX cash_customerid_idx ON cash (customerid);
+CREATE INDEX cash_docid_idx ON cash (docid);
+CREATE INDEX cash_importid_idx ON cash (importid);
+CREATE INDEX cash_sourceid_idx ON cash (sourceid);
+CREATE INDEX cash_time_idx ON cash (time);
 
 /* --------------------------------------------------------
   Structure of table "pna"
@@ -411,12 +464,10 @@ CREATE TABLE divisions (
     	id 		integer 	NOT NULL DEFAULT nextval('divisions_id_seq'::text),
 	shortname 	varchar(255) 	NOT NULL DEFAULT '',
 	name 		text 		NOT NULL DEFAULT '',
-	address		varchar(255) 	NOT NULL DEFAULT '',
-	city		varchar(255) 	NOT NULL DEFAULT '',
-	zip		varchar(255) 	NOT NULL DEFAULT '',
-	countryid	integer		NOT NULL DEFAULT 0,
 	ten		varchar(16)	NOT NULL DEFAULT '',
 	regon		varchar(255)	NOT NULL DEFAULT '',
+	rbe			varchar(255)	NOT NULL DEFAULT '',
+	rbename		varchar(255)	NOT NULL DEFAULT '',
 	account		varchar(48) 	NOT NULL DEFAULT '',
 	inv_header 	text		NOT NULL DEFAULT '',
 	inv_footer 	text		NOT NULL DEFAULT '',
@@ -426,19 +477,25 @@ CREATE TABLE divisions (
 	inv_paytype	smallint	DEFAULT NULL,
 	description 	text		NOT NULL DEFAULT '',
 	status 		smallint 	NOT NULL DEFAULT 0,
-	location_city integer DEFAULT NULL
-		REFERENCES location_cities (id) ON UPDATE CASCADE ON DELETE SET NULL,
-	location_street integer DEFAULT NULL
-		REFERENCES location_streets (id) ON UPDATE CASCADE ON DELETE SET NULL,
-	location_house varchar(32) DEFAULT NULL,
-	location_flat varchar(32) DEFAULT NULL,
 	tax_office_code varchar(8) DEFAULT NULL,
+	address_id integer DEFAULT NULL
+		REFERENCES addresses (id) ON DELETE SET NULL ON UPDATE CASCADE,
 	PRIMARY KEY (id),
 	UNIQUE (shortname)
 );
 
 /* ---------------------------------------------------
- Structure of table "invprojects" 
+ Structure of view "vdivisions"
+------------------------------------------------------*/
+CREATE VIEW vdivisions AS
+    SELECT d.*,
+        a.country_id as countryid, a.zip as zip, a.city as city,
+        (CASE WHEN a.house IS NULL THEN a.street ELSE (CASE WHEN a.flat IS NULL THEN a.street || ' ' || a.house ELSE a.street || ' ' || a.house || '/' || a.flat END) END) as address
+    FROM divisions d
+        JOIN addresses a ON a.id = d.address_id;
+
+/* ---------------------------------------------------
+ Structure of table "invprojects"
 ------------------------------------------------------*/
 DROP SEQUENCE IF EXISTS invprojects_id_seq;
 CREATE SEQUENCE invprojects_id_seq;
@@ -465,13 +522,6 @@ CREATE TABLE netnodes (
 	invprojectid integer
 		REFERENCES invprojects (id) ON DELETE SET NULL ON UPDATE CASCADE,
 	status smallint DEFAULT 0,
-	location varchar(255) DEFAULT '',
-	location_city integer DEFAULT NULL
-		REFERENCES location_cities (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	location_street integer DEFAULT NULL
-		REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	location_house varchar(32) DEFAULT NULL,
-	location_flat varchar(32) DEFAULT NULL,
 	longitude numeric(10,6) DEFAULT NULL,
 	latitude numeric(10,6) DEFAULT NULL,
 	ownership smallint DEFAULT 0,
@@ -480,6 +530,8 @@ CREATE TABLE netnodes (
 	miar smallint DEFAULT 0,
 	divisionid integer
 		REFERENCES divisions (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	address_id integer
+		REFERENCES addresses (id) ON DELETE SET NULL ON UPDATE CASCADE,
 	PRIMARY KEY(id)
 );
 
@@ -523,13 +575,6 @@ DROP TABLE IF EXISTS netdevices CASCADE;
 CREATE TABLE netdevices (
 	id integer default nextval('netdevices_id_seq'::text) NOT NULL,
 	name varchar(32) 	DEFAULT '' NOT NULL,
-	location varchar(255) 	DEFAULT '' NOT NULL,
-    location_city integer DEFAULT NULL
-        REFERENCES location_cities (id) ON DELETE SET NULL ON UPDATE CASCADE,
-    location_street integer DEFAULT NULL
-        REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
-    location_house varchar(32) DEFAULT NULL,
-    location_flat varchar(32) DEFAULT NULL,
 	description text 	DEFAULT '' NOT NULL,
 	producer varchar(64) 	DEFAULT '' NOT NULL,
 	model varchar(32) 	DEFAULT '' NOT NULL,
@@ -553,11 +598,13 @@ CREATE TABLE netdevices (
 	status smallint		DEFAULT 0,
 	netdevicemodelid integer DEFAULT NULL
 		REFERENCES netdevicemodels (id) ON UPDATE CASCADE ON DELETE SET NULL,
+	ownerid integer DEFAULT NULL
+		REFERENCES customers (id) ON UPDATE CASCADE ON DELETE SET NULL,
+	address_id integer DEFAULT NULL
+		REFERENCES addresses (id) ON UPDATE CASCADE ON DELETE SET NULL,
 	PRIMARY KEY (id)
 );
 CREATE INDEX netdevices_channelid_idx ON netdevices (channelid);
-CREATE INDEX netdevices_location_street_idx ON netdevices (location_street);
-CREATE INDEX netdevices_location_city_idx ON netdevices (location_city, location_street, location_house, location_flat);
 
 /* ---------------------------------------------------
  Structure of table "netradiosectors"
@@ -614,13 +661,6 @@ CREATE TABLE nodes (
 	halfduplex smallint	DEFAULT 0 NOT NULL,
 	lastonline integer	DEFAULT 0 NOT NULL,
 	info text		    DEFAULT '' NOT NULL,
-	location varchar(255) DEFAULT NULL,
-	location_city integer DEFAULT NULL
-		REFERENCES location_cities (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	location_street integer DEFAULT NULL
-		REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	location_house varchar(32) DEFAULT NULL,
-	location_flat varchar(32) DEFAULT NULL,
 	nas smallint 		DEFAULT 0 NOT NULL,
 	longitude numeric(10, 6) DEFAULT NULL,
 	latitude numeric(10, 6) DEFAULT NULL,
@@ -628,6 +668,8 @@ CREATE TABLE nodes (
 		REFERENCES networks (id) ON DELETE CASCADE ON UPDATE CASCADE,
 	invprojectid integer DEFAULT NULL
 		REFERENCES invprojects(id) ON DELETE SET NULL ON UPDATE CASCADE,
+	address_id integer DEFAULT NULL
+		REFERENCES addresses(id) ON DELETE SET NULL ON UPDATE CASCADE,
 	PRIMARY KEY (id),
 	UNIQUE (name),
 	UNIQUE (ipaddr, netid)
@@ -635,8 +677,6 @@ CREATE TABLE nodes (
 CREATE INDEX nodes_netdev_idx ON nodes (netdev);
 CREATE INDEX nodes_ownerid_idx ON nodes (ownerid);
 CREATE INDEX nodes_ipaddr_pub_idx ON nodes (ipaddr_pub);
-CREATE INDEX nodes_location_street_idx ON nodes (location_street);
-CREATE INDEX nodes_location_city_idx ON nodes (location_city, location_street, location_house, location_flat);
 CREATE INDEX nodes_linkradiosector_idx ON nodes (linkradiosector);
 CREATE INDEX nodes_authtype_idx ON nodes (authtype);
 
@@ -735,25 +775,18 @@ CREATE TABLE voipaccounts (
 	moddate		integer		NOT NULL DEFAULT 0,
 	creatorid	integer		NOT NULL DEFAULT 0,
 	modid		integer		NOT NULL DEFAULT 0,
-	location varchar(255) DEFAULT NULL,
-	location_city integer
-		REFERENCES location_cities (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	location_street integer
-		REFERENCES location_streets (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	location_house varchar(32) DEFAULT NULL,
-	location_flat varchar(32) DEFAULT NULL,
 	balance		numeric(12,5) NOT NULL DEFAULT 0,
 	flags		smallint NOT NULL DEFAULT 0,
 	cost_limit	numeric(12,2) NULL DEFAULT NULL,
+	address_id integer
+		REFERENCES addresses (id) ON DELETE SET NULL ON UPDATE CASCADE,
 	PRIMARY KEY (id)
 );
-CREATE INDEX voipaccounts_location_street_idx ON voipaccounts (location_street);
-CREATE INDEX voipaccounts_location_city_idx ON voipaccounts (location_city, location_street, location_house, location_flat);
 
 /* ---------------------------------------------------
  Voip tables
 ------------------------------------------------------*/
-DROP SEQUENCE IF EXISTS voip_rule_groups_id_seq;
+DROP SEQUENCE IF EXISTS voip_rule_groups_id_seq CASCADE;
 CREATE SEQUENCE voip_rule_groups_id_seq;
 DROP TABLE IF EXISTS voip_rule_groups CASCADE;
 CREATE TABLE voip_rule_groups (
@@ -773,7 +806,7 @@ CREATE TABLE voip_prefix_groups (
 	PRIMARY KEY (id)
 );
 
-DROP SEQUENCE IF EXISTS voip_rules_id_seq;
+DROP SEQUENCE IF EXISTS voip_rules_id_seq CASCADE;
 CREATE SEQUENCE voip_rules_id_seq;
 DROP TABLE IF EXISTS voip_rules CASCADE;
 CREATE TABLE voip_rules (
@@ -822,6 +855,60 @@ CREATE TABLE voip_tariffs (
     PRIMARY KEY (id)
 );
 
+/* --------------------------------------------------------
+  Structure of table "tariffs"
+-------------------------------------------------------- */
+DROP SEQUENCE IF EXISTS tariffs_id_seq;
+CREATE SEQUENCE tariffs_id_seq;
+DROP TABLE IF EXISTS tariffs CASCADE;
+CREATE TABLE tariffs (
+	id integer DEFAULT nextval('tariffs_id_seq'::text) NOT NULL,
+	name varchar(255) 	DEFAULT '' NOT NULL,
+	type smallint		DEFAULT 1 NOT NULL,
+	value numeric(9,2) 	DEFAULT 0 NOT NULL,
+	period smallint 	DEFAULT NULL,
+	taxid integer 		DEFAULT 0 NOT NULL,
+	numberplanid integer DEFAULT NULL
+		REFERENCES numberplans (id) ON DELETE CASCADE ON UPDATE CASCADE,
+	prodid varchar(255) 	DEFAULT '' NOT NULL,
+	uprate integer		DEFAULT 0 NOT NULL,
+	upceil integer		DEFAULT 0 NOT NULL,
+	downrate integer	DEFAULT 0 NOT NULL,
+	downceil integer	DEFAULT 0 NOT NULL,
+	climit integer		DEFAULT 0 NOT NULL,
+	plimit integer		DEFAULT 0 NOT NULL,
+	dlimit integer		DEFAULT 0 NOT NULL,
+	uprate_n integer        DEFAULT NULL,
+	upceil_n integer        DEFAULT NULL,
+	downrate_n integer      DEFAULT NULL,
+	downceil_n integer      DEFAULT NULL,
+	climit_n integer        DEFAULT NULL,
+	plimit_n integer        DEFAULT NULL,
+	domain_limit integer	DEFAULT NULL,
+	alias_limit integer	DEFAULT NULL,
+	sh_limit integer	DEFAULT NULL,
+	www_limit integer	DEFAULT NULL,
+	mail_limit integer	DEFAULT NULL,
+	ftp_limit integer	DEFAULT NULL,
+	sql_limit integer	DEFAULT NULL,
+	quota_sh_limit integer	DEFAULT NULL,
+	quota_www_limit integer	DEFAULT NULL,
+	quota_mail_limit integer DEFAULT NULL,
+	quota_ftp_limit integer	DEFAULT NULL,
+	quota_sql_limit integer	DEFAULT NULL,
+	description text	DEFAULT '' NOT NULL,
+	disabled smallint 	DEFAULT 0 NOT NULL,
+	voip_tariff_id integer      DEFAULT NULL
+		REFERENCES voip_tariffs (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	voip_tariff_rule_id integer DEFAULT NULL
+		REFERENCES voip_rules (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	datefrom integer	NOT NULL DEFAULT 0,
+	dateto integer		NOT NULL DEFAULT 0,
+	PRIMARY KEY (id),
+	CONSTRAINT tariffs_name_key UNIQUE (name, value, period)
+);
+CREATE INDEX tariffs_type_idx ON tariffs (type);
+
 DROP SEQUENCE IF EXISTS voip_cdr_id_seq;
 CREATE SEQUENCE voip_cdr_id_seq;
 DROP TABLE IF EXISTS voip_cdr CASCADE;
@@ -830,8 +917,8 @@ CREATE TABLE voip_cdr (
 	caller varchar(20) NOT NULL,
 	callee varchar(20) NOT NULL,
 	call_start_time integer NOT NULL,
-	time_start_to_end integer NOT NULL,
-	time_answer_to_end integer NOT NULL,
+	totaltime integer NOT NULL,
+	billedtime integer NOT NULL,
 	price numeric(12,5) NOT NULL,
 	status smallint NOT NULL,
 	type smallint NOT NULL,
@@ -995,6 +1082,8 @@ CREATE TABLE promotions (
     name varchar(255)   NOT NULL,
     description text    DEFAULT NULL,
     disabled smallint   DEFAULT 0 NOT NULL,
+    datefrom integer	DEFAULT 0 NOT NULL,
+    dateto integer		DEFAULT 0 NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (name)
 );
@@ -1108,8 +1197,8 @@ CREATE TABLE documents (
 	divisionid integer	DEFAULT 0 NOT NULL,
 	name varchar(255)	DEFAULT '' NOT NULL,
 	address varchar(255)	DEFAULT '' NOT NULL,
-	zip varchar(10)		DEFAULT '' NOT NULL,
-	city varchar(32)	DEFAULT '' NOT NULL,
+	zip varchar(10)		NULL DEFAULT NULL,
+	city varchar(32)	NULL DEFAULT NULL,
 	countryid integer	DEFAULT 0 NOT NULL,
 	ten varchar(16)		DEFAULT '' NOT NULL,
 	ssn varchar(11)		DEFAULT '' NOT NULL,
@@ -1135,6 +1224,8 @@ CREATE TABLE documents (
 	cancelled smallint	DEFAULT 0 NOT NULL,
 	published smallint	DEFAULT 0 NOT NULL,
 	cuserid integer		DEFAULT 0 NOT NULL,
+	recipient_address_id integer DEFAULT NULL
+        REFERENCES addresses (id) ON DELETE SET NULL ON UPDATE CASCADE,
 	PRIMARY KEY (id)
 );
 CREATE INDEX documents_cdate_idx ON documents(cdate);
@@ -1366,12 +1457,28 @@ SELECT
 $$ LANGUAGE SQL IMMUTABLE;
 
 CREATE VIEW vnetworks AS
-	SELECT h.name AS hostname, ne.*, no.ownerid, no.location, no.location_city, no.location_street, no.location_house, no.location_flat, no.chkmac,
-		inet_ntoa(ne.address) || '/' || mask2prefix(inet_aton(ne.mask)) AS ip, no.id AS nodeid
-	FROM nodes no
-	LEFT JOIN networks ne ON (ne.id = no.netid)
-	LEFT JOIN hosts h ON (h.id = ne.hostid)
-	WHERE no.ipaddr = 0 AND no.ipaddr_pub = 0;
+    SELECT h.name AS hostname, ne.*, no.ownerid, a.city_id as location_city, a.street_id as location_street, a.house as location_house, a.flat as location_flat, no.chkmac,
+        inet_ntoa(ne.address) || '/' || mask2prefix(inet_aton(ne.mask)) AS ip, no.id AS nodeid,
+        ( trim(both ' ' from
+            CASE WHEN a.city is not null AND char_length(city) > 0
+            THEN
+                CASE WHEN a.street is not null AND char_length(street) > 0 THEN a.city || ', ' || a.street ELSE a.street END
+            ELSE
+                CASE WHEN a.street is not null AND char_length(street) > 0 THEN a.street ELSE '' END
+            END ||
+            CASE WHEN
+                a.house is not null
+            THEN
+                CASE WHEN a.flat is not null THEN ' ' || a.house || '/' || a.flat ELSE ' ' || a.house END
+            ELSE
+                CASE WHEN a.flat is not null THEN ' ' || a.flat ELSE '' END
+            END
+        )) AS location
+    FROM nodes no
+        LEFT JOIN networks ne ON (ne.id = no.netid)
+        LEFT JOIN hosts h ON (h.id = ne.hostid)
+        LEFT JOIN addresses a ON no.address_id = a.id
+    WHERE no.ipaddr = 0 AND no.ipaddr_pub = 0;
 
 CREATE OR REPLACE FUNCTION broadcast(bigint, bigint) RETURNS bigint AS $$
 SELECT
@@ -1433,6 +1540,7 @@ CREATE TABLE rtmessages (
     REFERENCES rttickets (id) ON DELETE CASCADE ON UPDATE CASCADE,
   userid integer 	DEFAULT 0 NOT NULL,
   customerid integer 	DEFAULT 0 NOT NULL,
+  phonefrom varchar(20)	DEFAULT '' NOT NULL,
   mailfrom varchar(255) DEFAULT '' NOT NULL,
   subject varchar(255) 	DEFAULT '' NOT NULL,
   messageid varchar(255) DEFAULT '' NOT NULL,
@@ -1662,7 +1770,7 @@ CREATE TABLE uiconfig (
 /* ---------------------------------------------------
  Structure of table "events" (Timetable)
 ------------------------------------------------------*/
-DROP SEQUENCE IF EXISTS events_id_seq;
+DROP SEQUENCE IF EXISTS events_id_seq CASCADE;
 CREATE SEQUENCE events_id_seq;
 DROP TABLE IF EXISTS events CASCADE;
 CREATE TABLE events (
@@ -1967,34 +2075,6 @@ CREATE TABLE states (
 );
 
 /* ---------------------------------------------------
- Structure of table "countries"
-------------------------------------------------------*/
-DROP SEQUENCE IF EXISTS countries_id_seq;
-CREATE SEQUENCE countries_id_seq;
-DROP TABLE IF EXISTS countries CASCADE;
-CREATE TABLE countries (
-	id      integer DEFAULT nextval('countries_id_seq'::text) NOT NULL,
-	name    varchar(255) NOT NULL DEFAULT '',
-	PRIMARY KEY (id),
-	UNIQUE (name)
-);
-
-/* ---------------------------------------------------
- Structure of table "zipcodes"
-------------------------------------------------------*/
-DROP SEQUENCE IF EXISTS zipcodes_id_seq;
-CREATE SEQUENCE zipcodes_id_seq;
-DROP TABLE IF EXISTS zipcodes CASCADE;
-CREATE TABLE zipcodes (
-    	id 		integer 	DEFAULT nextval('zipcodes_id_seq'::text) NOT NULL,
-	zip 		varchar(10) 	NOT NULL DEFAULT '',
-	stateid 	integer 	NOT NULL DEFAULT 0,
-	PRIMARY KEY (id),
-	UNIQUE (zip)
-);
-CREATE INDEX zipcodes_stateid_idx ON zipcodes (stateid);
-
-/* ---------------------------------------------------
  Structure of table "messages"
 ------------------------------------------------------*/
 DROP SEQUENCE IF EXISTS messages_id_seq;
@@ -2276,44 +2356,41 @@ END
 ' LANGUAGE SQL;
 
 CREATE VIEW customerview AS
-	SELECT c.*,
-		(CASE WHEN building IS NULL THEN street ELSE (CASE WHEN apartment IS NULL THEN street || ' ' || building
-			ELSE street || ' ' || building || '/' || apartment END) END) AS address,
-		(CASE WHEN post_street IS NULL THEN '' ELSE
-			(CASE WHEN post_building IS NULL THEN post_street ELSE (CASE WHEN post_apartment IS NULL THEN post_street || ' ' || post_building
-				ELSE post_street || ' ' || post_building || '/' || post_apartment END)
-			END)
-		END) AS post_address
-	FROM customers c
-	WHERE NOT EXISTS (
-			SELECT 1 FROM customerassignments a 
-			JOIN excludedgroups e ON (a.customergroupid = e.customergroupid) 
-			WHERE e.userid = lms_current_user() AND a.customerid = c.id) 
-		AND c.type < 2;
+    SELECT c.*,
+        a1.country_id as countryid, a1.zip as zip, a1.city as city, a1.street as street, a1.house as building, a1.flat as apartment,
+        a2.country_id as post_countryid, a2.zip as post_zip, a2.city as post_city, a2.street as post_street, a2.house as post_building, a2.flat as post_apartment, a2.name as post_name,
+        (CASE WHEN a1.house IS NULL THEN a1.street ELSE (CASE WHEN a1.flat IS NULL THEN a1.street || ' ' || a1.house ELSE a1.street || ' ' || a1.house || '/' || a1.flat END) END) as address,
+        (CASE WHEN a2.house IS NULL THEN a2.street ELSE (CASE WHEN a2.flat IS NULL THEN a2.street || ' ' || a2.house ELSE a2.street || ' ' || a2.house || '/' || a2.flat END) END) as post_address
+    FROM customers c
+        JOIN customer_addresses ca1 ON c.id = ca1.customer_id AND ca1.type = 1 LEFT JOIN addresses a1 ON ca1.address_id = a1.id
+        LEFT JOIN customer_addresses ca2 ON c.id = ca2.customer_id AND ca2.type = 0 LEFT JOIN addresses a2 ON ca2.address_id = a2.id
+    WHERE NOT EXISTS (
+        SELECT 1 FROM customerassignments a
+        JOIN excludedgroups e ON (a.customergroupid = e.customergroupid)
+        WHERE e.userid = lms_current_user() AND a.customerid = c.id)
+        AND c.type < 2;
 
 CREATE VIEW contractorview AS
-	SELECT c.*,
-		(CASE WHEN building IS NULL THEN street ELSE (CASE WHEN apartment IS NULL THEN street || ' ' || building
-			ELSE street || ' ' || building || '/' || apartment END) END) AS address,
-		(CASE WHEN post_street IS NULL THEN '' ELSE
-			(CASE WHEN post_building IS NULL THEN post_street ELSE (CASE WHEN post_apartment IS NULL THEN post_street || ' ' || post_building
-				ELSE post_street || ' ' || post_building || '/' || post_apartment END)
-			END)
-		END) AS post_address
-	FROM customers c
-	WHERE c.type = 2;
+    SELECT c.*,
+        a1.country_id as countryid, a1.zip as zip, a1.city as city, a1.street as street, a1.house as building, a1.flat as apartment,
+        a2.country_id as post_countryid, a2.zip as post_zip, a2.city as post_city, a2.street as post_street, a2.house as post_building, a2.flat as post_apartment, a2.name as post_name,
+        (CASE WHEN a1.house IS NULL THEN a1.street ELSE (CASE WHEN a1.flat IS NULL THEN a1.street || ' ' || a1.house ELSE a1.street || ' ' || a1.house || '/' || a1.flat END) END) as address,
+        (CASE WHEN a2.house IS NULL THEN a2.street ELSE (CASE WHEN a2.flat IS NULL THEN a2.street || ' ' || a2.house ELSE a2.street || ' ' || a2.house || '/' || a2.flat END) END) as post_address
+    FROM customers c
+        JOIN customer_addresses ca1 ON c.id = ca1.customer_id AND ca1.type = 1 LEFT JOIN addresses a1 ON ca1.address_id = a1.id
+        LEFT JOIN customer_addresses ca2 ON c.id = ca2.customer_id AND ca2.type = 0 LEFT JOIN addresses a2 ON ca2.address_id = a2.id
+    WHERE c.type = 2;
 
 CREATE VIEW customeraddressview AS
-	SELECT c.*,
-		(CASE WHEN building IS NULL THEN street ELSE (CASE WHEN apartment IS NULL THEN street || ' ' || building
-			ELSE street || ' ' || building || '/' || apartment END) END) AS address,
-		(CASE WHEN post_street IS NULL THEN '' ELSE
-			(CASE WHEN post_building IS NULL THEN post_street ELSE (CASE WHEN post_apartment IS NULL THEN post_street || ' ' || post_building
-				ELSE post_street || ' ' || post_building || '/' || post_apartment END)
-			END)
-		END) AS post_address
-	FROM customers c
-	WHERE c.type < 2;
+    SELECT c.*,
+        a1.country_id as countryid, a1.zip as zip, a1.city as city, a1.street as street, a1.house as building, a1.flat as apartment,
+        a2.country_id as post_countryid, a2.zip as post_zip, a1.city as post_city, a2.street as post_street, a2.house as post_building, a2.flat as post_apartment, a2.name as post_name,
+        (CASE WHEN a1.house IS NULL THEN a1.street ELSE (CASE WHEN a1.flat IS NULL THEN a1.street || ' ' || a1.house ELSE a1.street || ' ' || a1.house || '/' || a1.flat END) END) as address,
+        (CASE WHEN a2.house IS NULL THEN a2.street ELSE (CASE WHEN a2.flat IS NULL THEN a2.street || ' ' || a2.house ELSE a2.street || ' ' || a2.house || '/' || a2.flat END) END) as post_address
+    FROM customers c
+        JOIN customer_addresses ca1 ON c.id = ca1.customer_id AND ca1.type = 1 LEFT JOIN addresses a1 ON ca1.address_id = a1.id
+        LEFT JOIN customer_addresses ca2 ON c.id = ca2.customer_id AND ca2.type = 0 LEFT JOIN addresses a2 ON ca2.address_id = a2.id
+    WHERE c.type < 2;
 
 CREATE OR REPLACE FUNCTION int2txt(bigint) RETURNS text AS $$
 SELECT $1::text;
@@ -2327,17 +2404,51 @@ SELECT n.id, inet_ntoa(n.ipaddr) AS nasname, d.shortname, d.nastype AS type,
 	WHERE n.nas = 1;
 
 CREATE VIEW vnodes AS
-	SELECT n.*, m.mac
-	FROM nodes n
-	LEFT JOIN (SELECT nodeid, array_to_string(array_agg(mac), ',') AS mac
-		FROM macs GROUP BY nodeid) m ON (n.id = m.nodeid)
-	WHERE n.ipaddr <> 0 OR n.ipaddr_pub <> 0;
+    SELECT n.*, m.mac,
+        a.city_id as location_city, a.street_id as location_street,
+        a.house as location_house, a.flat as location_flat,
+        ( trim(both ' ' from
+            CASE WHEN a.city is not null AND char_length(city) > 0
+            THEN
+                CASE WHEN a.street is not null AND char_length(street) > 0 THEN a.city || ', ' || a.street ELSE a.street END
+            ELSE
+                CASE WHEN a.street is not null AND char_length(street) > 0 THEN a.street ELSE '' END
+            END ||
+            CASE WHEN
+                a.house is not null
+            THEN
+                CASE WHEN a.flat is not null THEN ' ' || a.house || '/' || a.flat ELSE ' ' || a.house END
+            ELSE
+                CASE WHEN a.flat is not null THEN ' ' || a.flat ELSE '' END
+            END
+        )) AS location
+    FROM nodes n
+        LEFT JOIN (SELECT nodeid, array_to_string(array_agg(mac), ',') AS mac FROM macs GROUP BY nodeid) m ON (n.id = m.nodeid)
+        LEFT JOIN addresses a ON n.address_id = a.id
+    WHERE n.ipaddr <> 0 OR n.ipaddr_pub <> 0;
 
 CREATE VIEW vmacs AS
-	SELECT n.*, m.mac, m.id AS macid
-	FROM nodes n
-	JOIN macs m ON (n.id = m.nodeid)
-	WHERE n.ipaddr <> 0 OR n.ipaddr_pub <> 0;
+    SELECT n.*, m.mac, m.id AS macid, a.city_id as location_city, a.street_id as location_street,
+        a.house as location_building, a.flat as location_flat,
+        ( trim(both ' ' from
+            CASE WHEN a.city is not null AND char_length(city) > 0
+            THEN
+                CASE WHEN a.street is not null AND char_length(street) > 0 THEN a.city || ', ' || a.street ELSE a.street END
+            ELSE
+                CASE WHEN a.street is not null AND char_length(street) > 0 THEN a.street ELSE '' END
+            END ||
+            CASE WHEN
+                a.house is not null
+            THEN
+                CASE WHEN a.flat is not null THEN ' ' || a.house || '/' || a.flat ELSE ' ' || a.house END
+            ELSE
+                CASE WHEN a.flat is not null THEN ' ' || a.flat ELSE '' END
+            END
+        )) AS location
+    FROM nodes n
+        JOIN macs m ON (n.id = m.nodeid)
+        LEFT JOIN addresses a ON n.address_id = a.id
+    WHERE n.ipaddr <> 0 OR n.ipaddr_pub <> 0;
 
 CREATE VIEW teryt_terc AS
 SELECT ident AS woj, 0::text AS pow, 0::text AS gmi, 0 AS rodz,
@@ -2522,7 +2633,7 @@ INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
 ('mail', 'smtp_host', '127.0.0.1', '', 0),
 ('mail', 'smtp_port', '25', '', 0),
 ('mail', 'backend', 'pear', '', 0),
-('mail', 'smtp_secure', 'ssl', '', 0),
+('mail', 'smtp_secure', 'tls', '', 0),
 ('zones', 'hostmaster_mail', 'hostmaster.localhost', '', 0),
 ('zones', 'master_dns', 'localhost', '', 0),
 ('zones', 'slave_dns', 'localhost', '', 0),
@@ -2881,6 +2992,6 @@ INSERT INTO netdevicemodels (name, alternative_name, netdeviceproducerid) VALUES
 ('XR7', 'XR7 MINI PCI PCBA', 2),
 ('XR9', 'MINI PCI 600MW 900MHZ', 2);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2016122100');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2017030300');
 
 COMMIT;

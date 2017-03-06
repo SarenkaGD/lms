@@ -307,25 +307,17 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                     'invoice' => !empty($data['invoice']) ? 1 : 0,
                     'settlement' => !empty($data['settlement']) ? 1 : 0,
                     SYSLOG::RES_NUMPLAN => !empty($data['numberplanid']) ? $data['numberplanid'] : NULL,
-                    'paytype' => !empty($data['paytype']) ? $data['paytype'] : NULL,
-                    'datefrom' => $idx ? $datefrom : 0,
-                    'dateto' => $idx ? $dateto : 0,
-                    'pdiscount' => 0,
-                    'vdiscount' => 0,
-                    'attribute' => !empty($data['attribute']) ? $data['attribute'] : NULL,
-                    SYSLOG::RES_LIAB => $lid,
+                    'paytype'           => !empty($data['paytype']) ? $data['paytype'] : NULL,
+                    'datefrom'          => $idx ? $datefrom : 0,
+                    'dateto'            => $idx ? $dateto : 0,
+                    'pdiscount'         => 0,
+                    'vdiscount'         => 0,
+                    'attribute'         => !empty($data['attribute']) ? $data['attribute'] : NULL,
+                    SYSLOG::RES_LIAB    => $lid,
+                    'recipient_address_id' => $data['recipient_address_id'] >= 0 ? $data['recipient_address_id'] : NULL
                 );
 
-                $this->db->Execute('INSERT INTO assignments (tariffid, customerid, period, at, invoice,
-					    settlement, numberplanid, paytype, datefrom, dateto, pdiscount, vdiscount, attribute, liabilityid)
-					    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
-
-                $id = $this->db->GetLastInsertID('assignments');
-
-                if ($this->syslog) {
-                    $args[SYSLOG::RES_ASSIGN] = $id;
-                    $this->syslog->AddMessage(SYSLOG::RES_ASSIGN, SYSLOG::OPER_ADD, $args);
-                }
+                $result[] = $this->insertAssignment( $args );
 
                 $result[] = $id;
                 if ($idx) {
@@ -350,27 +342,17 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                         'invoice' => !empty($data['invoice']) ? 1 : 0,
                         'settlement' => !empty($data['settlement']) ? 1 : 0,
                         SYSLOG::RES_NUMPLAN => !empty($data['numberplanid']) ? $data['numberplanid'] : NULL,
-                        'paytype' => !empty($data['paytype']) ? $data['paytype'] : NULL,
-                        'datefrom' => $datefrom,
-                        'dateto' => 0,
-                        'pdiscount' => 0,
-                        'vdiscount' => 0,
-                         'attribute' => !empty($data['attribute']) ? $data['attribute'] : NULL,
-                        SYSLOG::RES_LIAB => 0,
+                        'paytype'           => !empty($data['paytype']) ? $data['paytype'] : NULL,
+                        'datefrom'          => $datefrom,
+                        'dateto'            => 0,
+                        'pdiscount'         => 0,
+                        'vdiscount'         => 0,
+                        'attribute'         => !empty($data['attribute']) ? $data['attribute'] : NULL,
+                        SYSLOG::RES_LIAB    => 0,
+                        'recipient_address_id' => $data['recipient_address_id'] >= 0 ? $data['recipient_address_id'] : NULL
                     );
 
-                    $this->db->Execute('INSERT INTO assignments (tariffid, customerid, period, at, invoice,
-					    settlement, numberplanid, paytype, datefrom, dateto, pdiscount, vdiscount, attribute, liabilityid)
-					    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
-
-                    $id = $this->db->GetLastInsertID('assignments');
-
-                    if ($this->syslog) {
-                        $args[SYSLOG::RES_ASSIGN] = $id;
-                        $this->syslog->AddMessage(SYSLOG::RES_ASSIGN, SYSLOG::OPER_ADD, $args);
-                    }
-
-                    $result[] = $id;
+                    $result[] = $this->insertAssignment( $args );
                 }
             }
         }
@@ -401,26 +383,17 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                 'invoice' => !empty($data['invoice']) ? 1 : 0,
                 'settlement' => !empty($data['settlement']) ? 1 : 0,
                 SYSLOG::RES_NUMPLAN => !empty($data['numberplanid']) ? $data['numberplanid'] : NULL,
-                'paytype' => !empty($data['paytype']) ? $data['paytype'] : NULL,
-                'datefrom' => $data['datefrom'],
-                'dateto' => $data['dateto'],
-                'pdiscount' => str_replace(',', '.', $data['pdiscount']),
-                'vdiscount' => str_replace(',', '.', $data['vdiscount']),
-                 'attribute' => !empty($data['attribute']) ? $data['attribute'] : NULL,
-                SYSLOG::RES_LIAB => isset($lid) ? $lid : 0,
+                'paytype'           => !empty($data['paytype']) ? $data['paytype'] : NULL,
+                'datefrom'          => $data['datefrom'],
+                'dateto'            => $data['dateto'],
+                'pdiscount'         => str_replace(',', '.', $data['pdiscount']),
+                'vdiscount'         => str_replace(',', '.', $data['vdiscount']),
+                'attribute'         => !empty($data['attribute']) ? $data['attribute'] : NULL,
+                SYSLOG::RES_LIAB    => isset($lid) ? $lid : 0,
+                'recipient_address_id' => $data['recipient_address_id'] >= 0 ? $data['recipient_address_id'] : NULL
             );
-            $this->db->Execute('INSERT INTO assignments (tariffid, customerid, period, at, invoice,
-					    settlement, numberplanid, paytype, datefrom, dateto, pdiscount, vdiscount, attribute, liabilityid)
-					    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
 
-            $id = $this->db->GetLastInsertID('assignments');
-
-            if ($this->syslog) {
-                $args[SYSLOG::RES_ASSIGN] = $id;
-                $this->syslog->AddMessage(SYSLOG::RES_ASSIGN, SYSLOG::OPER_ADD, $args);
-            }
-
-            $result[] = $id;
+            $result[] = $this->insertAssignment( $args );
         }
 
         if (!empty($result) && count($result = array_filter($result))) {
@@ -449,6 +422,29 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
         }
 
         return $result;
+    }
+
+    /*
+     * Helper method who insert assignment.
+     *
+     * \param  array $args array with parameters for SQL query
+     * \return int   last inserted id
+     */
+    private function insertAssignment($args) {
+    	$this->db->Execute('INSERT INTO assignments
+    							(tariffid, customerid, period, at, invoice, settlement, numberplanid,
+    							paytype, datefrom, dateto, pdiscount, vdiscount, attribute, liabilityid, recipient_address_id)
+					        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+					        array_values($args));
+
+        $id = $this->db->GetLastInsertID('assignments');
+
+        if ($this->syslog) {
+            $args[SYSLOG::RES_ASSIGN] = $id;
+            $this->syslog->AddMessage(SYSLOG::RES_ASSIGN, SYSLOG::OPER_ADD, $args);
+        }
+
+        return $id;
     }
 
     public function SuspendAssignment($id, $suspend = TRUE)
@@ -480,8 +476,21 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             $fullnumber = null;
 
         $division = $this->db->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
-				account, inv_header, inv_footer, inv_author, inv_cplace 
-				FROM divisions WHERE id = ? ;', array($invoice['customer']['divisionid']));
+				account, inv_header, inv_footer, inv_author, inv_cplace
+				FROM vdivisions WHERE id = ? ;', array($invoice['customer']['divisionid']));
+
+		// if isset invoice recipient address then make copy of selected address
+		if ( !empty($invoice['invoice']['recipient_address_id']) ) {
+			$addr = $this->db->GetRow('SELECT * FROM addresses WHERE id = ?;', array($invoice['invoice']['recipient_address_id']));
+			unset($addr['id']);
+
+			$copy_address_query = "INSERT INTO addresses (" . implode(",", array_keys($addr)) . ") VALUES (" . implode(",", array_fill(0, count($addr), '?'))  . ")";
+			$this->db->Execute( $copy_address_query, $addr );
+
+			$invocie['invoice']['recipient_address_id'] = $this->db->GetLastInsertID('addresses');
+		} else {
+			$invocie['invoice']['recipient_address_id'] = null;
+		}
 
         $args = array(
             'number' => $number,
@@ -499,7 +508,7 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             'ssn' => $invoice['customer']['ssn'],
             'zip' => $invoice['customer']['zip'],
             'city' => $invoice['customer']['city'],
-            SYSLOG::RES_COUNTRY => $invoice['customer']['countryid'],
+            SYSLOG::RES_COUNTRY => $invoice['customer']['countryid'] ? $invoice['customer']['countryid'] : 0,
             SYSLOG::RES_DIV => $invoice['customer']['divisionid'],
             'div_name' => ($division['name'] ? $division['name'] : ''),
             'div_shortname' => ($division['shortname'] ? $division['shortname'] : ''),
@@ -515,14 +524,16 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             'div_inv_author' => ($division['inv_author'] ? $division['inv_author'] : ''),
             'div_inv_cplace' => ($division['inv_cplace'] ? $division['inv_cplace'] : ''),
             'fullnumber' => $fullnumber,
+            'recipient_address_id' => $invocie['invoice']['recipient_address_id']
         );
 
         $this->db->Execute('INSERT INTO documents (number, numberplanid, type,
 			cdate, sdate, paytime, paytype, userid, customerid, name, address, 
 			ten, ssn, zip, city, countryid, divisionid,
 			div_name, div_shortname, div_address, div_city, div_zip, div_countryid, div_ten, div_regon,
-			div_account, div_inv_header, div_inv_footer, div_inv_author, div_inv_cplace, fullnumber)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
+			div_account, div_inv_header, div_inv_footer, div_inv_author, div_inv_cplace, fullnumber,
+			recipient_address_id)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
         $iid = $this->db->GetLastInsertID('documents');
         if ($this->syslog) {
             unset($args[SYSLOG::RES_USER]);
@@ -697,6 +708,9 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
 				d.div_ten AS division_ten, d.div_regon AS division_regon, d.div_account AS account,
 				d.div_inv_header AS division_header, d.div_inv_footer AS division_footer,
 				d.div_inv_author AS division_author, d.div_inv_cplace AS division_cplace,
+				d.recipient_address_id,
+				a.city as rec_city, a.street as rec_street, a.house as rec_house,
+				a.flat as rec_flat, a.zip as rec_zip, a.name as rec_name,
 				c.pin AS customerpin, c.divisionid AS current_divisionid,
 				c.street, c.building, c.apartment,
 				c.post_street, c.post_building, c.post_apartment,
@@ -705,7 +719,8 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
 				JOIN customeraddressview c ON (c.id = d.customerid)
 				LEFT JOIN countries cn ON (cn.id = d.countryid)
 				LEFT JOIN numberplans n ON (d.numberplanid = n.id)
-				WHERE d.id = ? AND (d.type = ? OR d.type = ?)', array($invoiceid, DOC_INVOICE, DOC_CNOTE))) {
+				LEFT JOIN addresses a ON d.recipient_address_id = a.id
+				WHERE d.id = ? AND (d.type = ? OR d.type = ? OR d.type = ?)', array($invoiceid, DOC_INVOICE, DOC_CNOTE, DOC_INVOICE_PRO))) {
 
 			$result['bankaccounts'] = $this->db->GetCol('SELECT contact FROM customercontacts
 				WHERE customerid = ? AND (type & ?) = ?',
@@ -906,6 +921,8 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             'period' => $tariff['period'] ? $tariff['period'] : null,
             SYSLOG::RES_TAX => $tariff['taxid'],
             SYSLOG::RES_NUMPLAN => $tariff['numberplanid'] ? $tariff['numberplanid'] : null,
+            'datefrom' => $tariff['from'] ? $tariff['from'] : 0,
+            'dateto' => $tariff['to'] ? $tariff['to'] : 0,
             'prodid' => $tariff['prodid'],
             'uprate' => $tariff['uprate'],
             'downrate' => $tariff['downrate'],
@@ -935,12 +952,12 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             'alias_limit' => $tariff['alias_limit'],
         );
         $result = $this->db->Execute('INSERT INTO tariffs (name, description, value,
-				period, taxid, numberplanid, prodid, uprate, downrate, upceil, downceil, climit,
+				period, taxid, numberplanid, datefrom, dateto, prodid, uprate, downrate, upceil, downceil, climit,
 				plimit, uprate_n, downrate_n, upceil_n, downceil_n, climit_n,
 				plimit_n, dlimit, type, sh_limit, www_limit, mail_limit, sql_limit,
 				ftp_limit, quota_sh_limit, quota_www_limit, quota_mail_limit,
 				quota_sql_limit, quota_ftp_limit, domain_limit, alias_limit)
-				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array_values($args));
+				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', array_values($args));
         if ($result) {
             $id = $this->db->GetLastInsertID('tariffs');
             if ($this->syslog) {
@@ -961,6 +978,8 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             'period' => $tariff['period'] ? $tariff['period'] : null,
             SYSLOG::RES_TAX => $tariff['taxid'],
             SYSLOG::RES_NUMPLAN => $tariff['numberplanid'] ? $tariff['numberplanid'] : null,
+            'datefrom' => $tariff['from'],
+            'dateto' => $tariff['to'],
             'prodid' => $tariff['prodid'],
             'uprate' => $tariff['uprate'],
             'downrate' => $tariff['downrate'],
@@ -993,7 +1012,7 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             SYSLOG::RES_TARIFF => $tariff['id']
         );
         $res = $this->db->Execute('UPDATE tariffs SET name=?, description=?, value=?,
-				period=?, taxid=?, numberplanid=?, prodid=?, uprate=?, downrate=?, upceil=?, downceil=?,
+				period=?, taxid=?, numberplanid=?, datefrom=?, dateto=?, prodid=?, uprate=?, downrate=?, upceil=?, downceil=?,
 				climit=?, plimit=?, uprate_n=?, downrate_n=?, upceil_n=?, downceil_n=?,
 				climit_n=?, plimit_n=?, dlimit=?, sh_limit=?, www_limit=?, mail_limit=?,
 				sql_limit=?, ftp_limit=?, quota_sh_limit=?, quota_www_limit=?,
@@ -1111,9 +1130,10 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
 
     public function GetTariffs()
     {
-        return $this->db->GetAll('SELECT t.id, t.name, t.value, uprate, taxid, prodid,
-				downrate, upceil, downceil, climit, plimit, taxes.value AS taxvalue,
-				taxes.label AS tax, t.period
+        return $this->db->GetAllByKey('SELECT t.id, t.name, t.value, uprate, taxid,
+				datefrom, dateto, (CASE WHEN datefrom < ?NOW? AND (dateto = 0 OR dateto > ?NOW?) THEN 1 ELSE 0 END) AS valid,
+				prodid, downrate, upceil, downceil, climit, plimit, taxes.value AS taxvalue,
+				taxes.label AS tax, t.period, t.type AS tarifftype
 				FROM tariffs t
 				LEFT JOIN taxes ON t.taxid = taxes.id
 				WHERE t.disabled = 0

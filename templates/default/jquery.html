@@ -511,15 +511,22 @@
 			}
 		});
 	});
+	{/if}
 
-	function restoreSortable(sortable) {
-		tabs = getCookie(sortable + '-order');
-		if (tabs !== null) {
-			$.each(tabs.split(';'), function(key, value) {
-				if (value.length)
-					$('#' + value).appendTo('#' + sortable);
-			});
-		}
-	}
+	$( function() {
+		var lmsErrors = {
+			{if $error}
+			{foreach $error as $k=>$v}
+				"{$k|replace:'"':'\"'}":"{$v|replace:'"':'\"'}",
+			{/foreach}
+			{/if}
+		};
+
+		$.each( lmsErrors, function( index, value ) {
+			$("[name='" + index + "']")
+				.attr('title', value)
+				.addClass('alert');
+		});
+	});
 //-->
 </script>

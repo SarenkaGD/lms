@@ -95,7 +95,9 @@ class LMS
             require(LIB_DIR . DIRECTORY_SEPARATOR . 'xajax' . DIRECTORY_SEPARATOR . 'xajax_core' . DIRECTORY_SEPARATOR . 'xajax.inc.php');
             $this->xajax = new xajax();
             $this->xajax->configure('errorHandler', true);
-            $this->xajax->configure('javascript URI', 'img');
+            $this->xajax->configure('javascript Dir', SYS_DIR . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'xajax_js');
+            $this->xajax->configure('javascript URI', 'img/xajax_js');
+            //$this->xajax->configure('deferScriptGeneration', false);
         }
     }
 
@@ -409,7 +411,7 @@ class LMS
         $manager = $this->getCustomerManager();
         return $manager->DeleteCustomer($id);
     }
-    
+
     public function DeleteCustomerPermanent($id)
     {
         $manager = $this->getCustomerManager();
@@ -514,6 +516,24 @@ class LMS
     {
         $manager = $this->getCustomerManager();
         return $manager->customerStats();
+    }
+
+    public function checkCustomerAddress($a_id, $c_id)
+    {
+        $manager = $this->getCustomerManager();
+        return $manager->checkCustomerAddress($a_id, $c_id);
+    }
+
+    public function getCustomerAddresses($id, $hide_deleted = false)
+    {
+        $manager = $this->getCustomerManager();
+        return $manager->getCustomerAddresses($id, $hide_deleted);
+    }
+
+    public function getAddressForCustomerStuff( $customer_id )
+    {
+        $manager = $this->getCustomerManager();
+        return $manager->getAddressForCustomerStuff( $customer_id );
     }
 
     /*
@@ -1408,7 +1428,7 @@ class LMS
     }
 
     /*
-     * Konfiguracja LMS-UI
+     *  LMS-UI configuration
      */
 
     public function GetConfigOptionId($var, $section)
@@ -1596,10 +1616,6 @@ class LMS
 		$persist = is_null($persist) ? ConfigHelper::getConfig('mail.smtp_persist', true) : $persist;
 
 		if (ConfigHelper::getConfig('mail.backend') == 'pear') {
-			@include_once('Mail.php');
-			if (!class_exists('Mail'))
-				return trans('Can\'t send message. PEAR::Mail not found!');
-
 			if (!is_object($this->mail_object) || !$persist) {
 				$params['host'] = (!isset($smtp_options['host']) ? ConfigHelper::getConfig('mail.smtp_host') : $smtp_options['host']);
 				$params['port'] = (!isset($smtp_options['port']) ? ConfigHelper::getConfig('mail.smtp_port') : $smtp_options['port']);
@@ -1703,8 +1719,8 @@ class LMS
 
 			$this->mail_object->Dsn = isset($headers['Delivery-Status-Notification-To']);
 
-			preg_match('/^(.+) <([a-z0-9_\.-]+@[\da-z\.-]+\.[a-z\.]{2,6})>$/A', $headers['From'], $from);
-			$this->mail_object->setFrom($from[2], trim($from[1], "\""));
+			preg_match('/^(?:(?<name>.*) )?<?(?<mail>[a-z0-9_\.-]+@[\da-z\.-]+\.[a-z\.]{2,6})>?$/A', $headers['From'], $from);
+			$this->mail_object->setFrom($from['mail'], isset($from['name']) ? trim($from['name'], "\"") : '');
 			$this->mail_object->addReplyTo($headers['Reply-To']);
 			$this->mail_object->CharSet = 'UTF-8';
 			$this->mail_object->Subject = $headers['Subject'];
@@ -2115,6 +2131,10 @@ class LMS
         return $manager->DocumentExists($number, $doctype, $planid, $cdate);
     }
 
+    /*
+     *  Location
+     */
+
     public function GetCountryStates()
     {
         $manager = $this->getLocationManager();
@@ -2137,6 +2157,36 @@ class LMS
     {
         $manager = $this->getLocationManager();
         return $manager->UpdateCountryState($zip, $stateid);
+    }
+
+    public function DeleteAddress( $address_id ) {
+        $manager = $this->getLocationManager();
+        return $manager->DeleteAddress( $address_id );
+    }
+
+    public function InsertAddress( $args ) {
+        $manager = $this->getLocationManager();
+        return $manager->InsertAddress( $args );
+    }
+
+    public function InsertCustomerAddress( $customer_id, $args ) {
+        $manager = $this->getLocationManager();
+        return $manager->InsertCustomerAddress( $customer_id, $args );
+    }
+
+    public function UpdateAddress( $args ) {
+        $manager = $this->getLocationManager();
+        return $manager->UpdateAddress( $args );
+    }
+
+    public function UpdateCustomerAddress( $customer_id, $args ) {
+        $manager = $this->getLocationManager();
+        return $manager->UpdateCustomerAddress( $customer_id, $args );
+    }
+
+    public function ValidAddress( $args ) {
+        $manager = $this->getLocationManager();
+        return $manager->ValidAddress( $args );
     }
 
     public function GetNAStypes()
@@ -3043,6 +3093,9 @@ class LMS
 				if (!empty($notify_email))
 					$headers['Cc'] = $notify_email;
 
+				if (isset($mail_format) && $mail_format == 'html')
+					$headers['X-LMS-Format'] = 'html';
+
 				if ($add_message) {
 					$this->DB->Execute('INSERT INTO messages (subject, body, cdate, type, userid)
 						VALUES (?, ?, ?NOW?, ?, ?)',
@@ -3067,7 +3120,7 @@ class LMS
 					}
 
 					$res = $this->SendMail($email . ',' . $notify_email, $headers, $body,
-						$files, (isset($smtp_options) ? $smtp_options : null));
+						$files, null, (isset($smtp_options) ? $smtp_options : null));
 
 					if (is_string($res)) {
 						$msg = trans('Error sending mail: $a', $res);

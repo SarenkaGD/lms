@@ -1,6 +1,7 @@
 {extends file="layout.html"}
 {block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
 {block name=module_content}
+{$xajax}
 <!--// $Id$ //-->
 <H1>{$layout.pagetitle}</H1>
 {if $newinvoice}
@@ -57,6 +58,14 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 		document.additem.action="?m=invoicenew&action=save&print=1" + add;
 		document.additem.submit();
 	}
+
+	function GetNumberPlans() {
+		xajax_GetNumberPlans('{$invoice.proforma}', {
+			number: $('form[name="setcustomer"] [name="invoice[number]"]').val(),
+			cdate: $('form[name="setcustomer"] [name="invoice[cdate]"]').attr('data-cdate'),
+			numberplanid: $('form[name="setcustomer"] [name="invoice[numberplanid]"]').val(),
+		}, $('form[name="setcustomer"] [name="customerid"]').val());
+	}
 //-->
 </script>
 {$default_printpage = ConfigHelper::getConfig('invoices.default_printpage')}
@@ -82,18 +91,8 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 		<TD class="bold nobr">
 			{trans("Invoice number:")}
 		</TD>
-		<TD class="nobr">
-			<INPUT type="text" name="invoice[number]" value="{$invoice.number}" size="12" {tip text="Enter invoice number. WARNING! Changing this number can be DANGEROUS! (leave this field empty to obtain next number)" trigger="number"}>&nbsp;
-			{if $numberplanlist}
-			<SELECT name="invoice[numberplanid]" {tip text="Select numbering plan"}>
-			{foreach item=plan from=$numberplanlist}
-				{assign var=period value=$plan.period}
-				<OPTION value="{$plan.id}"{if $plan.id==$invoice.numberplanid} SELECTED{/if}>{number number=$plan.next template=$plan.template time=$invoice.cdate} ({$_NUM_PERIODS.$period})</OPTION>
-			{/foreach}
-			</SELECT>
-			{else}
-				<INPUT type="hidden" name="invoice[numberplanid]" value="0">
-			{/if}
+		<TD class="nobr" id="invoicenumberplans">
+			{include file="invoice/invoicenumberplans.html" invoice=$invoice}
 		</TD>
 	</TR>
 	<TR>
@@ -101,7 +100,7 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 			{trans("Settlement date:")}
 		</TD>
 		<TD class="nobr">
-			<INPUT type="text" name="invoice[cdate]" value="{$invoice.cdate|date_format:"%Y/%m/%d"}" size="12" placeholder="{trans("yyyy/mm/dd")}" {tip class="calendar" text="Enter date of settlement in YYYY/MM/DD format (empty field means current date) or click to select it from calendar" trigger="cdate"}>
+			<INPUT type="text" name="invoice[cdate]" value="{$invoice.cdate|date_format:"%Y/%m/%d"}" size="12" placeholder="{trans("yyyy/mm/dd")}" data-cdate="{$invoice.cdate}" {tip class="calendar" text="Enter date of settlement in YYYY/MM/DD format (empty field means current date) or click to select it from calendar" trigger="cdate"}>
 			{if $invoice.cdatewarning}
 			<INPUT type="hidden" name="invoice[cdatewarning]" value="1">
 			{/if}
@@ -141,9 +140,15 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 			{trans("Customer:")}
 		</TD>
 		<TD class="nobr">
-			{customerlist form="setcustomer" customers=$customers selected=$customerid selectname="customer" inputname="customerid"}
+			{customerlist form="setcustomer" customers=$customers selected=$customerid selectname="customer" inputname="customerid" customOnChange="GetNumberPlans()" select_id="ownerid_select" input_id="ownerid_input"}
 		</TD>
 	</TR>
+	<tr>
+		<td class="bold">{trans("Recipient address:")}</td>
+		<td>
+			<select id="customer_addresses" name="invoice[recipient_address_id]"></select>
+		</td>
+	</tr>
 	<TR>
 		<TD class="text-right" colspan="2">
 			<A href="javascript:saveheader();">{trans("Submit")} <IMG src="img/save.gif" alt=""></A>
@@ -411,9 +416,61 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 </FORM>
 {/if}
 
+<script type="text/javascript" src="img/lms-ui-iconselectmenu.js"></script>
 <SCRIPT type="text/javascript">
 <!--
+<<<<<<< HEAD
 	document.forms['setcustomer'].elements['invoice[number]'].focus();
+=======
+	$(function() {
+        var customer_addresses = new LmsUiIconSelectMenu( "#customer_addresses" );
+        var timer;
+
+        $('form[name="setcustomer"] [name="invoice[number]"]').focus();
+
+        /*!
+         * \brief Update customer addresses list on input change.
+         */
+        $( '#ownerid_input' ).on('keyup input paste', function() {
+            var id = $(this).val();
+
+            if ( id != 'undefined' && id > 0 ) {
+                // delay for send request, 250ms
+                clearTimeout( timer );
+                timer = setTimeout( function() { customer_addresses.setAddressList( getCustomerAddresses(id) ); }, 250);
+            }
+        });
+
+        /*!
+         * \brief On keydown, clear the countdown.
+         */
+        $( '#ownerid_input' ).on('keydown', function () {
+            clearTimeout(timer);
+        });
+
+        {if !ConfigHelper::checkConfig('phpui.big_networks')}
+        /*!
+         * \brief Update customer addresses list on select change.
+         * Using when big_networks is set as false.
+         */
+        $( '#ownerid_select' ).change( function() {
+            var id = $(this).val();
+
+            if ( id != 'undefined' && id > 0 ) {
+                customer_addresses.setAddressList( getCustomerAddresses(id) );
+            }
+        });
+        {/if}
+
+        customer_addresses.setAddressList( getCustomerAddresses( {intval($invoice.customerid)} ) );
+
+        {if $invoice.customerid && $invoice.recipient_address_id }
+            $( '#customer_addresses' ).val( {$invoice.recipient_address_id} );
+        {/if}
+
+        customer_addresses.init();
+	});
+>>>>>>> 19afad197d41b6807db016d789415899ac8d85e9
 //-->
 </SCRIPT>
 {/block}

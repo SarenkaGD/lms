@@ -94,41 +94,51 @@ if(isset($_POST['netdev']))
         if(!isset($netdevdata['community'])) $netdevdata['community'] = '';
         if(!isset($netdevdata['nastype'])) $netdevdata['nastype'] = 0;
 
-        if (empty($netdevdata['teryt'])) {
-            $netdevdata['location_city'] = null;
-            $netdevdata['location_street'] = null;
-            $netdevdata['location_house'] = null;
-            $netdevdata['location_flat'] = null;
-	}
-	$ipi = $netdevdata['invprojectid'];
-	if ($ipi == '-1') {
-		$DB->BeginTrans();
-		$DB->Execute("INSERT INTO invprojects (name, type) VALUES (?, ?)",
-			array($netdevdata['projectname'], INV_PROJECT_REGULAR));
-		$ipi = $DB->GetLastInsertID('invprojects');
-		$DB->CommitTrans();
-	} 
-	if ($netdevdata['invprojectid'] == '-1' || intval($ipi)>0)
-		$netdevdata['invprojectid'] = intval($ipi);
-	else
-		$netdevdata['invprojectid'] = NULL;
-	if ($netdevdata['netnodeid']=="-1") {
-		$netdevdata['netnodeid']=NULL;
-	}
-	else {
-		/* dziedziczenie lokalizacji */
-		$dev = $DB->GetRow("SELECT * FROM netnodes WHERE id = ?", array($netdevdata['netnodeid']));
-		if ($dev) {
-			if (!strlen($netdevdata['location'])) {
-				$netdevdata['location'] = $dev['location'];
-				$netdevdata['location_city'] = $dev['location_city'];
-				$netdevdata['location_street'] = $dev['location_street'];
-				$netdevdata['location_house'] = $dev['location_house'];
-				$netdevdata['location_flat'] = $dev['location_flat'];
-			}
-			if (!strlen($netdevdata['longitude']) || !strlen($netdevdata['longitude'])) {
-				$netdevdata['longitude'] = $dev['longitude'];
-				$netdevdata['latitude'] = $dev['latitude'];
+        // if network device owner is set then get customer address
+        // else get fields from location dialog box
+        if ( empty($netdevdata['ownerid']) ) {
+            $netdevdata['address_id'] = null;
+        } else {
+            $netdevdata['location_name']        = null;
+            $netdevdata['location_state_name']  = null;
+            $netdevdata['location_state']       = null;
+            $netdevdata['location_city_name']   = null;
+            $netdevdata['location_city']        = null;
+            $netdevdata['location_street_name'] = null;
+            $netdevdata['location_street']      = null;
+            $netdevdata['location_house']       = null;
+            $netdevdata['location_flat']        = null;
+            $netdevdata['location_zip']         = null;
+            $netdevdata['location_country_id']  = null;
+        }
+
+		$ipi = $netdevdata['invprojectid'];
+		if ($ipi == '-1') {
+			$DB->BeginTrans();
+			$DB->Execute("INSERT INTO invprojects (name, type) VALUES (?, ?)",
+				array($netdevdata['projectname'], INV_PROJECT_REGULAR));
+			$ipi = $DB->GetLastInsertID('invprojects');
+			$DB->CommitTrans();
+		}
+
+		if ($netdevdata['invprojectid'] == '-1' || intval($ipi)>0)
+			$netdevdata['invprojectid'] = intval($ipi);
+		else
+			$netdevdata['invprojectid'] = NULL;
+
+		if ($netdevdata['netnodeid']=="-1") {
+			$netdevdata['netnodeid'] = NULL;
+		} else {
+			// heirdom localization
+			$dev = $DB->GetRow("SELECT address_id, longitude, latitude FROM netnodes WHERE id = ?", array($netdevdata['netnodeid']));
+			if ($dev) {
+				if ( empty($netdevdata['address_id']) && empty($netdevdata['location_city']) && empty($netdevdata['location_street']) ) {
+					$netdevdata['address_id'] = $dev['address_id'];
+				}
+				if (!strlen($netdevdata['longitude']) || !strlen($netdevdata['longitude'])) {
+					$netdevdata['longitude'] = $dev['longitude'];
+					$netdevdata['latitude']  = $dev['latitude'];
+				}
 			}
 		}
 	}

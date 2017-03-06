@@ -1,6 +1,7 @@
 {extends file="layout.html"}
 {block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
 {block name=module_content}
+{$xajax}
 <!--// $Id$ //-->
 <H1>{$layout.pagetitle}</H1>
 <script type="text/javascript">
@@ -72,6 +73,14 @@
 		form.taxid.value = taxid;
 		form.valuebrutto.value = valuebrutto;
 	}
+
+	function GetNumberPlans() {
+		xajax_GetNumberPlans('{$invoice.proforma}', {
+			number: $('form[name="setcustomer"] [name="invoice[number]"]').val(),
+			cdate: $('form[name="setcustomer"] [name="invoice[cdate]"]').attr('data-cdate'),
+			numberplanid: $('form[name="setcustomer"] [name="invoice[numberplanid]"]').val(),
+		}, $('form[name="setcustomer"] [name=customerid]').val());
+	}
 //-->
 </script>
 {$default_printpage = ConfigHelper::getConfig('invoices.default_printpage')}
@@ -90,11 +99,19 @@
     </THEAD>
     <TBODY>
 	<TR>
-		<TD WIDTH="1%" NOWRAP>
-			<B>{trans("Settlement date:")}</B>
+		<TD class="bold nobr">
+			{trans("Invoice number:")}
 		</TD>
-		<TD WIDTH="99%" NOWRAP>
-			<INPUT TYPE="TEXT" NAME="invoice[cdate]" VALUE="{$invoice.cdate|date_format:"%Y/%m/%d"}" SIZE="10" placeholder="{trans("yyyy/mm/dd")}" {tip class="calendar" text="Enter date of settlement in YYYY/MM/DD format (empty field means current date) or click to select it from calendar" trigger="cdate"}>
+		<TD class="nobr" id="invoicenumberplans">
+			{include file="invoice/invoicenumberplans.html" invoice=$invoice}
+		</TD>
+	</TR>
+	<TR>
+		<TD class="bold nobr">
+			{trans("Settlement date:")}
+		</TD>
+		<TD class="nobr">
+			<INPUT TYPE="TEXT" NAME="invoice[cdate]" VALUE="{$invoice.cdate|date_format:"%Y/%m/%d"}" SIZE="10" placeholder="{trans("yyyy/mm/dd")}" date-cdate="{$invoice.cdate}" {tip class="calendar" text="Enter date of settlement in YYYY/MM/DD format (empty field means current date) or click to select it from calendar" trigger="cdate"}>
 			{if $invoice.cdatewarning}
 			<INPUT TYPE="HIDDEN" NAME="invoice[cdatewarning]" VALUE="1">
 			{/if}
@@ -134,9 +151,9 @@
 		</TD>
 		<TD style="width: 99%;" class="nobr">
 			{if isset($customer.id)}
-			{customerlist form="setcustomer" customers=$customers selected=$customer.id selectname="customer" inputname="customerid"}
+			{customerlist form="setcustomer" customers=$customers selected=$customer.id selectname="customer" inputname="customerid" customOnChange="GetNumberPlans()"}
 			{else}
-			{customerlist form="setcustomer" customers=$customers selected=$invoice.customerid selectname="customer" inputname="customerid"}
+			{customerlist form="setcustomer" customers=$customers selected=$invoice.customerid selectname="customer" inputname="customerid" customOnChange="GetNumberPlans()"}
 			{/if}
 		</TD>
 	</TR>

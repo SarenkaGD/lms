@@ -518,21 +518,25 @@ define('EVENT_NETWORK', 2);
 define('EVENT_SERVICE', 3);
 define('EVENT_INSTALLATION', 4);
 define('EVENT_MEETING', 5);
+define('EVENT_VACATION', 6);
+define('EVENT_DUTY', 7);
 
 $EVENTTYPES = array(
 	EVENT_SERVICE      => trans('service<!event>'),
 	EVENT_INSTALLATION => trans('installation'),
-	EVENT_NETWORK      => trans('network'),
-	EVENT_MEETING      => trans('meeting'),
-	EVENT_OTHER        => trans('other')
+	EVENT_MEETING => trans('meeting'),
+	EVENT_VACATION => trans('vacation'),
+	EVENT_DUTY => trans('duty')
 );
 
 $EVENTSTYLES = array(
-	EVENT_SERVICE		=> 'background-color: red; color: white;',
-	EVENT_INSTALLATION	=> 'background-color: green; color: white;',
-	EVENT_NETWORK		=> 'background-color: blue; color: white;',
-	EVENT_MEETING		=> 'background-color: yellow; color: black;',
-	EVENT_OTHER			=> 'background-color: gray; color: white;'
+	EVENT_OTHER => 'background-color: gray; color: white;',
+	EVENT_NETWORK => 'background-color: blue; color: white;',
+	EVENT_SERVICE => 'background-color: red; color: white;',
+	EVENT_INSTALLATION => 'background-color: green; color: white;',
+	EVENT_MEETING => 'background-color: yellow; color: black;',
+	EVENT_VACATION => 'background-color: white; color: black;',
+	EVENT_DUTY => 'background-color: brown; color: white;'
 );
 
 define('SESSIONTYPE_PPPOE', 1);
@@ -598,5 +602,11 @@ define('DEFAULT_NUMBER_TEMPLATE', '%N/LMS/%Y');
 // Investment project types
 define('INV_PROJECT_REGULAR', 0);
 define('INV_PROJECT_SYSTEM', 1);
+
+// Address types
+define('POSTAL_ADDRESS'          , 0);
+define('BILLING_ADDRESS'         , 1);
+define('LOCATION_ADDRESS'        , 2);
+define('DEFAULT_LOCATION_ADDRESS', 3);
 
 ?>

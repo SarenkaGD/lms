@@ -29,11 +29,14 @@ $_LANG['Check if contact should be printed on documents'] = 'Zaznacz jeśli kont
 
 $_LANG['Are you sure you want to send messages to $a customer(s)?'] = 'Jesteś pewien, że chcesz wysłać wiadmości do $a klient(a/ów)?';
 
-$_LANG['Export to JPK format'] = 'Eksport do formatu JPK';
+$_LANG['Export to JPK-FA format'] = 'Eksport do formatu JPK-FA';
+$_LANG['Export to JPK-VAT format'] = 'Eksport do formatu JPK-VAT';
 $_LANG['Division not selected!'] = 'Nie wybrano firmy!';
 $_LANG['Tax Office Code:'] = 'Kod Urzędu Podatkowego:';
 $_LANG['Enter Tax Office Code (optional)'] = 'Wprowadź Kod Urzędu Podatkowego (opcjpnalnie)';
 $_LANG['Invalid format of Tax Office Code!'] = 'Niepoprawny format Kodu Urzędu Podatkowego!';
+
+$_LANG['Notify customer:'] = 'Powiadom klienta:';
 
 $_LANG['billing'] = 'biling';
 $_LANG['Billing'] = 'Biling';
@@ -115,6 +118,8 @@ $_LANG['Add new standing payment'] = 'Dodanie nowej opłaty stałej';
 $_LANG['Add new subscription fee'] = 'Dodanie nowej taryfy abonamentowej';
 $_LANG['Add new ticket'] = 'Dodanie nowego zgłoszenia';
 $_LANG['Add option'] = 'Dodaj opcję';
+$_LANG['select first avible'] = 'wybierz pierwszy wolny';
+$_LANG['Select address'] = 'Wybierz address';
 $_LANG['address'] = 'adres';
 $_LANG['Address'] = 'Adres';
 $_LANG['Address:'] = 'Adres:';
@@ -273,6 +278,7 @@ $_LANG['Check that option to remove records older than one year'] = 'Zaznacz tę
 $_LANG['Check that option to remove stats of deleted nodes'] = 'Zaznacz tę opcję żeby usunąć statystyki komputerów które nie istnieją w bazie danych';
 $_LANG['Check this box if you don\'t like to be visible on LMS homepage:'] = 'Zaznacz to pole jeśli nie chcesz ujawniać swojej nazwy i URL-a na stronie domowej LMS-a:';
 $_LANG['City:'] = 'Miasto:';
+$_LANG['Clear'] = 'Wyczyść';
 $_LANG['Clear Account'] = 'Rozlicz';
 $_LANG['Clear Contents'] = 'Wyczyść zawartość';
 $_LANG['Clearing database...'] = 'Czyszczenie bazy danych...';
@@ -419,6 +425,7 @@ $_LANG['Details'] = 'Szczegóły';
 $_LANG['Call details'] = 'Szczegóły połączenia';
 $_LANG['Device connected to other device or node can\'t be deleted.'] = 'Urządzenie podłączone do innego urządzenia lub komputera nie może zostać usunięte.';
 $_LANG['Device Edit: $a ($b)'] = 'Edycja urządzenia: $a ($b)';
+$_LANG['Device Edit: $a'] = 'Edycja urządzenia: $a';
 $_LANG['No free ports on device!'] = 'Urządzenie nie posiada wolnych portów!';
 $_LANG['No IP addresses on device.'] = 'Urządzenie nie posiada adresu IP.';
 $_LANG['Device Info: $a $b $c'] = 'Informacje o urządzeniu: $a $b $c';
@@ -526,6 +533,10 @@ $_LANG['Enter date in \'yyyy/mm/dd\' format or click to choose it from calendar'
 $_LANG['Enter date in YYYY/MM/DD format or click to choose it from calendar'] = 'Podaj datę w formacie \'rrrr/mm/dd\' (puste pole oznacza aktualną datę) lub kliknij żeby wybrać z kalendarza';
 $_LANG['Enter accounting start date in YYYY/MM/DD format. If you don\'t want to define \'From\' date leave this field empty'] = 'Podaj datę od której taryfa powinna obowiązywać lub zostaw to pole puste. Data powinna być w formacie RRRR/MM/DD';
 $_LANG['Enter accounting end date in YYYY/MM/DD format. Leave this field empty if you don\'t want to set expiration date'] = 'Wprowadź datę w formacie RRRR/MM/DD kiedy zakończyć naliczanie. Zostaw to pole puste, jeśli nie chcesz ustawiać daty wygaśnięcia zobowiązania';
+$_LANG['Enter tariff start date in YYYY/MM/DD format. If you don\'t want to define \'From\' date leave this field empty'] = 'Podaj datę od której taryfa powinna obowiązywać lub zostaw to pole puste. Data powinna być w formacie RRRR/MM/DD';
+$_LANG['Enter tariff end date in YYYY/MM/DD format. Leave this field empty if you don\'t want to set expiration date'] = 'Wprowadź datę w formacie RRRR/MM/DD oznaczającą koniec obowiązywania taryfy. Zostaw to pole puste, jeśli nie chcesz ustawiać daty wygaśnięcia taryfy';
+$_LANG['Enter promotion start date in YYYY/MM/DD format. If you don\'t want to define \'From\' date leave this field empty'] = 'Podaj datę od której promocja powinna obowiązywać lub zostaw to pole puste. Data powinna być w formacie RRRR/MM/DD';
+$_LANG['Enter promotion end date in YYYY/MM/DD format. Leave this field empty if you don\'t want to set expiration date'] = 'Wprowadź datę w formacie RRRR/MM/DD oznaczającą koniec obowiązywania promocji. Zostaw to pole puste, jeśli nie chcesz ustawiać daty wygaśnięcia promocji';
 $_LANG['Enter date of sale in YYYY/MM/DD format (empty field means current date) or click to select it from calendar'] = 'Wprowadź datę sprzedaży w formacie RRRR/MM/DD lub kliknij by wybrać ją z kalendarza. Puste pole oznacza datę dzisiejszą';
 $_LANG['Enter date of settlement in YYYY/MM/DD format (empty field means current date) or click to select it from calendar'] = 'Wprowadź datę wystawienia w formacie RRRR/MM/DD lub kliknij by wybrać ją z kalendarza. Puste pole oznacza datę dzisiejszą';
 $_LANG['Enter deadline in days (optional)'] = 'Wprowadź termin zapłaty w dniach (opcjonalnie)';
@@ -739,6 +750,8 @@ $_LANG['If you have any questions or doubts, contact with our Customer Service R
 $_LANG['Income:'] = 'Przychód:';
 $_LANG['Incorrect charging end time!'] = 'Błędnie podany czas końca naliczania!';
 $_LANG['Incorrect charging start time!'] = 'Błędnie podany czas początku naliczania!';
+$_LANG['Incorrect effective end time!'] = 'Błędnie podany czas końca obowiązywania!';
+$_LANG['Incorrect effective start time!'] = 'Błędnie podany czas początku obowiązywania!';
 $_LANG['Incorrect crontab format!'] = 'Niepoprawny format crontaba!';
 $_LANG['Incorrect Customer ID.'] = 'Niepoprawny identyfikator klienta.';
 $_LANG['Incorrect customers group!'] = 'Niepoprawna grupa klientów!';
@@ -1248,6 +1261,7 @@ $_LANG['Section:'] = 'Sekcja:';
 $_LANG['Section name contains forbidden characters!'] = 'Nazwa sekcji zawiera zabronione znaki!';
 $_LANG['Select'] = 'Wybierz';
 $_LANG['select'] = 'wybierz';
+$_LANG['Selected address was not assigned to customer.'] = 'Wybrany adres nie jest przypisany do klienta.';
 $_LANG['- select account -'] = '- wybierz konto -';
 $_LANG['Select account'] = 'Wybierz konto';
 $_LANG['Select accounting frequency'] = 'Wybierz częstotliwość naliczania';
@@ -1703,9 +1717,12 @@ $_LANG['New network is too small. Put in order IP addresses first!'] = 'Nowa sie
 $_LANG['You can assign customer to ticket'] = 'Możesz przypisać klienta do zgłoszenia';
 $_LANG['Generating invoices...'] = 'Generuję faktury...';
 $_LANG['equal to'] = 'równe';
+$_LANG['Sharing surface'] = 'Udostępnianie powierzchni';
+$_LANG['Antennas installation'] = 'Instalacja anten';
 $_LANG['not equal to'] = 'różne';
 $_LANG['greater than'] = 'większe niż';
 $_LANG['less than'] = 'mniejsze niż';
+$_LANG['less than one minute ago'] = 'mniej niż minutę temu';
 $_LANG['greater than or equal to'] = 'większe równe';
 $_LANG['less than or equal to'] = 'mniejsze równe';
 $_LANG['duplicate'] = 'duplikat';
@@ -1812,6 +1829,7 @@ $_LANG['Select document template'] = 'Wybierz szablon dokumentu';
 $_LANG['Enter Business Registration Number (optional)'] = 'Wprowadź numer REGON (opcjonalnie)';
 $_LANG['Enter Identity Card Number (optional)'] = 'Wprowadź numer Dowodu Osobistego (opcjonalnie)';
 $_LANG['Enter National Court Register / Register of Business Entities Number (optional)'] = 'Wprowadź numer EDG/KRS (opcjonalnie)';
+$_LANG['Enter National Court Register / Register of Business Entities Name (optional)'] = 'Wprowadź nazwę EDG/KRS (opcjonalnie)';
 $_LANG['Incorrect Business Registration Number!'] = 'Niepoprawny numer REGON!';
 $_LANG['Incorrect Identity Card Number!'] = 'Niepoprawny numer Dowodu Osobistego!';
 $_LANG['OK'] = 'OK';
@@ -1821,6 +1839,7 @@ $_LANG['unknown'] = 'nieznany';
 $_LANG['Enter node location'] = 'Wprowadź położenie komputera';
 $_LANG['ICN:'] = 'Dowód osobisty:';
 $_LANG['RBE:'] = 'EDG/KRS:';
+$_LANG['RBE Name:'] = 'Nazwa EDG/KRS:';
 $_LANG['Allows you to add new document'] = 'Dodanie nowego dokumentu';
 $_LANG['Allows you to add the new prefixes'] = 'Dodanie nowych prefiksów';
 $_LANG['Allows you to search documents'] = 'Wyszukiwanie dokumentów';
@@ -2592,6 +2611,11 @@ $_LANG['period undefined'] = 'okres niezdefiniowany';
 $_LANG['Select time period of tariff accounting'] = 'Wybierz okres naliczania taryfy';
 $_LANG['undefined'] = 'niezdefiniowany';
 $_LANG['Activation'] = 'Aktywacja';
+$_LANG['postal address'] = 'adres korespondencyjny';
+$_LANG['billing address'] = 'adres klienta';
+$_LANG['default location address'] = 'domyślny adres lokalizacyjny';
+$_LANG['location/recipient'] = 'lokalizacja/odbiorca';
+$_LANG['Recipient address:'] = 'Adres odbiorcy';
 $_LANG['Add assignment'] = 'Dodaj powiązanie';
 $_LANG['Add promotion'] = 'Dodaj promocję';
 $_LANG['Are you sure, you want to delete this assignment?'] = 'Czy na pewno chcesz usunąć to powiązanie?';
@@ -2675,6 +2699,8 @@ $_LANG['Enter flat number'] = 'Wprowadź numer mieszkania';
 $_LANG['Enter house number'] = 'Wprowadź numer domu';
 $_LANG['Flat No.'] = 'Nr mieszkania';
 $_LANG['House No.'] = 'Nr domu';
+$_LANG['house'] = 'dom';
+$_LANG['flat'] = 'mieszkanie';
 $_LANG['Location database is empty.'] = 'Baza adresowa jest pusta.';
 $_LANG['Select city'] = 'Wybierz miejscowość';
 $_LANG['Select district'] = 'Wybierz powiat';
@@ -2683,9 +2709,11 @@ $_LANG['Select state'] = 'Wybierz województwo';
 $_LANG['Select street'] = 'Wybierz ulicę';
 $_LANG['State'] = 'Województwo';
 $_LANG['Street'] = 'Ulica';
+$_LANG['street'] = 'ulica';
 $_LANG['TERRIT-DB'] = 'Baza TERYT';
 $_LANG['City has not been selected!'] = 'Nie wybrano miasta!';
 $_LANG['Flat number is too long (max. 8 characters)!'] = 'Numer mieszkania jest za długi (max. 8 znaków)!';
+$_LANG['Zip code is too long (max. 8 characters)!'] = 'Kod pocztowy jest za długi (max. 8 znaków)!';
 $_LANG['House number is required!'] = 'Numer domu jest wymagany!';
 $_LANG['House number is too long (max. 8 characters)!'] = 'Numer domu jest za długi (max. 8 znaków)!';
 $_LANG['links hiding'] = 'ukrywanie użytecznych linków';
@@ -3468,5 +3496,24 @@ $_LANG['Document number'] = 'Numer dokumentu';
 
 $_LANG['Enter main bank account number'] = 'Wprowadź główny numer rachunku bankowego (opcjonalnie)';
 $_LANG['Main bank account:'] = 'Główny numer rachunku:';
+
+$_LANG['Effective date'] = 'Data obowiązywania';
+$_LANG['show all tariffs'] = 'pokaż wszystkie taryfy';
+$_LANG['Check if all tariffs should be displayed'] = 'Zaznacz, jeśli wszystkie taryfy powinny zostać wyświetlone';
+
+$_LANG['creation date'] = 'data utworzenia';
+$_LANG['confirmation date'] = 'data zatwierdzenia';
+$_LANG['\'from\' date'] = 'data obowiązywania \'od\'';
+$_LANG['\'to\' date'] = 'data obowiązywania \'do\'';
+
+$_LANG['creator'] = 'twórca';
+$_LANG['authorising'] = 'zatwierdzający';
+
+$_LANG['vacation'] = 'urlop';
+$_LANG['duty'] = 'dyżur';
+
+$_LANG['If set to "true" then logout confirmation is required. Default "false"'] = 'Ustawienie opcji na "true" wymusza potwierdzenie wylogowania. Domyślnie wyłączone';
+
+$_LANG['SMS from $a'] = 'SMS od $a';
 
 ?>

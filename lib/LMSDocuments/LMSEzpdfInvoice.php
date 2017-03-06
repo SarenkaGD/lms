@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2016 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -163,7 +163,13 @@ class LMSEzpdfInvoice extends LMSInvoice {
 
 	protected function invoice_title($x, $y) {
 		$font_size = 16;
-		$tmp = docnumber($this->data['number'], $this->data['template'], $this->data['cdate']);
+		$tmp = docnumber(array(
+			'number' => $this->data['number'],
+			'template' => $this->data['template'],
+			'cdate' => $this->data['cdate'],
+			'customerid' => $this->data['customerid'],
+		));
+
 		if (isset($this->data['invoice']))
 			$y=$y - $this->backend->text_align_left($x,$y,$font_size,'<b>' . trans('Credit Note No. $a',$tmp) . '</b>');
 		else
@@ -186,6 +192,21 @@ class LMSEzpdfInvoice extends LMSInvoice {
 
 		if (isset($this->data['invoice']))
 			$y += 10;
+		return $y;
+	}
+
+	protected function invoice_recipient($x, $y) {
+		$font_size = 10;
+
+		$y -= $this->backend->text_align_left($x, $y, $font_size, '<b>' . trans('Recipient:') . '</b>');
+
+		if ( !empty($this->data['rec_name']) ) {
+			$y = $this->backend->text_wrap($x, $y, 160, $font_size, $this->data['rec_name'], 'left');
+		}
+
+		$y -= $this->backend->text_align_left($x, $y, $font_size, $this->data['rec_street'] . ' ' . $this->data['rec_house'] . (($this->data['rec_flat']) ? '/'.$this->data['rec_flat'] : ''));
+		$y -= $this->backend->text_align_left($x, $y, $font_size, $this->data['rec_zip'] . " " . $this->data['rec_city']);
+
 		return $y;
 	}
 
@@ -829,34 +850,50 @@ class LMSEzpdfInvoice extends LMSInvoice {
 
 	protected function invoice_header_image($x, $y) {
 		$image_path = ConfigHelper::getConfig('invoices.header_image', '', true);
-		if (!file_exists($image_path)
-			|| !preg_match('/\.(?<ext>gif|jpg|jpeg|png)$/', $image_path, $m))
-			return;
+		if (!file_exists($image_path) || !preg_match('/\.(?<ext>gif|jpg|jpeg|png)$/', $image_path, $m)) {
+			return false;
+		}
+
 		switch (strtolower($m['ext'])) {
 			case 'gif':
 				$this->backend->addGifFromFile($image_path, $x, $y, 0, self::HEADER_IMAGE_HEIGHT);
+				return true;
 				break;
 			case 'jpg':
 			case 'jpeg':
 				$this->backend->addJpegFromFile($image_path, $x, $y, 0, self::HEADER_IMAGE_HEIGHT);
+				return true;
 				break;
 			case 'png':
 				$this->backend->addPngFromFile($image_path, $x, $y, 0, self::HEADER_IMAGE_HEIGHT);
+				return true;
 				break;
 		}
+
+		return false;
 	}
 
 	public function invoice_body_standard() {
 		$page = $this->backend->ezStartPageNumbers($this->backend->ez['pageWidth']-50,20,8,'right',trans('Page $a of $b', '{PAGENUM}','{TOTALPAGENUM}'),1);
 		$top = $this->backend->ez['pageHeight'] - 50;
-		$this->invoice_header_image(30, $top - (self::HEADER_IMAGE_HEIGHT / 2));
+		$this->invoice_cancelled();
+		$this->invoice_no_accountant();
+		$header_image = $this->invoice_header_image(30, $top - (self::HEADER_IMAGE_HEIGHT / 2));
 		$this->invoice_dates(500, $top);
 		$this->invoice_address_box(400, $top - 100);
-		$top = $this->invoice_title(30, $top - self::HEADER_IMAGE_HEIGHT);
-		$top = $this->invoice_seller(30, $top);
-		$top = $top - 20;
-		$top = $this->invoice_buyer(30, $top);
-		$top = $top - 20;
+
+		if ( $header_image == true ) {
+			$top -= self::HEADER_IMAGE_HEIGHT;
+		}
+
+		$top = $this->invoice_title(30, $top);
+		$top = $this->invoice_seller(30, $top) - 7;
+		$top = $this->invoice_buyer(30, $top) - 7;
+
+		if ( !empty($this->data['recipient_address_id']) ) {
+			$top = $this->invoice_recipient(30, $top) - 7;
+		}
+
 		$return = $this->new_invoice_data(30, $top, 530, 7, 2);
 		$return[1] += 5;
 		$this->invoice_expositor(30, $return[1] - 20);
@@ -870,14 +907,24 @@ class LMSEzpdfInvoice extends LMSInvoice {
 	public function invoice_body_ft0100() {
 		$page = $this->backend->ezStartPageNumbers($this->backend->ez['pageWidth']/2+10,$this->backend->ez['pageHeight']-30,8,'',trans('Page $a of $b', '{PAGENUM}','{TOTALPAGENUM}'),1);
 		$top = $this->backend->ez['pageHeight'] - 50;
-		$this->invoice_header_image(30, $top - (self::HEADER_IMAGE_HEIGHT / 2));
+		$this->invoice_cancelled();
+		$this->invoice_no_accountant();
+		$header_image = $this->invoice_header_image(30, $top - (self::HEADER_IMAGE_HEIGHT / 2));
 		$this->invoice_dates(500, $top);
 		$this->invoice_address_box(400, $top - 100);
-		$top = $this->invoice_title(30, $top - self::HEADER_IMAGE_HEIGHT);
-		$top = $this->invoice_seller(30, $top);
-		$top = $top - 10;
-		$top = $this->invoice_buyer(30, $top);
-		$top = $top - 10;
+
+		if ( $header_image == true ) {
+			$top -= self::HEADER_IMAGE_HEIGHT;
+		}
+
+		$top = $this->invoice_title(30, $top);
+		$top = $this->invoice_seller(30, $top) - 10;
+		$top = $this->invoice_buyer(30, $top) - 10;
+
+		if ( !empty($this->data['recipient_address_id']) ) {
+			$top = $this->invoice_recipient(30, $top) - 7;
+		}
+
 		$this->invoice_footnote(470, $top, 90, 8);
 		$return = $this->new_invoice_data(30, $top, 430, 6, 1);
 		$top = $return[2] - 10;

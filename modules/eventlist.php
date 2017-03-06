@@ -29,9 +29,13 @@ function GetEventList($year=NULL, $month=NULL, $day=NULL, $forward=0, $customeri
 
 	$DB = LMSDB::getInstance();
 
-	if(!$year) $year = date('Y',time());
-	if(!$month) $month = date('n',time());
-	if(!$day) $day = date('j',time());
+	$t = time();
+
+	if(!$year) $year   = date('Y', $t);
+	if(!$month) $month = date('n', $t);
+	if(!$day) $day     = date('j', $t);
+
+	unset($t);
 
 	switch ($privacy) {
 		case 0:
@@ -51,9 +55,9 @@ function GetEventList($year=NULL, $month=NULL, $day=NULL, $forward=0, $customeri
 	$list = $DB->GetAll(
 		'SELECT events.id AS id, title, note, description, date, begintime, enddate, endtime, customerid, closed, events.type, '
 		.$DB->Concat('UPPER(c.lastname)',"' '",'c.name').' AS customername,
-		userid, users.name AS username, '.$DB->Concat('c.city',"', '",'c.address').' AS customerlocation, nodeid, nodes.location AS location 
-		FROM events 
-		LEFT JOIN nodes ON (nodeid = nodes.id)
+		userid, vusers.name AS username, '.$DB->Concat('c.city',"', '",'c.address').' AS customerlocation, nodeid, vn.location AS location
+		FROM events
+		LEFT JOIN vnodes as vn ON (nodeid = vn.id)
 		LEFT JOIN customerview c ON (customerid = c.id)
 		LEFT JOIN users ON (userid = users.id)
 		WHERE ((date >= ? AND date < ?) OR (enddate <> 0 AND date < ? AND enddate >= ?)) AND ' . $privacy_condition
@@ -154,9 +158,13 @@ $SESSION->save('elt', $type);
 $SESSION->save('elp', $privacy);
 $SESSION->save('elc', $closed);
 
-$day = (isset($day) ? $day : date('j',time()));
-$month = (isset($month) ? sprintf('%d',$month) : date('n',time()));
-$year = (isset($year) ? $year : date('Y',time()));
+$t = time();
+
+$day   = (isset($day)   ? $day  : date('j', $t));
+$month = (isset($month) ? sprintf('%d',$month) : date('n', $t));
+$year  = (isset($year)  ? $year : date('Y', $t));
+
+unset($t);
 
 $layout['pagetitle'] = trans('Timetable');
 

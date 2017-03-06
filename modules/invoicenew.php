@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2016 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -23,6 +23,8 @@
  *
  *  $Id$
  */
+
+include(MODULES_DIR . DIRECTORY_SEPARATOR . 'invoicexajax.inc.php');
 
 // Invoiceless liabilities: Zobowiazania/obciazenia na ktore nie zostala wystawiona faktura
 function GetCustomerCovenants($customerid)
@@ -458,7 +460,18 @@ $SMARTY->assign('contents', $contents);
 $SMARTY->assign('customer', $customer);
 $SMARTY->assign('invoice', $invoice);
 $SMARTY->assign('tariffs', $LMS->GetTariffs());
-$SMARTY->assign('numberplanlist', $LMS->GetNumberPlans(DOC_INVOICE, date('Y/m', $invoice['cdate'])));
+
+$args = array(
+	'doctype' => $invoice['proforma'] ? DOC_INVOICE_PRO : DOC_INVOICE,
+	'cdate' => date('Y/m', $invoice['cdate']),
+);
+if (isset($customer)) {
+	$args['customerid'] = $customer['id'];
+	$args['division'] = $DB->GetOne('SELECT divisionid FROM customers WHERE id = ?', array($customer['id']));
+} else
+	$args['customerid'] = null;
+$SMARTY->assign('numberplanlist', $LMS->GetNumberPlans($args));
+
 $SMARTY->assign('taxeslist', $taxeslist);
 if (ConfigHelper::getConfig('phpui.stock')) {
 	$SMARTY->display('stck/invoicenew.stck.html');

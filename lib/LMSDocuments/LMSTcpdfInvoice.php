@@ -676,6 +676,20 @@ class LMSTcpdfInvoice extends LMSInvoice {
 		$this->backend->SetY($y);
 	}
 
+	protected function invoice_recipient() {
+		if ( empty($this->data['recipient_address_id']) ) {
+			return 0;
+		}
+
+		$rec = '<b>' . trans('Recipient:') . '</b><br>';
+		$rec .= $this->data['rec_name'] . '<br>';
+		$rec .= $this->data['rec_street'] . ' ' . $this->data['rec_house'] . (($this->data['rec_flat']) ? '/'.$this->data['rec_flat'] : '') . '<br>';
+		$rec .= $this->data['rec_zip'] . " " . $this->data['rec_city']. '<br>';
+
+		$this->backend->SetFont('arial', '', 10);
+		$this->backend->writeHTMLCell(80, '', '', '', $rec, 0, 1, 0, true, 'L');
+	}
+
 	protected function invoice_data() {
 		/* print table */
 		$this->backend->writeHTMLCell('', '', '', '', '', 0, 1, 0, true, 'L');
@@ -753,6 +767,7 @@ class LMSTcpdfInvoice extends LMSInvoice {
 		$this->invoice_title();
 		$this->invoice_seller();
 		$this->invoice_buyer();
+		$this->invoice_recipient();
 		$this->invoice_data();
 		$this->invoice_to_pay();
 		if (ConfigHelper::checkValue(ConfigHelper::getConfig('invoices.show_balance',true)))
@@ -792,6 +807,7 @@ class LMSTcpdfInvoice extends LMSInvoice {
 		$this->invoice_title();
 		$this->invoice_seller();
 		$this->invoice_buyer();
+		$this->invoice_recipient();
 		$this->invoice_data();
 		$this->invoice_to_pay();
 		if (ConfigHelper::checkValue(ConfigHelper::getConfig('invoices.show_balance',true)))

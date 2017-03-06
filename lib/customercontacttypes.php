@@ -41,6 +41,8 @@ function format_customer_url($contact) {
 }
 
 function validate_customer_phones(&$customerdata, &$contacts, &$error) {
+	if (!isset($customerdata['phones']))
+		return;
 	foreach ($customerdata['phones'] as $idx => &$val) {
 		$phone = trim($val['contact']);
 		$name = trim($val['name']);
@@ -58,6 +60,8 @@ function validate_customer_phones(&$customerdata, &$contacts, &$error) {
 }
 
 function validate_customer_emails(&$customerdata, &$contacts, &$error) {
+	if (!isset($customerdata['emails']))
+		return;
 	foreach ($customerdata['emails'] as $idx => &$val) {
 		$email = trim($val['contact']);
 		$name = trim($val['name']);
@@ -79,6 +83,8 @@ function validate_customer_emails(&$customerdata, &$contacts, &$error) {
 }
 
 function validate_customer_accounts(&$customerdata, &$contacts, &$error) {
+	if (!isset($customerdata['accounts']))
+		return;
 	foreach ($customerdata['accounts'] as $idx => &$val) {
 		$account = trim($val['contact']);
 		$name = trim($val['name']);
@@ -97,6 +103,8 @@ function validate_customer_accounts(&$customerdata, &$contacts, &$error) {
 }
 
 function validate_customer_urls(&$customerdata, &$contacts, &$error) {
+	if (!isset($customerdata['urls']))
+		return;
 	foreach ($customerdata['urls'] as $idx => &$val) {
 		$url = trim($val['contact']);
 		$name = trim($val['name']);
@@ -111,6 +119,30 @@ function validate_customer_urls(&$customerdata, &$contacts, &$error) {
 			$error['url' . $idx] = trans('URL address is required!');
 		elseif ($url)
 			$contacts[] = array('name' => $name, 'contact' => $url, 'type' => $type);
+	}
+}
+
+function validate_customer_ims(&$customerdata, &$contacts, &$error) {
+	if (!isset($customerdata['ims']))
+		return;
+	foreach ($customerdata['ims'] as $idx => &$val) {
+		$im = trim($val['contact']);
+		$name = trim($val['name']);
+		$type = !empty($val['type']) ? array_sum($val['type']) : 0;
+		$type |= $val['typeselector'];
+
+		$val['type'] = $type;
+
+		$imtype = $type & CONTACT_IM;
+		if ($im != '' && (($imtype == CONTACT_IM_GG && !check_gg($im))
+			|| ($imtype == CONTACT_IM_YAHOO && !check_yahoo($im))
+			|| ($imtype == CONTACT_IM_SKYPE && !check_skype($im))
+			|| ($imtype == CONTACT_IM_FACEBOOK && !check_facebook($im))))
+			$error['im' . $idx] = trans('Incorrect IM uin!');
+		elseif ($name && !$im)
+			$error['im' . $idx] = trans('IM uid is required!');
+		elseif ($im)
+			$contacts[] = array('name' => $name, 'contact' => $im, 'type' => $type);
 	}
 }
 

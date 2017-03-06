@@ -34,10 +34,10 @@ $event = $DB->GetRow('SELECT events.id AS id, title, description, note, userid, 
 			    .$DB->Concat('UPPER(c.lastname)',"' '",'c.name').' AS customername,
 			    users.name AS username, events.moddate, events.moduserid, events.closeddate, events.closeduserid, nodes.location AS location, '
 			    .$DB->Concat('c.city',"', '",'c.address').' AS customerlocation,
-			    (SELECT name FROM users WHERE id=events.moduserid) AS modusername,
-			    (SELECT name FROM users WHERE id=events.closeduserid) AS closedusername
-			    FROM events 
-			    LEFT JOIN nodes ON (nodeid = nodes.id)
+			    (SELECT name FROM vusers WHERE id=events.moduserid) AS modusername,
+			    (SELECT name FROM vusers WHERE id=events.closeduserid) AS closedusername
+			    FROM events
+			    LEFT JOIN vnodes nodes ON (nodeid = nodes.id)
 			    LEFT JOIN customerview c ON (c.id = customerid)
 			    LEFT JOIN users ON (users.id = userid)
 			    WHERE events.id = ?', array($_GET['id']));

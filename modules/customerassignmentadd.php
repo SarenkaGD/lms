@@ -298,6 +298,8 @@ if(isset($_POST['assignment']))
 		$SESSION->redirect('?'.$SESSION->get('backto'));
 	}
 
+	$a['alltariffs'] = isset($a['alltariffs']);
+
 	$SMARTY->assign('error', $error);
 }
 else
@@ -325,6 +327,9 @@ $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 $customernodes = $LMS->GetCustomerNodes($customer['id']);
 unset($customernodes['total']);
 
+$schemas_only_names = $DB->GetAll('SELECT name,
+	(CASE WHEN datefrom < ?NOW? AND (dateto = 0 OR dateto > ?NOW?) THEN 1 ELSE 0 END) AS valid
+	FROM promotions WHERE disabled <> 1');
 $schemas = $DB->GetAll('SELECT p.name AS promotion, s.name, s.id,
 	(SELECT '.$DB->GroupConcat('tariffid', ',').'
 		FROM promotionassignments WHERE promotionschemaid = s.id
@@ -337,22 +342,82 @@ $schemas = $DB->GetAll('SELECT p.name AS promotion, s.name, s.id,
 	ORDER BY p.name, s.name');
 
 $LMS->executeHook(
-    'customerassignmentadd_before_display', 
+    'customerassignmentadd_before_display',
     array(
         'a' => $a,
         'smarty' => $SMARTY,
     )
 );
 
-$SMARTY->assign('assignment', $a);
-$SMARTY->assign('customernodes', $customernodes);
-$SMARTY->assign('promotionschemas', $schemas);
-$SMARTY->assign('tariffs', $LMS->GetTariffs());
-$SMARTY->assign('taxeslist', $LMS->GetTaxes());
-$SMARTY->assign('expired', $expired);
-$SMARTY->assign('assignments', $LMS->GetCustomerAssignments($customer['id'], $expired));
-$SMARTY->assign('numberplanlist', $LMS->GetNumberPlans(DOC_INVOICE, NULL, $customer['divisionid'], false));
-$SMARTY->assign('customerinfo', $customer);
+$tmp_promo_list = $DB->GetAll('SELECT
+		   	  		              p.name as promotion_name, ps.name as schema_name, t.name as tariff_name, pa.optional,
+		   	  		              selectionid, t.id as tariffid
+						       FROM promotions p
+						       	  LEFT JOIN promotionschemas ps ON p.id = ps.promotionid
+							      LEFT JOIN promotionassignments pa ON ps.id = pa.promotionschemaid
+							      LEFT JOIN tariffs t ON pa.tariffid = t.id
+							   ORDER BY
+							      p.name, ps.name, pa.optional ASC');
+
+$promotions = array();
+if (!empty($tmp_promo_list)) {
+    foreach ($tmp_promo_list as $v) {
+        $p   = $v['promotion_name'];
+        $s   = $v['schema_name'];
+        $sid = $v['selectionid'];
+
+        $promotion_item = array('tariffid' => $v['tariffid'],
+        						'tariff'   => $v['tariff_name'],
+                                'value'    => $v['value'],
+                                'optional' => $v['optional'] );
+
+        if (!empty($sid)) {
+            if ($v['optional'] == 0) {
+                $promotions[$p][$s]['lists'][$sid]['required'] = 1;
+            }
+
+            $promotions[$p][$s]['lists'][$sid]['items'][] = $promotion_item;
+        } else {
+            $promotions[$p][$s]['single'][] = $promotion_item;
+        }
+    }
+}
+
+// -----
+// remove duplicated customer nodes
+// -----
+
+$netdevnodes = $LMS->getCustomerNetDevNodes($customer['id']);
+
+if ($customernodes) {
+	foreach ($customernodes as $v) {
+		if (isset($netdevnodes[$v['id']]))
+			unset($netdevnodes[$v['id']]);
+    }
+}
+
+$SMARTY->assign('customernetdevnodes' , $netdevnodes);
+
+// -----
+
+$SMARTY->assign('assignment'          , $a);
+$SMARTY->assign('customernodes'       , $customernodes);
+$SMARTY->assign('customervoipaccs'    , $LMS->getCustomerVoipAccounts($customer['id']));
+$SMARTY->assign('customeraddresses'   , $LMS->getCustomerAddresses($customer['id']));
+$SMARTY->assign('promotionschemanames', $schemas_only_names);
+$SMARTY->assign('promotionschemas'    , $schemas);
+$SMARTY->assign('promotions'          , $promotions);
+$SMARTY->assign('tariffs'             , $LMS->GetTariffs());
+$SMARTY->assign('taxeslist'           , $LMS->GetTaxes());
+$SMARTY->assign('expired'             , $expired);
+$SMARTY->assign('assignments'         , $LMS->GetCustomerAssignments($customer['id'], $expired));
+$SMARTY->assign('numberplanlist'      , $LMS->GetNumberPlans(array(
+	'doctype' => DOC_INVOICE,
+	'cdate' => null,
+	'division' => $customer['divisionid'],
+	'next' => false,
+)));
+$SMARTY->assign('customerinfo'        , $customer);
 
 $SMARTY->display('customer/customerassignmentsedit.html');
 

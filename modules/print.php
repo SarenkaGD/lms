@@ -423,8 +423,8 @@ switch($type)
 		if(!$type) $type = '&oryginal=1';
 		
 		$layout['pagetitle'] = trans('Invoices');
-	
-		header('Location: ?m=invoice&fetchallinvoices=1'
+
+		header('Location: ?m=invoice&fetchallinvoices=1' . (isset($_GET['jpk']) ? '&jpk=' . $_GET['jpk'] : '')
 			.$type
 			.'&from='.$date['from']
 			.'&to='.$date['to']

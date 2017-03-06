@@ -31,43 +31,34 @@
 			<TEXTAREA NAME="division[name]" COLS="45" ROWS="4" {tip text="Enter division long name" trigger="name"}>{$division.name}</TEXTAREA>
 		</TD>
 	</TR>
-	<TR>
-		<TD width="1%">
+	<tr>
+		<td>
 			<IMG src="img/home.gif" alt="">
-		</TD>
-		<TD width="1%" nowrap>
-			<B>{trans("Address:")}</B>
-		</TD>
-		<TD width="98%">
-			<TABLE width="100%" cellpadding="2" cellspacing="0">
-			    <TR>
-				<TD width="1%" NOWRAP>{trans("Address:")}</TD>
-				<TD width="99%"><INPUT type="text" size="30" value="{$division.address}" name="division[address]" {tip text="Enter address" trigger="address"}></TD>
-			    </TR>
-			    <TR>
-				<TD width="1%" NOWRAP>{trans("City:")}</TD>
-				<TD width="99%"><INPUT type="TEXT" size="30" value="{$division.city}" name="division[city]" {tip text="Enter city" trigger="city"}></TD>
-			    </TR>
-			    <TR>
-				<TD width="1%" NOWRAP>{trans("Zip:")}</TD>
-				<TD width="99%"><INPUT type="text" size="10" value="{$division.zip}" name="division[zip]" {tip text="Enter zip code" trigger="zip"}></TD>
-			    </TR>
-			    <TR>
-				<TD width="1%" NOWRAP>{trans("Country:")}</TD>
-				<TD width="99%">
-					<SELECT NAME="division[countryid]" {tip text="Enter country" trigger="countryid"}>
-						<OPTION value="0"></OPTION>
-						{foreach from=$countries item=item key=key}
-						<OPTION value="{$key}"{if $key==$division.countryid} SELECTED{/if}>{t}{$item.name}{/t}</OPTION>
-						{/foreach}
-					</SELECT>
-				</TD>
-			    </TR>
-			</TABLE>    
-		</TD>
-	</TR>
-	<TR>	
-		<TD width="%1">
+		</td>
+		<td class="bold nobr">
+			{trans("Address:")}
+		</td>
+		<td>
+			{location_box
+				prefix               = "division"
+				address_id           = "{$division.address_id}"
+				location_name        = "{$division.location_name}"
+				location_state_name  = "{$division.location_state_name}"
+				location_state       = "{$division.location_state}"
+				location_city_name   = "{$division.location_city_name}"
+				location_city        = "{$division.location_city}"
+				location_street_name = "{$division.location_street_name}"
+				location_street      = "{$division.location_street}"
+				location_house       = "{$division.location_house}"
+				location_flat        = "{$division.location_flat}"
+				location_zip         = "{$division.location_zip}"
+				location_country_id  = "{$division.location_country_id}"
+				teryt                = "{$division.teryt}"
+			}
+		</td>
+	</tr>
+	<tr>
+		<TD>
 			<IMG src="img/serialnumber.gif" alt="">
 		</TD>
 		<TD width="1%" nowrap>
@@ -112,7 +103,29 @@
 		</TD>
 	</TR>
 	<TR>
-		<TD width="1%">
+		<TD>
+			<IMG src="img/serialnumber.gif" alt="">
+		</TD>
+		<TD class="bold nobr">
+			{trans("RBE Name:")}
+		</TD>
+		<TD>
+			<TEXTAREA name="division[rbename]" cols="45" rows="4" {tip text="Enter National Court Register / Register of Business Entities Name (optional)" trigger="rbename"}>{$division.rbename|escape}</TEXTAREA>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+			<IMG src="img/serialnumber.gif" alt="">
+		</TD>
+		<TD class="bold nobr">
+			{trans("RBE:")}
+		</TD>
+		<TD>
+			<INPUT type="text" value="{$division.rbe}" name="division[rbe]" size="30" {tip text="Enter National Court Register / Register of Business Entities Number (optional)" trigger="rbe"}>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
 			<IMG src="img/card.gif" alt="">
 		</TD>
 		<TD width="1%" nowrap>
@@ -236,7 +249,7 @@
 $(function() {
 	$('form[name="division"] [name="division[shortname]"]').focus();
 
-	check_teryt(['location', 'location_city'], true);
+	//check_teryt(['location', 'location_city'], true);
 });
 //-->
 </SCRIPT>

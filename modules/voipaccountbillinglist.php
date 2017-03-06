@@ -109,6 +109,14 @@ if ($SESSION->is_set('valp') && !isset($_GET['page']))
 
 $SESSION->save('valp', $page);
 
+$billing_stats = $DB->GetRow('SELECT
+                                 sum(price) as price,
+                                 sum(totaltime) as call,
+                                 sum(billedtime) as answer,
+                                 count(*) as count
+                              FROM
+                                 voip_cdr');
+
 $SMARTY->assign('voipaccounts', $voipaccountlist);
 $SMARTY->assign('pagination', $pagination);
 $SMARTY->assign('billings', $bill_list);

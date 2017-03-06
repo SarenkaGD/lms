@@ -321,6 +321,10 @@ function GetConfigList($order='var,asc', $section='', $search='')
 					$config[$idx]['description'] = trans('Default City in TERYT. Set city id in TERYT.');
 				break;
 
+				case 'logout_confirmation':
+					$config[$idx]['description'] = trans('If set to "true" then logout confirmation is required. Default "false"');
+				break;
+
 				default:
 					$config[$idx]['description'] = trans('Unknown option. No description.');
 				break;

@@ -722,13 +722,13 @@ function location_str($data)
 
     if ($data['street_name']) {
         $street = $data['street_type'] .' '. $data['street_name'];
-        $location .= ($location ? ', ' : '') . $street;
+        $location .= ($location ? ',' : '') . $street;
     }
 
     if ($h)
         $location .= ' ' . $h;
 
-    return htmlentities($location, ENT_COMPAT, 'UTF-8');
+    return htmlentities($location, ENT_COMPAT, 'UTF-8', false);
 }
 
 function set_timer($label = 0)

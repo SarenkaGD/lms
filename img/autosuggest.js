@@ -24,7 +24,8 @@ function AutoSuggest(form,elem,uri,autosubmit, onsubmit) {
 
 	this.form = form;
 	this.uri = uri;
-	this.autosubmit = autosubmit;
+	this.autosubmit = (autosubmit == 1 || autosubmit == 'true');
+	this.onsubmit = onsubmit;
 
 	//Arrow to store a subset of eligible suggestions that match the user's input
 	this.eligible = [];

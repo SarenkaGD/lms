@@ -60,6 +60,38 @@ version ?.??.?? (????-??-??):
   - improvement: allow to print invoices manually issued [chilan]
   - enhacement: added documents flag to email and phone customer contacts which allows
     to decide if those contacts should be printed on documents [chilan]
+  - enhancement: added support for effective dates of tariffs and promotions - only effective
+    ones are displayed by default [chilan]
+  - enhancement: added rbe info fields to divisions and rbe name for customers [chilan]
+  - enhancement: allow filter document list by creator/authorising and all date types
+    for periods [chilan]
+  - moved addresses from nodes, netdevices, customers, netnodes, voipaccounts and divisions
+    to one table [kosa/chilan]
+  - removed possibility for setting up custom address for nodes and voipaccounts [kosa/chilan]
+  - added possibility for create many addresses for each customer [kosa/chilan]
+  - improvement: added new event types - vacation and duty [chilan]
+  - enhancement: number plan list is updated automatically after customer or document
+    type selection change [chilan]
+  - improvement: sendinvoices.mail_format=text|html ('text' by default) allows
+    to select mail format between html and text [chilan]
+  - improvement: for new receipt show only cash registries to which cashier have
+    read/write access privileges (we also take selected customer division into account) [chilan]
+  - improvement: switched to pear/mail maintained by composer [chilan]
+  - improvement: invoices: dynamic adjustment of number plan list according to
+    selected customer division [chilan]
+  - improvement: show db backup sizes also in human friendly units [chilan]
+  - improvement: switched to xajax 0.6 beta fork from https://github.com/feuzeu/xajax which
+    generates much less warnings in PHP 7 (if any at all) [chilan]
+  - enhancement: added support for JPK-VAT exports [chilan]
+  - rewrite lms-teryt to PHP [kosa/chilan]
+  - merged lms-teryt and lms-teryt-buildings scripts [kosa/chilan]
+  - added posibility to set recipient for invoices [kosa/chilan]
+  - enhancement: added backend script which creates new helpdesk tickets when new sms
+    messages has been received by smstools [chilan]
+  - enhancement: allow to notify customer via sms for helpdesk ticket messages which were
+    created from customer sms earlier [chilan]
+  - improvement: phpui.helpdesk_customer_notify determines if customer notify checkbox
+    should be checked by default (for messages created from customer smses) [chilan]
 
 version 1.11.21 (2016-10-14):
 

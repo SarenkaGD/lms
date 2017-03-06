@@ -465,9 +465,17 @@ while (my $record = get_entry($fh)) {
         $cities{$id} = $data->{'id'};
     }
     # add new city
-    else {
+    elsif (!defined $refid || $simc{$record->{'SYMPOD'}}) {
         $city_insert->execute($terc_data->{'id'}, $record->{'NAZWA'}, $refid, $id);
         my $insertid = last_insert_id('location_cities');
+        $simc{$id} = {
+            'key' => $key,
+            'NAZWA' => $record->{'NAZWA'},
+            'SYM' => $id,
+            'SYMPOD' => $refid,
+            'id' => $insertid,
+            'valid' => 1,
+        };
         $cities{$id} = $insertid;
     }
 
@@ -790,15 +798,15 @@ if ($merge)
 	}
 
 	# voipaccounts
-	$dbq = $dbase->prepare("SELECT va.id, va.phone, va.ownerid,
+	$dbq = $dbase->prepare("SELECT va.id, va.login, va.ownerid,
 			COUNT(*) AS locationcount FROM voipaccounts va
 		LEFT JOIN (SELECT DISTINCT ownerid, location_city, location_street, location_house, location_flat FROM vnodes) l
 			ON l.ownerid = va.ownerid
 		WHERE va.location_city IS NULL
-		GROUP BY va.id, va.phone, va.ownerid");
+		GROUP BY va.id, va.login, va.ownerid");
 	$dbq->execute();
 	while ($row = $dbq->fetchrow_hashref()) {
-		printf("%s (%04d): ", $row->{'phone'}, $row->{'id'}) if not $quiet;
+		printf("%s (%04d): ", $row->{'login'}, $row->{'id'}) if not $quiet;
 		if ($row->{'locationcount'}) {
 			print "found " if not $quiet;
 			if ($row->{'locationcount'} == 1) {

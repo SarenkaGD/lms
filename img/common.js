@@ -105,8 +105,47 @@ function customerchoosewin(formfield)
 
 function locationchoosewin(varname, formname, city, street, default_city)
 {
-        if(city == '' && default_city) city = default_city;
-	return openSelectWindow('?m=chooselocation&name='+varname+'&form='+formname+'&city='+city+'&street='+street,'chooselocation',350,200,'true');
+    if (city == '' && default_city)
+        city = default_city;
+
+    return openSelectWindow('?m=chooselocation&name='+varname+'&form='+formname+'&city='+city+'&street='+street,'chooselocation',350,200,'true');
+}
+
+if ( typeof $ !== 'undefined' ) {
+    $(function() {
+        // open location dialog window if teryt is checked
+        $('body').on('click', '.teryt-address-button', function() {
+
+            var box = $( this ).closest( ".lmsui-address-box" );
+
+            if ( ! box.find("input[data-address='teryt-checkbox']").is(':checked') ) {
+                return 0;
+            }
+
+            var city   = box.find("input[data-address='city-hidden']").val();
+            var street = box.find("input[data-address='street-hidden']").val();
+
+            openSelectWindow('?m=chooselocation&city=' + city + '&street=' + street + "&boxid=" + box.attr('id'), 'chooselocation', 350, 200, 'true');
+        });
+
+        // disable and enable inputs after click
+        $('body').on('change', '.lmsui-address-teryt-checkbox', function() {
+            var boxid = $( this ).closest( ".lmsui-address-box" ).attr( 'id' );
+
+            if ( $( this ).is(':checked') ) {
+                $("#" + boxid + " input[type=text]").prop("readonly", true);
+                $("#" + boxid).find("select[data-address='state-select']").css('display', 'none').attr('disabled', true);
+                $("#" + boxid).find("input[data-address='state']").css('display', 'block').attr('disabled', false);
+            } else {
+                $("#" + boxid + " input[type=text]").prop("readonly", false);
+                $("#" + boxid).find("select[data-address='state-select']").css('display', 'inline-block').attr('disabled', false);
+                $("#" + boxid).find("input[data-address='state']").css('display', 'none').attr('disabled', true);
+            }
+        });
+
+        // simulate click for update input state
+        $( '.lmsui-address-teryt-checkbox' ).trigger( 'change' );
+    });
 }
 
 function netdevmodelchoosewin(varname, formname, netdevmodelid, producer, model)
@@ -673,8 +712,13 @@ function init_links() {
 }
 
 function reset_customer(form, elemname1, elemname2) {
-	if (document.forms[form].elements[elemname1].value)
+
+	if (document.forms[form].elements[elemname1].value) {
 		document.forms[form].elements[elemname2].value = document.forms[form].elements[elemname1].value;
+
+		$( document.forms[form].elements[elemname1] ).trigger( 'keyup' );
+		$( document.forms[form].elements[elemname2] ).trigger( 'reset_customer' );
+	}
 }
 
 function generate_random_string(length, characters) {
@@ -742,6 +786,9 @@ function getCustomerName(elem) {
 		$(elem).nextAll('span').html(data.customernames[$(elem).val()] === undefined ? ''
 			: '<a href="?m=customerinfo&id=' + $(elem).val() + '">' + data.customernames[$(elem).val()] + '</a>');
 	});
+
+	$(elem).trigger('reset_customer');
+	$(elem).trigger('change');
 }
 
 var customerinputs = [];
@@ -786,7 +833,6 @@ if (typeof $ !== 'undefined') {
 /*!
  * \brief Auto hide left vertical menu on print
  */
-
 var show_menu_after_print = -1;
 
 var LMS_beforePrintEvent = function() {
@@ -825,3 +871,110 @@ if (window.matchMedia) {
 
 window.onbeforeprint = LMS_beforePrintEvent;
 window.onafterprint  = LMS_afterPrintEvent;
+
+/*!
+ * \brief Returns customer addresses by id.
+ *
+ * \param  int   id customer id
+ * \return json     customer addresses
+ * \return false    if id is incorrect
+ */
+function getCustomerAddresses( id ) {
+    // test to check if 'id' is integer
+    if ( Math.floor(id) != id || !$.isNumeric(id) ) {
+        return false;
+    }
+
+    // check id value
+    if ( id <= 0 ) {
+        return false;
+    }
+
+    // send request
+    var addresses = null;
+
+    $.ajax({
+        url:"?m=customeraddresses&action=getcustomeraddresses&id=" + id,
+        async: false,
+        success:function(data) {
+            addresses = data;
+        }
+    });
+
+    if ( addresses !== null ) {
+        var json_addr = JSON.parse( addresses );
+
+        $.each( json_addr, function( i, v ) {
+            json_addr[i]['location'] = $("<div/>").html( v['location'] ).text();
+        });
+
+        return json_addr;
+    } else {
+        return [];
+    }
+}
+
+/*!
+ * \brief Put address coordinates to inputs by single address string.
+ *
+ * \param string address     address string
+ * \param string latitude_id id of latitude input
+ * \param string latitude_id id of longitude input
+ */
+function setAddressLocation( address, latitude_id, longitude_id ) {
+    var geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode( { 'address':address }, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            $( latitude_id  ).val( results[0].geometry.location.lat() );
+            $( longitude_id ).val( results[0].geometry.location.lng() )
+        }
+    });
+}
+
+/*!
+ * \brief Concatenate address fields to one string.
+ *
+ * \param string address
+ * \param string latitude_id id of latitude input
+ * \param string latitude_id id of longitude input
+ */
+function location_str( city, street, house, flat ) {
+    var location = '';
+
+    if ( city.length > 0 && street.length > 0) {
+        location += city + ", " + street;
+    }
+    else if ( city.length > 0 ) {
+        location += city;
+    }
+    else if ( street.length > 0 ) {
+        location += street;
+    }
+
+    if ( location.length > 0  ) {
+        if ( house.length > 0 && flat.length > 0 ) {
+            location += " " + house + "/" + flat;
+        }
+        else if ( house.length > 0 ) {
+            location += " " + house;
+        }
+    }
+
+    return location;
+}
+
+/*!
+ * \brief Generate unique id.
+ *
+ * \return int
+ */
+function lms_uniqid() {
+    var uid = Date.now();
+
+    // do nothing, only wait
+    // secure for use two times in a row
+    while ( uid == Date.now() ) {}
+
+    return uid;
+}
