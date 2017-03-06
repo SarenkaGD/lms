@@ -463,19 +463,23 @@ unset( $customer_loc );
  -------------------------------- */
 $this->Execute("ALTER TABLE nodes DROP FOREIGN KEY `nodes_ibfk_1`;");
 $this->Execute("ALTER TABLE nodes DROP FOREIGN KEY `nodes_ibfk_2`;");
+$this->Execute("ALTER TABLE nodes DROP FOREIGN KEY `nodes_ibfk_3`;");
+$this->Execute("ALTER TABLE nodes DROP FOREIGN KEY `nodes_ibfk_4`;");
 $this->Execute("ALTER TABLE netdevices DROP FOREIGN KEY `netdevices_ibfk_1`;");
 $this->Execute("ALTER TABLE netdevices DROP FOREIGN KEY `netdevices_ibfk_2`;");
+$this->Execute("ALTER TABLE netdevices DROP FOREIGN KEY `netdevices_ibfk_3`;");
+$this->Execute("ALTER TABLE netdevices DROP FOREIGN KEY `netdevices_ibfk_4`;");
 $this->Execute("ALTER TABLE netnodes DROP FOREIGN KEY `netnodes_ibfk_2`;");
 $this->Execute("ALTER TABLE netnodes DROP FOREIGN KEY `netnodes_ibfk_3`;");
-$this->Execute("ALTER TABLE voipaccounts DROP FOREIGN KEY IF EXISTS `voipaccounts_ibfk_1`;");
-$this->Execute("ALTER TABLE voipaccounts DROP FOREIGN KEY IF EXISTS `voipaccounts_ibfk_2`;");
+$this->Execute("ALTER TABLE voipaccounts DROP FOREIGN KEY `voipaccounts_ibfk_1`;");
+$this->Execute("ALTER TABLE voipaccounts DROP FOREIGN KEY `voipaccounts_ibfk_2`;");
 $this->Execute("ALTER TABLE divisions DROP FOREIGN KEY `divisions_ibfk_1`;");
 $this->Execute("ALTER TABLE divisions DROP FOREIGN KEY `divisions_ibfk_2`;");
 
-$this->Execute("DROP INDEX IF EXISTS location_city   ON nodes;");
-$this->Execute("DROP INDEX IF EXISTS location_street ON nodes;");
-$this->Execute("DROP INDEX IF EXISTS location_street ON netdevices;");
-$this->Execute("DROP INDEX IF EXISTS location_city   ON netdevices;");
+$this->Execute("DROP INDEX location_city   ON nodes;");
+$this->Execute("DROP INDEX location_street ON nodes;");
+$this->Execute("DROP INDEX location_street ON netdevices;");
+$this->Execute("DROP INDEX location_city   ON netdevices;");
 
 $this->Execute("DROP VIEW IF EXISTS customerview;");
 $this->Execute("DROP VIEW IF EXISTS contractorview;");
@@ -484,18 +488,18 @@ $this->Execute("DROP VIEW IF EXISTS vmacs;");
 $this->Execute("DROP VIEW IF EXISTS vnetworks;");
 $this->Execute("DROP VIEW IF EXISTS vnodes;");
 
-$this->Execute("ALTER TABLE customers  DROP IF EXISTS zip,           DROP IF EXISTS city,           DROP IF EXISTS building,  DROP IF EXISTS street,
-                                       DROP IF EXISTS apartment,     DROP IF EXISTS countryid,      DROP IF EXISTS post_name, DROP IF EXISTS post_street,
-                                       DROP IF EXISTS post_building, DROP IF EXISTS post_apartment, DROP IF EXISTS post_zip,  DROP IF EXISTS post_city,
-                                       DROP IF EXISTS post_countryid;");
+$this->Execute("ALTER TABLE customers  DROP zip,           DROP city,           DROP building,  DROP street,
+                                       DROP apartment,     DROP countryid,      DROP post_name, DROP post_street,
+                                       DROP post_building, DROP post_apartment, DROP post_zip,  DROP post_city,
+                                       DROP post_countryid;");
 
-$this->Execute("ALTER TABLE nodes      DROP IF EXISTS location_city, DROP IF EXISTS location_street, DROP IF EXISTS location_house, DROP IF EXISTS location_flat, DROP IF EXISTS location;");
-$this->Execute("ALTER TABLE netnodes   DROP IF EXISTS location_city, DROP IF EXISTS location_street, DROP IF EXISTS location_house, DROP IF EXISTS location_flat, DROP IF EXISTS location;");
-$this->Execute("ALTER TABLE netdevices DROP IF EXISTS location_city, DROP IF EXISTS location_street, DROP IF EXISTS location_house, DROP IF EXISTS location_flat, DROP IF EXISTS location;");
-$this->Execute("ALTER TABLE voipaccounts DROP IF EXISTS location_city, DROP IF EXISTS location_street, DROP IF EXISTS location_house, DROP IF EXISTS location_flat, DROP IF EXISTS location;");
+$this->Execute("ALTER TABLE nodes      DROP location_city, DROP location_street, DROP location_house, DROP location_flat, DROP location;");
+$this->Execute("ALTER TABLE netnodes   DROP location_city, DROP location_street, DROP location_house, DROP location_flat, DROP location;");
+$this->Execute("ALTER TABLE netdevices DROP location_city, DROP location_street, DROP location_house, DROP location_flat, DROP location;");
+$this->Execute("ALTER TABLE voipaccounts DROP location_city, DROP location_street, DROP location_house, DROP location_flat, DROP location;");
 
-$this->Execute("ALTER TABLE divisions  DROP IF EXISTS location_city, DROP IF EXISTS location_street, DROP IF EXISTS location_house, DROP IF EXISTS location_flat, DROP IF EXISTS countryid,
-                                       DROP IF EXISTS address, DROP IF EXISTS city, DROP IF EXISTS zip;");
+$this->Execute("ALTER TABLE divisions  DROP location_city, DROP location_street, DROP location_house, DROP location_flat, DROP countryid,
+                                       DROP address, DROP city, DROP zip;");
 
 $this->Execute("
     CREATE VIEW customerview AS
