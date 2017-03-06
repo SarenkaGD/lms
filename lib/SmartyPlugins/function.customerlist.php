@@ -85,7 +85,7 @@ function smarty_function_customerlist($params, $template) {
 
 	if (!empty($params['inputtip']))
 		$result .= smarty_function_tip(array('text' => $params['inputtip']), $template);
-	else {
+	else
 		$result .= smarty_function_tip(array('text' => 'Enter customer ID', 'trigger' => 'customerid'), $template);
 
 	$result .= '>';

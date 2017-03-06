@@ -40,7 +40,15 @@
 	}
 
 	function send_invoices() {
-		document.addbalance.action="?m=invoicesend&marks=cash";
+		var add = "";
+		if(document.addbalance.original.checked)
+			add = "&original=1";
+		if(document.addbalance.copy.checked)
+			add += "&copy=1";
+		if(document.addbalance.duplicate.checked)
+			add += "&duplicate=1";
+
+		document.addbalance.action="?m=invoicesend&marks=cash" + add;
 		document.addbalance.target="_blank";
 		document.addbalance.submit();
 	}
@@ -51,6 +59,8 @@
 
 		if (type == 'invoice')
 			document.addbalance.action = '?m=invoicelist';
+		else if (type == 'invoicepro')
+			document.addbalance.action = '?m=invoicelist&proforma=1';
 		else if (type == 'note')
 			document.addbalance.action = '?m=notelist';
 		else
@@ -67,6 +77,17 @@
 {if ConfigHelper::checkConfig('phpui.delete_link_in_customerbalancebox')}
 	function delpos()
 	{
+		if ($('tr[data-published="1"] :checked').length) {
+			{if ConfigHelper::checkConfig('privileges.superuser')}
+			if (!confirm('{trans("Some documents have been published already! Are you sure you want to delete them despite this?")}')) {
+				return;
+			}
+			{else}
+			alert('{trans("Some documents have been published already!")}');
+			return;
+			{/if}
+		}
+
 		if (!confirm('{trans("Are you sure, you want to delete selected operation(s) and document item(s)?")}'))
 			return;
 
@@ -99,10 +120,11 @@
 		<TD class="text-right nobr">
 			<A id="newdocanchor" href="?m=invoicenew&amp;action=init&amp;customerid={$balancelist.customerid}">{trans("New document:")}</A>
 			<SELECT name="newdocument" onchange="javascript:new_doc_type_changed(this.options[this.selectedIndex].value)">
-				<OPTION value="?m=invoicenew&amp;action=init&amp;customerid={$balancelist.customerid}">{trans("invoice")}</OPTION>
-				<OPTION value="?m=receiptadd&amp;type=in&amp;action=init&amp;customerid={$balancelist.customerid}">{trans("cash-in receipt")}</OPTION>
-				<OPTION value="?m=receiptadd&amp;type=out&amp;action=init&amp;customerid={$balancelist.customerid}">{trans("cash-out receipt")}</OPTION>
-				<OPTION value="?m=noteadd&amp;action=init&amp;customerid={$balancelist.customerid}">{trans("debit note")}</OPTION>
+				<OPTION value="?m=invoicenew&action=init&customerid={$balancelist.customerid}">{trans("invoice")}</OPTION>
+				<OPTION value="?m=invoicenew&action=init&proforma=1&customerid={$balancelist.customerid}">{trans("pro forma invoice")}</OPTION>
+				<OPTION value="?m=receiptadd&type=in&action=init&customerid={$balancelist.customerid}">{trans("cash-in receipt")}</OPTION>
+				<OPTION value="?m=receiptadd&type=out&action=init&customerid={$balancelist.customerid}">{trans("cash-out receipt")}</OPTION>
+				<OPTION value="?m=noteadd&action=init&customerid={$balancelist.customerid}">{trans("debit note")}</OPTION>
 			</SELECT>&nbsp;
 			<A href="javascript:show_list()">{trans("Show All:")}</A>
 			<INPUT type="hidden" name="cat" value="customerid">
@@ -110,6 +132,7 @@
 			<SELECT name="showlist" id="showlistselect">
 				{if $limit}<OPTION value="list">{trans("transactions")}</OPTION>{/if}
 				<OPTION value="invoice">{trans("invoices")}</OPTION>
+				<OPTION value="invoicepro">{trans("pro forma invoices")}</OPTION>
 				<OPTION value="note">{trans("debit notes")}</OPTION>
 			</SELECT>
 		</TD>
@@ -118,7 +141,8 @@
 	<TBODY class="lms-ui-multi-check">
 	<TR id="customerbalancepanel" class="dark">
 		<TD colspan="2">
-			<TABLE class="lmsbox-inner{if !empty($balancelist.list)} lms-ui-datatable{/if}"{if !empty($balancelist.list)} data-page-length="{$n}" data-display-start="{$n = count($balancelist.list) + $limit}{if $n < 0}0{else}{$n}{/if}" style="display: none;"{/if} width="100%">
+			{$datatables_max_records=intval(ConfigHelper::getConfig('phpui.datatables_max_records', 300))}
+			<TABLE id="customerbalancebox-datatable" class="lmsbox-inner{if !empty($balancelist.list) && count($balancelist.list) < $datatables_max_records} lms-ui-datatable{else} lms-ui-background-cycle{/if}"{if !empty($balancelist.list) && count($balancelist.list) < $datatables_max_records} data-page-length="{$n}" data-display-start="{$n = count($balancelist.list) + $limit}{if $n < 0}0{else}{$n}{/if}" style="display: none;"{/if} width="100%">
 				<COLGROUP>
 					<COL style="width: 1%;">
 					<COL style="width: 1%;">
@@ -145,7 +169,7 @@
 				</THEAD>
 				<TBODY>
 				{foreach $balancelist.list as $item}
-				<TR>
+				<TR{if $item.docid} data-published="{$item.published}"{/if}>
 					<TD class="nobr">{$item.date}</TD>
 					<TD class="nobr">{$item.username|truncate:16:"...":true}</TD>
 					<TD class="text-right nobr">{if !$item.type}{($item.value*-1)|money_format}{else}-{/if}</TD>
@@ -165,12 +189,21 @@
 							<A href="?m=invoicesend&id={$item.docid}" target="_blank" OnClick="return confirmLink(this, '{t a=$customerinfo.customername|escape:"javascript"|escape:"html"}Are you sure, you want to send invoice to customer \'$a\'?{/t}');"><IMG src="img/mail.gif" alt="[ {trans("Send invoice")} ]" title="[ {trans("Send invoice")} ]"></A>
 							{/if}
 							{if $item.doctype == $smarty.const.DOC_INVOICE}
+								{if !$item.published || ConfigHelper::checkConfig('privileges.superuser')}
+								<A href="?m=invoice&id={$item.docid}&dontpublish=1" class="lms-ui-tooltip-invoiceinfo" data-resourceid="{$item.docid}" rel="external"><img src="img/view.gif" alt="[ {trans("View")} ]"></A>
+								{/if}
 								<A href="?m=invoice&id={$item.docid}" class="lms-ui-tooltip-invoiceinfo" data-resourceid="{$item.docid}" rel="external"><img src="img/print.gif" alt="[ {trans("Invoice")} ]"></A>
 							{elseif $item.doctype == $smarty.const.DOC_CNOTE}
+								{if !$item.published || ConfigHelper::checkConfig('privileges.superuser')}
+								<A href="?m=invoice&id={$item.docid}&dontpublish=1" class="lms-ui-tooltip-docnumber" data-resourceid="{$item.docid}" rel="external"><img src="img/view.gif" alt="[ {trans("View")} ]"></A>
+								{/if}
 								<A href="?m=invoice&id={$item.docid}" class="lms-ui-tooltip-docnumber" data-resourceid="{$item.docid}" rel="external"><IMG src="img/printn.gif" alt="[ {trans("Credit note")} ]"></A>
 							{elseif $item.doctype == $smarty.const.DOC_RECEIPT}
 								<A href="?m=receipt&id={$item.docid}" class="lms-ui-tooltip-docnumber" data-resourceid="{$item.docid}" rel="external"><IMG src="img/printr.gif" alt="[ {trans("Cash receipt")} ]"></A>
 							{elseif $item.doctype == $smarty.const.DOC_DNOTE}
+								{if !$item.published || ConfigHelper::checkConfig('privileges.superuser')}
+								<A href="?m=note&id={$item.docid}&dontpublish=1" class="lms-ui-tooltip-docnumber" data-resourceid="{$item.docid}" rel="external"><img src="img/view.gif" alt="[ {trans("View")} ]"></A>
+								{/if}
 								<A href="?m=note&id={$item.docid}" class="lms-ui-tooltip-docnumber" data-resourceid="{$item.docid}" rel="external"><IMG src="img/printd.gif" alt="[ {trans("Debit note")} ]"></A>
 							{/if}
 						{/if}

@@ -33,7 +33,6 @@ if ($layout['module'] != 'customeredit') {
 
     $SMARTY->assignByRef('customerinfo', $customerinfo);
 }
-
 $expired              = !empty($_GET['expired']) ? true : false;
 $assignments          = $LMS->GetCustomerAssignments($customerid, !empty($expired) ? $expired : NULL);
 $customergroups       = $LMS->CustomergroupGetForCustomer($customerid);
