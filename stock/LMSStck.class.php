@@ -193,7 +193,7 @@ class LMSStck {
 		if ($wi = $this->DB->GetRow("SELECT w.*, u.name as createdby,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_warehouses w
-			LEFT JOIN users u ON w.creatorid = u.id
+			LEFT JOIN vusers u ON w.creatorid = u.id
 			LEFT JOIN stck_stock s ON s.warehouseid = w.id
 			WHERE w.id = ? AND u.id = w.creatorid AND s.sold = 0", array($id))) {
 			$wi['modifiedby'] = $this->LMS->GetUserName($wi['modid']);
@@ -267,8 +267,8 @@ class LMSStck {
 		if ($mi = $this->DB->GetRow("SELECT m.*, u1.name as createdby, u2.name as modifiedby,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_manufacturers m
-			LEFT JOIN users u1 ON u1.id = m.creatorid
-			LEFT JOIN users u2 ON u2.id = m.creatorid
+			LEFT JOIN vusers u1 ON u1.id = m.creatorid
+			LEFT JOIN vusers u2 ON u2.id = m.creatorid
 			LEFT JOIN stck_products p ON p.manufacturerid = m.id
 			LEFT JOIN stck_stock s ON s.productid = p.id
 			WHERE m.id = ? AND s.sold = 0", array($id))) {
@@ -346,8 +346,8 @@ class LMSStck {
 			q.name as quantityname,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_groups g
-			LEFT JOIN users u1 ON u1.id = g.creatorid
-			LEFT JOIN users u2 ON u2.id = g.modid
+			LEFT JOIN vusers u1 ON u1.id = g.creatorid
+			LEFT JOIN vusers u2 ON u2.id = g.modid
 			LEFT JOIN stck_quantities q ON q.id = g.quantityid
 			LEFT JOIN stck_stock s ON s.groupid = g.id
 			WHERE g.id = ? AND s.sold = 0", array($id))) {
@@ -624,7 +624,7 @@ class LMSStck {
 			LEFT JOIN stck_groups g ON g.id = p.groupid
 			LEFT JOIN stck_types t ON t.id = p.typeid
 			LEFT JOIN taxes tx ON tx.id = p.taxid
-			LEFT JOIN users u ON u.id = p.creatorid
+			LEFT JOIN vusers u ON u.id = p.creatorid
 			LEFT JOIN stck_quantities q ON q.id = p.quantityid
 			LEFT JOIN stck_stock s ON s.productid = p.id
 			WHERE p.id = ? AND s.sold = 0", array($id))) {
@@ -723,7 +723,7 @@ class LMSStck {
 			LEFT JOIN stck_groups g ON g.id = p.groupid
 			LEFT JOIN stck_types t ON t.id = p.typeid
 			LEFT JOIN taxes tx ON tx.id = p.taxid
-			LEFT JOIN users u ON u.id = p.creatorid
+			LEFT JOIN vusers u ON u.id = p.creatorid
 			LEFT JOIN stck_quantities q ON q.id = p.quantityid
 			LEFT JOIN stck_stock s ON s.productid = p.id
 			WHERE p.ean = ? AND s.sold = 0", array($ean))) {
@@ -805,8 +805,8 @@ class LMSStck {
 			LEFT JOIN stck_products p ON p.id = s.productid
 			LEFT JOIN stck_manufacturers m ON m.id = p.manufacturerid
 			LEFT JOIN taxes t ON (s.taxid = t.id)
-			LEFT JOIN users u1 ON u1.id = s.creatorid
-			LEFT JOIN users u2 ON u2.id = s.modid
+			LEFT JOIN vusers u1 ON u1.id = s.creatorid
+			LEFT JOIN vusers u2 ON u2.id = s.modid
 			WHERE s.id = ?', array($id))) {
 			return $sgpbi;
 		}
@@ -1090,8 +1090,8 @@ class LMSStck {
 		u2.name as modifiedby
 		FROM stck_receivenotes rn
 		LEFT JOIN customers c ON c.id = rn.supplierid
-		LEFT JOIN users u1 ON u1.id = rn.creatorid
-		LEFT JOIN users u2 ON u2.id = rn.modid
+		LEFT JOIN vusers u1 ON u1.id = rn.creatorid
+		LEFT JOIN vusers u2 ON u2.id = rn.modid
 		WHERE rn.id = ?', array($id))) {
 			return $rngibi;
 		}
