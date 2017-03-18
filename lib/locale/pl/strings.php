@@ -97,6 +97,7 @@ $_LANG['Additional settings:'] = 'Ustawienia dodatkowe:';
 $_LANG['Settings:'] = 'Ustawienia:';
 $_LANG['Add'] = 'Dodaj';
 $_LANG['Add:'] = 'Dodaj:';
+$_LANG['Add address'] = 'Dodaj adres';
 $_LANG['Add group:'] = 'Dodaj grupę:';
 $_LANG['Add group'] = 'Dodaj grupę';
 $_LANG['Add customer to group'] = 'Dodaj klienta do grupy';
@@ -1884,6 +1885,7 @@ $_LANG['Select request cause'] = 'Wybierz przyczynę zgłoszenia';
 $_LANG['unknown/other'] = 'nieznana/inna';
 $_LANG['unknown/other<!plural>'] = 'nieznane/inne';
 $_LANG['Go to $a page'] = 'Idź do $a strony';
+$_LANG['Open timetable'] = 'Otwórz terminarz';
 $_LANG['Requests causes (last year):'] = 'Przyczyny zgłoszeń (ostatni rok):';
 $_LANG['Adds helpdesk requests causes stats on ticket view and print pages. Default: true'] = 'Dodaje statystyki przyczyn zgłoszeń na stronie podglądu zgłoszenia oraz jego wydruku. Domyślnie: włączona';
 $_LANG['Enables page scroller designed for lists with very big number of pages. Default: false'] = 'Włącza formularz zmiany strony zaprojektowany z myślą o listach z bardzo dużą ilością stron. Domyślnie: wyłączona';
@@ -2606,6 +2608,7 @@ $_LANG['last $a packages'] = 'ostatnie $a paczek';
 $_LANG['Packages:'] = 'Paczki:';
 $_LANG['Records:'] = 'Rekordy:';
 $_LANG['Removing package "$a"'] = 'Usuwanie paczki "$a"';
+$_LANG['Are you shure that you want to remove address?'] = 'Czy na pewno chcesz usunąć adres?';
 $_LANG['There are no packages in database.'] = 'Brak paczek w bazie danych.';
 $_LANG['period undefined'] = 'okres niezdefiniowany';
 $_LANG['Select time period of tariff accounting'] = 'Wybierz okres naliczania taryfy';
@@ -2614,6 +2617,7 @@ $_LANG['Activation'] = 'Aktywacja';
 $_LANG['postal address'] = 'adres korespondencyjny';
 $_LANG['billing address'] = 'adres klienta';
 $_LANG['default location address'] = 'domyślny adres lokalizacyjny';
+$_LANG['location/recipient address'] = 'adres lokalizacji/odbiorcy';
 $_LANG['location/recipient'] = 'lokalizacja/odbiorca';
 $_LANG['Recipient address:'] = 'Adres odbiorcy';
 $_LANG['Add assignment'] = 'Dodaj powiązanie';
@@ -3516,4 +3520,15 @@ $_LANG['If set to "true" then logout confirmation is required. Default "false"']
 
 $_LANG['SMS from $a'] = 'SMS od $a';
 
+$_LANG['Add new request to Helpdesk'] = 'Dodaj nowe zgłoszenie do Helpdesk';
+$_LANG['Request Number'] = 'Nr zgłoszenia';
+$_LANG['Timetable assigned events'] = 'Przypisane zdarzenia w terminarzu';
+$_LANG['Add new event to request:'] = 'Dodaj nowe zdarzenie do zgłoszenia:';
+$_LANG['Close all events assigned to request:'] = 'Zamknij wszystkie zdarzenia przypisane do zgłoszenia:';
+$_LANG['Assign this event to Helpdesk request'] = 'Przypisz zdarzenie do zgłoszenia w Helpdesk:';
+$_LANG['Request not assigned to any event.'] = 'Zgłoszenie nie przypisane do żadnego zdarzenia.';
+$_LANG['Helpdesk assignment:'] = 'Przypisanie do Helpdesk:';
+$_LANG['This event is not assigned to any helpdesk request.'] = 'Zdarzenie nie jest przypisane do żadnego zgłoszenia w helpdesk.';
+$_LANG['Request not assigned to any customer.'] = 'Zgłoszenie nie jest przypisane do żadnego klienta.';
+$_LANG['Request not assigned to any customer location.'] = 'Zgłoszenie nie jest przypisane do żadnej lokalizacji klienta.';
 ?>

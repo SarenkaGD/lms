@@ -148,7 +148,7 @@
 				{$addr_counter = 0}
 
 				<tr>
-					<td style="width: 1%;" class="valign-top"><img src="img/home.gif" alt=""></td>
+					<td style="width: 1%;" class="valign-top"><img src="img/home.gif" alt="" title="{trans('billing address')}"></td>
 					<td style="width: 99%;">
 						{$addr_found = 0}
 						{foreach $customeradd.addresses as $v}
@@ -177,7 +177,7 @@
 				</tr>
 
 				<tr>
-					<td style="width: 1%;" class="valign-top"><img src="img/post.gif" alt=""></td>
+					<td style="width: 1%;" class="valign-top"><img src="img/post.gif" alt="" title="{trans('postal address')}"></td>
 					<td style="width: 99%;">
 						{$addr_found = 0}
 						{foreach $customeradd.addresses as $v}
@@ -199,24 +199,31 @@
 					</td>
 				</tr>
 
+				{foreach $customeradd.addresses as $v}
+				{if $v.location_address_type != $smarty.const.BILLING_ADDRESS && $v.location_address_type != $smarty.const.POSTAL_ADDRESS }
 				<tr>
-					<td style="width: 1%;" class="valign-top"><img src="img/location.png" alt=""></td>
+					<td style="width: 1%;" class="valign-top">
+						{if $v.location_address_type == $smarty.const.DEFAULT_LOCATION_ADDRESS}
+							<img src="img/pin_blue.png" alt="" title="{trans('default location address')}" class="location-box-image">
+						{else}
+							<img src="img/location.png" alt="" title="{trans('location/recipient address')}" class="location-box-image">
+						{/if}
+					</td>
 					<td style="width: 99%;">
-						<div class="customer-location-addresses-box">
-							<div class="addresses-container">
-								{foreach $customeradd.addresses as $v}
-									{if $v.location_address_type != $smarty.const.BILLING_ADDRESS && $v.location_address_type != $smarty.const.POSTAL_ADDRESS }
-										{$v.prefix = "customeradd[addresses]["|cat:$addr_counter|cat:"]"}
-										{$v.default_type = 1}
-										{$v.clear_button = 1}
-										{$addr_counter = $addr_counter + 1}
-										{location_box_expandable data=$v}
-									{/if}
-								{/foreach}
-							</div>
+						{$v.prefix = "customeradd[addresses]["|cat:$addr_counter|cat:"]"}
+						{$v.default_type = 1}
+						{$v.clear_button = 1}
+						{$addr_counter = $addr_counter + 1}
+						{location_box_expandable data=$v}
+					</td>
+				</tr>
+				{/if}
+				{/foreach}
 
-							<br><span class="lms-ui-button locbox-addnew" data-prefix="customeradd">Dodaj adres &raquo;&raquo;&raquo;</span><br><br>
-						</div>
+				<tr>
+					<td></td>
+					<td>
+						<span class="lms-ui-button locbox-addnew" data-prefix="customeradd">{trans('Add address')} &raquo;&raquo;&raquo;</span><br><br>
 					</td>
 				</tr>
 

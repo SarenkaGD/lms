@@ -86,7 +86,7 @@ function smarty_function_location_box( $params = array(), $template )
               <td>' . trans('Name') . '</td>
               <td>
                   <input type="text"   value="' . (!empty($params['location_name']) ? $params['location_name'] : '' ) . '" name="' . $input_name_location . '" size="' . INPUT_SIZE . '" data-address="location-name">
-                  <input type="hidden" value="' . (($params['location'])            ? $params['location']      : '')  . '" name="' . $input_name . '">
+                  <input type="hidden" value="' . (($params['location'])            ? $params['location']      : '')  . '" name="' . $input_name . '" data-address="location">
               </td>
           </tr>';
 
@@ -198,7 +198,7 @@ function smarty_function_location_box( $params = array(), $template )
         echo '<tr>
                  <td colspan="2">
                      <label>
-                         <input type="checkbox" class="lmsui-address-box-def-address" name="' . $input_name_def_address . '"' . ($params['location_address_type'] == DEFAULT_LOCATION_ADDRESS ? 'checked' : '') . '>
+                         <input type="checkbox" class="lmsui-address-box-def-address" name="' . $input_name_def_address . '"' . ($params['location_address_type'] == DEFAULT_LOCATION_ADDRESS || isset($params['location_def_address']) ? 'checked' : '') . '>
                          ' . trans('default location address') . '
                      </label>
                  </td>

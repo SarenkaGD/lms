@@ -54,9 +54,17 @@ $LMS->InitXajax();
 $LMS->RegisterXajaxFunction(array('select_customer', 'getUsersForGroup'));
 $SMARTY->assign('xajax', $LMS->RunXajax());
 
+if (!empty($_GET['ticketid'])) {
+	$eventticketid = intval($_GET['ticketid']);
+	$tqname = $LMS->GetQueueNameByTicketId($eventticketid);
+}
+
 if(isset($_POST['event']))
 {
 	$event = $_POST['event'];
+
+	if (!empty($event['helpdesk']) && !count($event['categories']))
+		$error['categories'] = trans('You have to select category!');
 
 	if (!isset($event['usergroup']))
 		$event['usergroup'] = 0;
@@ -98,24 +106,38 @@ if(isset($_POST['event']))
 			$event['custid'] = $event['customerid'];
 		if ($event['custid'] == '')
 			$event['custid'] = 0;
+
 		$event['nodeid'] = (isset($event['customer_location'])||is_null($event['nodeid'])) ? NULL : $event['nodeid'];
+
+                if (isset($event['helpdesk']))
+                {
+                    $ticket['queue'] = $event['rtqueue'];
+                    $ticket['customerid'] = $event['customerid'];
+                    $ticket['requestor'] = $event['name']." ".$event['surname'];
+                    $ticket['subject'] = $event['title'];
+                    $ticket['mailfrom'] = $event['email'];
+                    $ticket['categories'] = $event['categories'];
+                    $ticket['owner'] = '0';
+                    $event['ticketid'] = $LMS->TicketAdd($ticket);
+                }
 
 		$DB->BeginTrans();
 
-		$DB->Execute('INSERT INTO events (title, description, date, begintime, enddate, endtime,
-			userid, creationdate, private, customerid, type, nodeid)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?NOW?, ?, ?, ?, ?)',
-				array($event['title'], 
-					$event['description'], 
-					$date, 
-					$event['begintime'], 
+		$DB->Execute('INSERT INTO events (title, description, date, begintime, enddate,
+                                                endtime, userid, creationdate, private, customerid, type, nodeid, ticketid)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?NOW?, ?, ?, ?, ?, ?)',
+				array($event['title'],
+					$event['description'],
+					$date,
+					$event['begintime'],
 					$enddate,
 					$event['endtime'], 
 					$AUTH->id, 
 					$event['status'], 
 					intval($event['custid']),
 					$event['type'],
-					$event['nodeid']
+					$id,
+					empty($event['ticketid']) ? null : $event['ticketid'],
 					));
 
 		if (!empty($event['userlist'])) {
@@ -134,7 +156,10 @@ if(isset($_POST['event']))
 		
 		unset($event['title']);
 		unset($event['description']);
+                                unset($event['categories']);
 	}
+} else {
+	$event['helpdesk'] = ConfigHelper::checkConfig('phpui.default_event_ticket_assignment');
 }
 
 $event['date'] = isset($event['date']) ? $event['date'] : $SESSION->get('edate');
@@ -161,8 +186,13 @@ if (!isset($event['usergroup']))
 if (!ConfigHelper::checkConfig('phpui.big_networks'))
 	$SMARTY->assign('customerlist', $LMS->GetCustomerNames());
 
+if (isset($eventticketid))
+	$event['ticketid'] = $eventticketid;
+
+$categories = $LMS->GetCategoryListByUser($AUTH->id);
 $SMARTY->assign('max_userlist_size', ConfigHelper::getConfig('phpui.event_max_userlist_size'));
 $SMARTY->assign('userlist', $userlist);
+$SMARTY->assign('tqname',$tqname);
 $SMARTY->assign('usergroups', $usergroups);
 $SMARTY->assign('error', $error);
 $SMARTY->assign('event', $event);
@@ -172,6 +202,8 @@ $SMARTY->assign('hours',
 		1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,
 		1800,1830,1900,1930,2000,2030,2100,2130,2200,2230,2300,2330
 		));
+$SMARTY->assign('queuelist', $LMS->GetQueueNames());
+$SMARTY->assign('categories', $categories);
 $SMARTY->display('event/eventadd.html');
 
 ?>

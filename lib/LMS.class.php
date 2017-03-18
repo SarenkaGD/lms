@@ -1325,6 +1325,12 @@ class LMS
         return $manager->GetQueueIdByName($id);
     }
 
+    public function GetQueueNameByTicketId($id)
+    {
+        $manager = $this->getHelpdeskManager();
+        return $manager->GetQueueNameByTicketId($id);
+    }
+
     public function GetQueueName($id)
     {
         $manager = $this->getHelpdeskManager();
@@ -2113,7 +2119,18 @@ class LMS
         return $manager->EventSearch($search, $order, $simple);
     }
 
-    public function GetNumberPlans($doctype = NULL, $cdate = NULL, $division = NULL, $next = true)
+    public function GetCustomerIdByTicketId($id)
+    {
+        $manager = $this->getEventManager();
+        return $manager->GetCustomerIdByTicketId($id);
+    }
+
+    public function GetEventsByTicketId($id)
+    {
+         $manager = $this->getHelpdeskManager();
+         return $manager->GetEventsByTicketId($id);
+    }
+    public function GetNumberPlans($properties)
     {
         $manager = $this->getDocumentManager();
         return $manager->GetNumberPlans($doctype, $cdate, $division, $next);

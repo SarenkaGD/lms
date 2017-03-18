@@ -783,6 +783,11 @@ html .ui-button.ui-state-disabled:active {
   border: 1px solid #615847;
   background-color: #DFD5BD;
 }
+.ui-state-default,
+.ui-widget-content .ui-state-default {
+  padding: 0;
+  text-align: center;
+}
 .ui-state-hover,
 .ui-widget-content .ui-state-hover,
 .ui-widget-header .ui-state-hover,
@@ -1013,15 +1018,11 @@ table.dataTable thead tr:last-child th {
 .location-box-expandable {
   padding-top: 2px;
 }
-.toggle-address {
-  font-size: 1.4em;
-  font-family: "Times New Roman", Times, serif;
-  font-weight: bold;
-  width: 7px;
+.address-full {
   display: inline-block;
-  padding: 0 5px;
+  height: 13px;
 }
-.toggle-address:hover {
+.address-full:hover {
   cursor: pointer;
 }
 .lms-ui-cursor-pointer:hover {

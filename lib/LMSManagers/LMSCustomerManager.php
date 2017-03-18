@@ -813,7 +813,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
         $result = $this->db->GetAll("SELECT
                                         n.id, n.name, mac, ipaddr, inet_ntoa(ipaddr) AS ip, nd.name as netdev_name,
                                         ipaddr_pub, n.authtype, inet_ntoa(ipaddr_pub) AS ip_pub,
-                                        passwd, access, warning, info, n.ownerid, lastonline, n.location,
+                                        passwd, access, warning, info, n.ownerid, lastonline, n.location, n.address_id,
                                         (SELECT COUNT(*)
                                         FROM nodegroupassignments
                                         WHERE nodeid = n.id) AS gcount,
@@ -835,6 +835,10 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
             foreach ($result as $idx => $node) {
                 $ids[$node['id']] = $idx;
                 $result[$idx]['lastonlinedate'] = lastonline_date($node['lastonline']);
+
+                if ( !$result[$idx]['address_id'] ) {
+                    $result[$idx]['location'] = $this->getAddressForCustomerStuff( $customer_id );
+                }
 
                 if ($node['ipaddr_pub'])
                     foreach ($networks as $net)
@@ -878,14 +882,15 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 
         $netdevs = $this->db->GetAllByKey('SELECT
                                               nd.id, nd.name, lc.name as location_city, lc.id as location_city_id, ls.name as location_street,
-                                              ls.id as location_street_id, nd.location_house, nd.location_flat, nd.description, nd.producer,
+                                              ls.id as location_street_id, va.location_house, va.location_flat, nd.description, nd.producer,
                                               nd.model, nd.serialnumber, nd.ports, nd.purchasetime, nd.guaranteeperiod, nd.shortname, nd.nastype,
                                               nd.clients, nd.community, nd.channelid, nd.longitude, nd.latitude, nd.netnodeid, nd.invprojectid,
                                               nd.status, nd.netdevicemodelid, nd.ownerid, no.authtype
                                            FROM
                                               netdevices nd
-                                              LEFT JOIN location_cities lc ON nd.location_city = lc.id
-                                              LEFT JOIN location_streets ls ON nd.location_street = ls.id
+                                              LEFT JOIN vaddresses va ON nd.address_id = va.id
+                                              LEFT JOIN location_cities lc ON va.city_id = lc.id
+                                              LEFT JOIN location_streets ls ON va.street_id = ls.id
                                               LEFT JOIN nodes no ON nd.id = no.netdev
                                            WHERE
                                               nd.ownerid = ?', 'id', array($customer_id));
@@ -1270,41 +1275,23 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
                                           addr.street as location_street_name, addr.street_id as location_street,
                                           addr.house as location_house, addr.zip as location_zip,
                                           addr.country_id as location_country_id, addr.flat as location_flat,
-                                          ca.type as location_address_type
+                                          ca.type as location_address_type, addr.location,
+                                          (CASE WHEN
+                                              addr.city_id is not null AND addr.street_id is not null
+                                              THEN 1 ELSE 0
+                                          END) as teryt
                                        FROM
-                                          customerview cv
+                                          customers cv
                                           LEFT JOIN customer_addresses ca ON ca.customer_id = cv.id
-                                          LEFT JOIN addresses addr        ON addr.id = ca.address_id
+                                          LEFT JOIN vaddresses addr       ON addr.id = ca.address_id
                                        WHERE
                                           cv.id = ?' .
                                           (($hide_deleted) ? ' AND cv.deleted != 1' : ''), 'address_id',
                                        array( $id ));
 
+
         if ( !$data ) {
             return array();
-        }
-
-        foreach ( $data as $k=>$v ) {
-            $tmp = array(
-                     'city_name'      => $v['location_city_name'],
-                     'street_name'    => $v['location_street_name'],
-                     'location_house' => $v['location_house'],
-                     'location_flat'  => $v['location_flat']
-                   );
-
-            // generate address as single string
-            $location = location_str($tmp);
-
-            if ( strlen($location) > 0 ) {
-                $data[$k]['location'] = $location;
-            } else {
-                $data[$k]['location'] = trans('undefined');
-            }
-
-            // check if teryt is set
-            if ( $v['location_city'] && $v['location_street'] ) {
-                $data[$k]['teryt'] = 1;
-            }
         }
 
         return $data;
@@ -1321,23 +1308,20 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
      */
     public function getAddressForCustomerStuff( $customer_id ) {
         $addresses = $this->db->GetAllByKey('SELECT
-                                                addr.city as city_name, addr.flat as location_flat,
-                                                addr.house as location_house, addr.street as street_name, ca.type
+                                                ca.type, addr.location
                                              FROM customer_addresses ca
-                                                LEFT JOIN addresses addr ON ca.address_id = addr.id
+                                                LEFT JOIN vaddresses addr ON ca.address_id = addr.id
                                              WHERE
                                                 ca.customer_id = ?', 'type', array($customer_id));
 
-        $location = null;
-
-        if ( isset($addresses[ DEFAULT_LOCATION_ADDRESS ]) ) {
-            $location = location_str( $addresses[ DEFAULT_LOCATION_ADDRESS ] );
+        if ( isset($addresses[DEFAULT_LOCATION_ADDRESS]) ) {
+            return $addresses[DEFAULT_LOCATION_ADDRESS]['location'];
         }
 
-        if ( !$location && isset($addresses[ BILLING_ADDRESS ]) ) {
-            return location_str( $addresses[ BILLING_ADDRESS ] );
+        if ( isset($addresses[BILLING_ADDRESS]) ) {
+            return $addresses[BILLING_ADDRESS]['location'];
         }
 
-        return $location;
+        return null;
     }
 }
