@@ -23,9 +23,9 @@
 
 $this->BeginTrans();
 
-$this->Execute("DROP VIEW customerview, contractorview, customeraddressview, vmacs, vnetworks, vnodes, vaddresses");
+$this->Execute("DROP VIEW customerview, contractorview, customeraddressview, vmacs, vnetworks, vnodes, vaddresses, vdivisions");
 
-$this->Execute("UPDATE addresses SET zip = NULL WHERE zip IS NOT NULL AND char_length(zip) = 0");
+$this->Execute("ALTER TABLE addresses CHANGE city city varchar(100) NULL");
 
 $this->Execute("
     CREATE VIEW vaddresses AS
@@ -139,8 +139,16 @@ $this->Execute("
 	        LEFT JOIN vaddresses a ON n.address_id = a.id
 	    WHERE n.ipaddr <> 0 OR n.ipaddr_pub <> 0
 ");
+$this->Execute("
+	CREATE VIEW vdivisions AS
+	    SELECT d.*,
+	        a.country_id as countryid, a.zip as zip, a.city as city,
+	        (CASE WHEN a.house IS NULL THEN a.street ELSE (CASE WHEN a.flat IS NULL THEN CONCAT(a.street, ' ', a.house) ELSE CONCAT(a.street, ' ', a.house, '/', a.flat) END) END) as address
+	    FROM divisions d
+	        JOIN addresses a ON a.id = d.address_id;
+");
 
-$this->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2017031600', 'dbversion'));
+$this->Execute("UPDATE dbinfo SET keyvalue = ? WHERE keytype = ?", array('2017032000', 'dbversion'));
 
 $this->CommitTrans();
 

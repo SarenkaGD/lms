@@ -29,6 +29,7 @@ $this->Execute("DROP VIEW IF EXISTS vnodes;");
 $this->Execute("DROP VIEW IF EXISTS customeraddressview;");
 $this->Execute("DROP VIEW IF EXISTS contractorview;");
 $this->Execute("DROP VIEW IF EXISTS customerview;");
+$this->Execute("DROP VIEW IF EXISTS vaddresses;");
 
 $this->Execute("
 CREATE VIEW vaddresses AS
@@ -49,7 +50,7 @@ CREATE VIEW vaddresses AS
             ELSE
                 CASE WHEN flat is not null THEN CONCAT(' ', flat) ELSE '' END
             END
-        ))) AS location
+        )))) AS location
     FROM addresses;
 ");
 
