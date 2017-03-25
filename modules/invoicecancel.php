@@ -82,6 +82,8 @@ if($id && $_GET['is_sure'] == '1') {
 			$SYSLOG->AddMessage(SYSLOG::RES_DOC, SYSLOG::OPER_UPDATE, $args);
 		}
 	} else {
+		if ($LMS->isDocumentPublished($id) && !ConfigHelper::checkConfig('privileges.superuser'))
+			return;
 		$DB->Execute('UPDATE documents SET cancelled = 1 WHERE id = ?', array($id));
 	        if (ConfigHelper::getConfig('phpui.stock')) {//Added if for lms-stck
 	                $stck_ica = $DB->GetAll('SELECT icitemid, stockid FROM stck_invoicecontentsassignments WHERE icdocid = ?', array($id));
