@@ -150,28 +150,6 @@ if (isset($_POST['customeradd'])) {
     else if (!preg_match('/^[0-9]{4,6}$/', $customeradd['pin']))
 	    $error['pin'] = trans('Incorrect PIN code!');
 
-	foreach($customeradd['uid'] as $idx => $val)
-	{
-		$val = trim($val);
-		switch($idx)
-		{
-			case IM_GG:
-				if($val!='' && !check_gg($val))
-					$error['gg'] = trans('Incorrect IM uin!');
-			break;
-			case IM_YAHOO:
-				if($val!='' && !check_yahoo($val))
-					$error['yahoo'] = trans('Incorrect IM uin!');
-			break;
-			case IM_SKYPE:
-				if($val!='' && !check_skype($val))
-					$error['skype'] = trans('Incorrect IM uin!');
-			break;
-		}
-
-		if($val) $im[$idx] = $val;
-	}
-
 	$contacts = array();
 
 	$emaileinvoice = false;
@@ -203,7 +181,9 @@ if (isset($_POST['customeradd'])) {
 	if (isset($customeradd['invoicenotice']) && !$emaileinvoice)
 		$error['invoicenotice'] = trans('If the customer wants to receive an electronic invoice must be checked e-mail address to which to send e-invoices');
 
-	if ($customeradd['cutoffstop'] == '')
+	if (isset($customeradd['cutoffstopindefinitely']))
+		$cutoffstop = intval(pow(2, 31) - 1);
+	elseif ($customeradd['cutoffstop'] == '')
 		$cutoffstop = 0;
 	elseif (check_date($customeradd['cutoffstop'])) {
 			list ($y, $m, $d) = explode('/', $customeradd['cutoffstop']);
@@ -223,9 +203,7 @@ if (isset($_POST['customeradd'])) {
         );
         $customeradd = $hook_data['customeradd'];
         $error = $hook_data['error'];
-        
-        
-//	print_r($error);die;
+
 	if (!$error) {
 		$customeradd['cutoffstop'] = $cutoffstop;
 
@@ -276,9 +254,7 @@ if (isset($_POST['customeradd'])) {
 		$customeradd = $reuse;
 		$customeradd['reuse'] = '1';
 	}
-} else
-	foreach (array_keys($CUSTOMERCONTACTTYPES) as $contacttype)
-		$customeradd[$contacttype . 's'][] = array();
+}
 
 if (!isset($customeradd['cutoffstopindefinitely']))
 	$customeradd['cutoffstopindefinitely'] = 0;

@@ -355,8 +355,9 @@ if (isset($_POST['assignment']))
 				}
 		}
 		$DB->Execute('DELETE FROM nodeassignments WHERE assignmentid=?', array($a['id']));
+		$DB->Execute('DELETE FROM voip_number_assignments WHERE assignment_id = ?', array($a['id']));
 
-		if (isset($a['nodes']) && sizeof($a['nodes']))
+		if (!empty($a['nodes']))
 		{
 			foreach($a['nodes'] as $nodeid) {
 				$DB->Execute('INSERT INTO nodeassignments (nodeid, assignmentid) VALUES (?,?)',
@@ -374,13 +375,18 @@ if (isset($_POST['assignment']))
 				}
 			}
 		}
-                
-                $LMS->executeHook(
-                    'customerassignmentedit_after_submit', 
-                    array(
-                        'a' => $a,
-                    )
-                );
+
+		if (!empty($a['phones'])) {
+			foreach($a['phones'] as $p) {
+				$DB->Execute('INSERT INTO voip_number_assignments (number_id, assignment_id) VALUES (?,?)',
+					array($p, $a['id']));
+			}
+		}
+
+        $LMS->executeHook(
+        	'customerassignmentedit_after_submit',
+            array('a' => $a)
+        );
 
 		$DB->CommitTrans();
 
@@ -418,7 +424,8 @@ else
 
 	if ($a['dateto'])
 		$a['dateto'] = date('Y/m/d', $a['dateto']);
-	if($a['datefrom'])
+
+	if ($a['datefrom'])
 		$a['datefrom'] = date('Y/m/d', $a['datefrom']);
 
 	switch($a['period'])
@@ -443,6 +450,9 @@ else
 
 	// nodes assignments
 	$a['nodes'] = $DB->GetCol('SELECT nodeid FROM nodeassignments WHERE assignmentid=?', array($a['id']));
+
+	// phone numbers assignments
+	$a['phones'] = $DB->GetCol('SELECT number_id FROM voip_number_assignments WHERE assignment_id=?', array($a['id']));
 }
 
 $expired = isset($_GET['expired']) ? $_GET['expired'] : false;
@@ -451,11 +461,12 @@ $layout['pagetitle'] = trans('Liability Edit: $a', '<A href="?m=customerinfo&id=
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
-$customernodes = $LMS->GetCustomerNodes($customer['id']);
+$customerNodes = $LMS->GetCustomerNodes( $customer['id']);
+
 unset($customernodes['total']);
 
 $LMS->executeHook(
-    'customerassignmentedit_before_display', 
+    'customerassignmentedit_before_display',
     array(
         'a' => $a,
         'smarty' => $SMARTY,

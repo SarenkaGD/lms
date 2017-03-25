@@ -70,10 +70,16 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 </script>
 {$default_printpage = ConfigHelper::getConfig('invoices.default_printpage')}
 {$default_taxrate   = ConfigHelper::getConfig('phpui.default_taxrate')}
+{if isset($customer.id)}
+{$customerid = $customer.id}
+{else}
+{$customerid = $invoice.customerid}
+{/if}
 <FORM name="setcustomer" method="POST" action="?m=invoicenew&amp;action=setcustomer">
 <p style="display: none;">
 <INPUT type="submit" class="hiddenbtn">
 </p>
+<input type="hidden" name="invoice[proforma]" value="{$invoice.proforma}">
 <TABLE class="lmsbox">
 	<colgroup>
 		<col style="width: 1%;">
@@ -419,9 +425,6 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 <script type="text/javascript" src="img/lms-ui-iconselectmenu.js"></script>
 <SCRIPT type="text/javascript">
 <!--
-<<<<<<< HEAD
-	document.forms['setcustomer'].elements['invoice[number]'].focus();
-=======
 	$(function() {
         var customer_addresses = new LmsUiIconSelectMenu( "#customer_addresses" );
         var timer;
@@ -470,7 +473,6 @@ window.open('?m=invoice&id={$newinvoice.invoice}&original={$newinvoice.original}
 
         customer_addresses.init();
 	});
->>>>>>> 19afad197d41b6807db016d789415899ac8d85e9
 //-->
 </SCRIPT>
 {/block}

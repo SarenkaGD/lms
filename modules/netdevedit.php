@@ -33,8 +33,12 @@ $edit = '';
 $subtitle = '';
 
 switch ($action) {
-	case 'replace':
+	case 'updatenodefield':
+		$LMS->updateNodeField($_POST['nodeid'], $_POST['field'], $_POST['val']);
+		die();
+	break;
 
+	case 'replace':
 		$dev1 = $LMS->GetNetDev($_GET['id']);
 		$dev2 = $LMS->GetNetDev($_GET['netdev']);
 
@@ -181,53 +185,14 @@ switch ($action) {
 		break;
 
 	case 'disconnect':
-
 		$LMS->NetDevUnLink($_GET['id'], $_GET['devid']);
 		$SESSION->redirect('?m=netdevinfo&id=' . $_GET['id']);
 
 	case 'disconnectnode':
-
 		$LMS->NetDevLinkNode($_GET['nodeid'], 0);
 		$SESSION->redirect('?m=netdevinfo&id=' . $_GET['id']);
 
-	case 'chkmac':
-		if ($SYSLOG) {
-			$args = array(
-				SYSLOG::RES_NODE => $_GET['ip'],
-				SYSLOG::RES_NETDEV => $_GET['id'],
-				'chkmac' => $_GET['chkmac'],
-			);
-			$SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
-		}
-		$DB->Execute('UPDATE nodes SET chkmac=? WHERE id=?', array($_GET['chkmac'], $_GET['ip']));
-		$SESSION->redirect('?m=netdevinfo&id=' . $_GET['id'] . '&ip=' . $_GET['ip']);
-
-	case 'duplex':
-		if ($SYSLOG) {
-			$args = array(
-				SYSLOG::RES_NODE => $_GET['ip'],
-				SYSLOG::RES_NETDEV => $_GET['id'],
-				'halfduplex' => $_GET['duplex'],
-			);
-			$SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
-		}
-		$DB->Execute('UPDATE nodes SET halfduplex=? WHERE id=?', array($_GET['duplex'], $_GET['ip']));
-		$SESSION->redirect('?m=netdevinfo&id=' . $_GET['id'] . '&ip=' . $_GET['ip']);
-
-	case 'nas':
-		if ($SYSLOG) {
-			$args = array(
-				SYSLOG::RES_NODE => $_GET['ip'],
-				SYSLOG::RES_NETDEV => $_GET['id'],
-				'nas' => $_GET['nas'],
-			);
-			$SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
-		}
-		$DB->Execute('UPDATE nodes SET nas=? WHERE id=?', array($_GET['nas'], $_GET['ip']));
-		$SESSION->redirect('?m=netdevinfo&id=' . $_GET['id'] . '&ip=' . $_GET['ip']);
-
 	case 'connect':
-
 		$linktype = !empty($_GET['linktype']) ? intval($_GET['linktype']) : '0';
 		$srcradiosector = ($linktype == 1 ? intval($_GET['srcradiosector']) : null);
 		$dstradiosector = ($linktype == 1 ? intval($_GET['dstradiosector']) : null);
@@ -335,7 +300,6 @@ switch ($action) {
 		break;
 
 	case 'addip':
-
 		$subtitle = trans('New IP address');
 		$nodeipdata['access'] = 1;
 		$nodeipdata['macs'] = array(0 => '');
@@ -345,7 +309,6 @@ switch ($action) {
 		break;
 
 	case 'editip':
-
 		$nodeipdata = $LMS->GetNode($_GET['ip']);
 		$subtitle = trans('IP address edit');
 		$nodeipdata['ipaddr'] = $nodeipdata['ip'];
@@ -393,16 +356,13 @@ switch ($action) {
 		break;
 
 	case 'formaddip':
-
 		$subtitle = trans('New IP address');
 		$nodeipdata = $_POST['ipadd'];
 		$nodeipdata['ownerid'] = 0;
 		foreach ($nodeipdata['macs'] as $key => $value)
 			$nodeipdata['macs'][$key] = str_replace('-', ':', $value);
 
-		foreach ($nodeipdata as $key => $value)
-			if ($key != 'macs')
-				$nodeipdata[$key] = trim($value);
+		$nodeipdata = trim_rec($nodeipdata);
 
 		if ($nodeipdata['ipaddr'] == '' && empty($nodeipdata['macs']) && $nodeipdata['name'] == '' && $nodeipdata['passwd'] == '') {
 			$SESSION->redirect('?m=netdevedit&action=addip&id=' . $_GET['id']);
@@ -495,8 +455,9 @@ switch ($action) {
 			$nodeipdata['macs'][$key] = str_replace('-', ':', $value);
 
 		foreach ($nodeipdata as $key => $value)
-			if ($key != 'macs')
+			if (!is_array($value)) {
 				$nodeipdata[$key] = trim($value);
+			}
 
 		if ($nodeipdata['ipaddr'] == '' && empty($nodeipdata['macs']) && $nodeipdata['name'] == '' && $nodeipdata['passwd'] == '')
 			$SESSION->redirect('?m=netdevedit&action=editip&id=' . $_GET['id'] . '&ip=' . $_GET['ip']);
@@ -617,10 +578,11 @@ if (isset($_POST['netdev'])) {
 	if ($netdevdata['ports'] < $LMS->CountNetDevLinks($_GET['id']))
 		$error['ports'] = trans('Connected devices number exceeds number of ports!');
 
-	if (empty($netdevdata['clients']))
-		$netdevdata['clients'] = 0;
-	else
-		$netdevdata['clients'] = intval($netdevdata['clients']);
+	$netdevdata['clients'] = (empty($netdevdata['clients'])) ? 0 : intval($netdevdata['clients']);
+
+    if (!empty($netdevdata['ownerid']) && !$LMS->customerExists($netdevdata['ownerid'])) {
+        $error['ownerid'] = "doesnt exists";
+    }
 
 	$netdevdata['purchasetime'] = 0;
 	if ($netdevdata['purchasedate'] != '') {
@@ -767,6 +729,7 @@ switch ($edit) {
 		$SMARTY->display('netdev/netdevedit.html');
 		break;
 	case 'ip':
+		$SMARTY->assign('nodesessions', $LMS->GetNodeSessions($_GET['ip']));
 		$SMARTY->display('netdev/netdevipedit.html');
 		break;
 	case 'addip':

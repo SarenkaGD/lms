@@ -79,7 +79,8 @@ function GetBalanceList($search=NULL, $cat=NULL, $group=NULL, $pagelimit=100, $p
 
 	if($res = $DB->Exec('SELECT cash.id AS id, time, cash.userid AS userid, cash.value AS value, 
 				cash.customerid AS customerid, comment, docid, cash.type AS type,
-				documents.type AS doctype, documents.closed AS closed, '
+				documents.type AS doctype, documents.closed AS closed,
+				documents.published, '
 				.$DB->Concat('UPPER(c.lastname)',"' '",'c.name').' AS customername
 				FROM cash
 				LEFT JOIN customers c ON (cash.customerid = c.id)
@@ -98,7 +99,7 @@ function GetBalanceList($search=NULL, $cat=NULL, $group=NULL, $pagelimit=100, $p
 					AND customerid = cash.customerid)' : '')
 				.' ORDER BY time, cash.id'))
 	{
-		$userlist = $DB->GetAllByKey('SELECT id, name FROM users','id');
+		$userlist = $DB->GetAllByKey('SELECT id, name FROM vusers','id');
 
 		$balancelist['liability'] = 0;
 		$balancelist['expense'] = 0;

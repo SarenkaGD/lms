@@ -38,7 +38,12 @@ class LMSTcpdfDebitNote extends LMSTcpdfInvoice {
 	public function note_title() {
 		$this->backend->SetY(30);
 		$this->backend->SetFont('arial', 'B', 16);
-		$docnumber = docnumber($this->data['number'], $this->data['template'], $this->data['cdate']);
+		$docnumber = docnumber(array(
+			'number' => $this->data['number'],
+			'template' => $this->data['template'],
+			'cdate' => $this->data['cdate'],
+			'customerid' => $this->data['customerid'],
+		));
 		$title = trans('Debit Note No. $a', $docnumber);
 
 		$this->backend->Write(0, $title, '', 0, 'C', true, 0, false, false, 0);
@@ -191,6 +196,7 @@ class LMSTcpdfDebitNote extends LMSTcpdfInvoice {
 	public function Draw($note) {
 		$this->data = $note;
 
+		$this->invoice_no_accountant();
 		$this->note_date();
 		$this->note_title();
 		$this->note_drawer();
@@ -198,7 +204,12 @@ class LMSTcpdfDebitNote extends LMSTcpdfInvoice {
 		$this->note_data();
 		$this->invoice_to_pay();
 		$this->invoice_footnote();
-		$docnumber = docnumber($this->data['number'], $this->data['template'], $this->data['cdate']);
+		$docnumber = docnumber(array(
+			'number' => $this->data['number'],
+			'template' => $this->data['template'],
+			'cdate' => $this->data['cdate'],
+			'customerid' => $this->data['customerid'],
+		));
 		$this->backend->SetTitle(trans('Debit Note No. $a', $docnumber));
 		$this->backend->SetAuthor($this->data['division_name']);
 		$this->backend->setBarcode($docnumber);

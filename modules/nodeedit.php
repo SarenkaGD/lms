@@ -36,6 +36,11 @@ $nodeid = intval($_GET['id']);
 $customerid = $LMS->GetNodeOwner($nodeid);
 
 switch ($action) {
+    case 'updatenodefield':
+        $LMS->updateNodeField($_POST['nodeid'], $_POST['field'], $_POST['val']);
+        die();
+    break;
+
 	case 'link':
 		if (empty($_GET['devid']) || !($netdev = $LMS->GetNetDev($_GET['devid']))) {
 			$SESSION->redirect('?m=nodeinfo&id=' . $nodeid);
@@ -50,43 +55,7 @@ switch ($action) {
 		} else {
 			$SESSION->redirect('?m=nodeinfo&id=' . $nodeid . '&devid=' . $_GET['devid']);
 		}
-		break;
-	case 'chkmac':
-		$DB->Execute('UPDATE nodes SET chkmac=? WHERE id=?', array($_GET['chkmac'], $nodeid));
-		if ($SYSLOG) {
-			$args = array(
-				SYSLOG::RES_NODE => $nodeid,
-				SYSLOG::RES_CUST => $customerid,
-				'chkmac' => $_GET['chkmac']
-			);
-			$SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
-		}
-		$SESSION->redirect('?m=nodeinfo&id=' . $nodeid);
-		break;
-	case 'duplex':
-		$DB->Execute('UPDATE nodes SET halfduplex=? WHERE id=?', array($_GET['duplex'], $nodeid));
-		if ($SYSLOG) {
-			$args = array(
-				SYSLOG::RES_NODE => $nodeid,
-				SYSLOG::RES_CUST => $customerid,
-				'halfduplex' => $_GET['duplex']
-			);
-			$SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
-		}
-		$SESSION->redirect('?m=nodeinfo&id=' . $nodeid);
-		break;
-	case 'authtype':
-		$DB->Execute('UPDATE nodes SET authtype=? WHERE id=?', array(intval($_GET['authtype']), $nodeid));
-		if ($SYSLOG) {
-			$args = array(
-				SYSLOG::RES_NODE => $nodeid,
-				SYSLOG::RES_CUST => $customerid,
-				'authtype' => intval($_GET['authtype']),
-			);
-			$SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
-		}
-		$SESSION->redirect('?m=nodeinfo&id=' . $nodeid);
-		break;
+	break;
 }
 
 $nodeinfo = $LMS->GetNode($nodeid);
@@ -115,7 +84,7 @@ if (isset($_POST['nodeedit'])) {
 		$nodeedit['macs'][$key] = str_replace('-', ':', $value);
 
 	foreach ($nodeedit as $key => $value)
-		if ($key != 'macs' && $key != 'authtype')
+		if ($key != 'macs' && $key != 'authtype' && $key != 'wysiwyg')
 			$nodeedit[$key] = trim($value);
 
 	if ($nodeedit['ipaddr'] == '' && $nodeedit['ipaddr_pub'] == '' && empty($nodeedit['macs']) && $nodeedit['name'] == '' && $nodeedit['info'] == '' && $nodeedit['passwd'] == '' && !isset($nodeedit['wholenetwork'])) {
@@ -125,6 +94,9 @@ if (isset($_POST['nodeedit'])) {
 	if(isset($nodeedit['wholenetwork'])) {
 		$nodeedit['ipaddr'] = '0.0.0.0';
 		$nodeedit['ipaddr_pub'] = '0.0.0.0';
+		$net = $LMS->GetNetworkRecord($nodeedit['netid'], 0, 1);
+		if (!empty($net['ownerid']) && !empty($nodeedit['ownerid']) && $net['ownerid'] != $nodeedit['ownerid'])
+			$error['netid'] = trans('Selected network is already assigned to customer $a ($b)!', $net['customername'], $net['ownerid']);
 	} elseif (check_ip($nodeedit['ipaddr'])) {
 		if ($LMS->IsIPValid($nodeedit['ipaddr'])) {
 			if (empty($nodeedit['netid']))
@@ -302,6 +274,7 @@ if (isset($_POST['nodeedit'])) {
 	$nodeinfo['latitude'] = $nodeedit['latitude'];
 	$nodeinfo['longitude'] = $nodeedit['longitude'];
 	$nodeinfo['invprojectid'] = $nodeedit['invprojectid'];
+	$nodeinfo['wysiwyg'] = $nodeedit['wysiwyg'];
 
 	if ($nodeedit['ipaddr_pub'] == '0.0.0.0')
 		$nodeinfo['ipaddr_pub'] = '';
@@ -342,6 +315,7 @@ $SMARTY->assign('error', $error);
 $SMARTY->assign('nodeinfo', $nodeinfo);
 $SMARTY->assign('objectid', $nodeinfo['id']);
 $SMARTY->assign('nodeauthtype', $nodeauthtype);
+$SMARTY->assign('nodeedit_sortable_order', $SESSION->get_persistent_setting('nodeedit-sortable-order'));
 $SMARTY->display('node/nodeedit.html');
 
 ?>

@@ -1,4 +1,13 @@
 <!--// $Id$ //-->
+
+<style>
+    .tab-beautify td { padding: 3px; }
+    .tab-beautify tr td:nth-child(2) {
+        font-weight: bold;
+        white-space: nowrap;
+    }
+</style>
+
 <script type="text/javascript" src="img/netnodehelper.js"></script>
 {include file="google-maps.html"}
 <FORM name="editnode" ID="editnode" METHOD="POST" ACTION="?m=nodeedit&amp;id={$nodeinfo.id}">
@@ -418,19 +427,37 @@
 	// ---------------------
 	statusIcoUpdate();
 
-	function GenPasswd() {
-		if(! confirm('{trans("Are you sure, you want to generate new password?")}'))
-			return;
+	$( '#status' ).change( function() {
+		statusIcoUpdate();
+	});
 
-		var length = {ConfigHelper::getConfig('phpui.nodepassword_length', '16')};
-		if (length > 32) length = 32;
-
-		document.forms['editnode'].elements['nodeedit[passwd]'].value =
-			generate_random_string(length, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+	function statusIcoUpdate() {
+		if ( $('#status').val() == 1 ) {
+			$( '#statusico' ).attr('src', 'img/access.gif');
+		} else {
+			$( '#statusico' ).attr('src', 'img/noaccess.gif');
+		}
 	}
 
-	function newmac()
-	{
+	// ---------------------
+	//  GENERATE RANDOM PASSWORD
+	// ---------------------
+	$( '#genpasswd' ).click( function() {
+		if ($('#passwordcontainer').val().length > 0 && !confirm('{trans("Are you sure, you want to generate new password?")}')) {
+			return;
+		}
+
+		var length = {ConfigHelper::getConfig('phpui.nodepassword_length', '16')};
+
+		if (length > 32)
+			length = 32;
+
+		$( '#passwordcontainer' ).val( generate_random_string(length) );
+
+		event.preventDefault();
+	});
+
+	function newmac() {
 		var macscountelem = document.getElementById('macscount');
 		var nr = macscountelem.value;
 		var lastmacelem = document.getElementById('mac' + (nr - 1));
@@ -438,7 +465,7 @@
 		newrow.id = 'mac' + nr;
 		var newcell = newrow.insertCell(0);
 		newcell.style.width = '100%';
-		newcell.innerHTML = '<INPUT TYPE="TEXT" NAME="nodeedit[macs][' + nr + ']" VALUE=""'
+		newcell.innerHTML = '<input type="TEXT" name="nodeedit[macs][' + nr + ']" value=""'
 			+ ' title="{trans("Enter MAC address")}">'
 			+ '<a href="javascript: void(0);" onClick="return macchoosewin(document.editnode.elements[\'nodeedit[macs][' + nr + ']\']);"'
 			+ ' title="{trans("Click to select MAC from the list")}">&nbsp;&raquo;&raquo;&raquo;</A>';

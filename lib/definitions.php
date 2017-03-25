@@ -233,17 +233,6 @@ $GUARANTEEPERIODS = array(
     60 => trans('$a months', 60)
 );
 
-// Internet Messengers
-define('IM_GG', 0);
-define('IM_YAHOO', 1);
-define('IM_SKYPE', 2);
-
-$MESSENGERS = array(
-    IM_GG    => trans('Gadu-Gadu'),
-    IM_YAHOO => trans('Yahoo'),
-    IM_SKYPE => trans('Skype'),
-);
-
 define('DISPOSABLE', 0);
 define('DAILY', 1);
 define('WEEKLY', 2);
@@ -293,6 +282,15 @@ define('CALL_ANSWERED', 2);
 define('CALL_NO_ANSWER', 3);
 define('CALL_SERVER_FAILED', 4);
 
+// VoIP pool number types
+define('VOIP_POOL_NUMBER_MOBILE', 1);
+define('VOIP_POOL_NUMBER_FIXED' , 2);
+
+$VOIP_POOL_NUMBER_TYPES = array(
+    VOIP_POOL_NUMBER_MOBILE => trans("mobile"),
+    VOIP_POOL_NUMBER_FIXED  => trans("fixed")
+);
+
 // bit flags for VoIP call
 define('CALL_FLAG_ADMIN_RECORDING', 1);
 define('CALL_FLAG_CUSTOMER_RECORDING', 2);
@@ -327,6 +325,11 @@ define('CONTACT_NOTIFICATIONS', 32);
 define('CONTACT_BANKACCOUNT', 64);
 define('CONTACT_TECHNICAL', 128);
 define('CONTACT_URL', 256);
+define('CONTACT_IM', 7680);
+define('CONTACT_IM_GG', 512);
+define('CONTACT_IM_YAHOO', 1024);
+define('CONTACT_IM_SKYPE', 2048);
+define('CONTACT_IM_FACEBOOK', 4096);
 define('CONTACT_DISABLED', 16384);
 define('CONTACT_DOCUMENTS', 32768);
 
@@ -522,7 +525,9 @@ define('EVENT_VACATION', 6);
 define('EVENT_DUTY', 7);
 
 $EVENTTYPES = array(
-	EVENT_SERVICE      => trans('service<!event>'),
+	EVENT_OTHER => trans('other'),
+	EVENT_NETWORK => trans('network'),
+	EVENT_SERVICE => trans('service<!event>'),
 	EVENT_INSTALLATION => trans('installation'),
 	EVENT_MEETING => trans('meeting'),
 	EVENT_VACATION => trans('vacation'),
@@ -544,6 +549,7 @@ define('SESSIONTYPE_DHCP', 2);
 define('SESSIONTYPE_EAP', 4);
 define('SESSIONTYPE_WIFI', 8);
 define('SESSIONTYPE_VOIP', 16);
+define('SESSIONTYPE_STB', 32);
 
 $SESSIONTYPES = array(
 	SESSIONTYPE_PPPOE => array(
@@ -565,6 +571,10 @@ $SESSIONTYPES = array(
 	SESSIONTYPE_VOIP => array(
 		'label' => trans('VoIP Gateway'),
 		'tip' => 'Enable/disable VoIP Gateway access'
+	),
+	SESSIONTYPE_STB => array(
+		'label' => trans('Set-top box'),
+		'tip' => 'Enable/disable set-top box access'
 	),
 );
 

@@ -208,6 +208,36 @@ version 1.11.21 (2016-10-14):
     by phpmailer mail.backend) [chilan]
   - allow to switch on column filter and toggle for lms-ui-datatable using
     lms-ui-datatable-column-search and lms-ui-datatable-column-toggle classes respectively [chilan]
+  - introduced persistent settings: tabs order are stored persistently
+    in users.persistentsettings database table [chilan]
+  - allow to limit invoice send by mail count per hour [olimplan/chilan]
+  - lms-ui-wysiwyg-editor css class point text areas which should have
+    tinymce toggle feature [chilan]
+  - many items can be opened in menu at the same time - phpui.max_opened_menus
+    (default: 3; 0 means unlimited) configuration variable controls this [chilan]
+  - main menu items are sortable by draging menu icon and dropping it in another place [chilan]
+  - removed support for swekey [prezes_kk]
+  - datatables column search supports selection lists [chilan]
+  - allow to toggle main menu visibility [chilan]
+  - added published flag to documents which means if document has been published and
+    probably received by customer [chilan]
+  - financial documents can be previewed without publishing [chilan]
+  - added support for voip pool numbers [kosa/chilan]
+  - document form title is automatically set after document template selection
+    to form_title or title template property [chilan]
+  - dynamic presentation of quick search input depending - they are shown after
+    mouse over on quick search icons [chilan]
+  - added quick search customers by phone numbers on top [chilan]
+  - added phpui.node_assignment_warning configuration variable which
+    determines if alert is displayed when no node has selected for internet assignment [chilan]
+  - added node list filter: without gps coordinates [chilan]
+  - added customer list filter: liabilities without invoice flag [chilan]
+  - added support for voip phone priority [kosa/chilan]
+  - changed customer instant messengers handling code to more generic code which will allow
+    to easier support more im types in the future [chilan]
+  - added support for change voip account settings in userpanel by customer [kosa/chilan]
+  - when phpui.big_networks is set to true show customer name on right side of input control [chilan]
+  - added support for convenient dynamic plugin javascript code loading in document templates [chilan]
 
 version 1.11.20 (2016-04-19):
 

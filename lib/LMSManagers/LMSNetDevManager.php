@@ -242,7 +242,7 @@ class LMSNetDevManager extends LMSManager implements LMSNetDevManagerInterface
         $res = $this->db->Execute('UPDATE netdevices SET name=?, description=?, producer=?,
 				model=?, serialnumber=?, ports=?, purchasetime=?, guaranteeperiod=?, shortname=?,
 				nastype=?, clients=?, secret=?, community=?, channelid=?, longitude=?, latitude=?,
-				invprojectid=?, netnodeid=?, status=?, netdevicemodelid=?
+				invprojectid=?, netnodeid=?, status=?, netdevicemodelid=?, ownerid=?
 				WHERE id=?', array_values($args));
 
 		if ( $data['address_id'] && $data['address_id'] < 0 ) {
@@ -470,6 +470,9 @@ class LMSNetDevManager extends LMSManager implements LMSNetDevManagerInterface
 				elseif ($value == -2)
 					$where[] = "d.$key = ''";
 				break;
+			case 'ownerid':
+				$where[] = 'ownerid = ' . $value;
+				break;
 		}
 
 		$netdevlist = $this->db->GetAll('SELECT d.id, d.name,
@@ -550,7 +553,7 @@ class LMSNetDevManager extends LMSManager implements LMSNetDevManagerInterface
 
     public function GetNetDev($id)
     {
-        $result = $this->db->GetRow('SELECT d.*, t.name AS nastypename, c.name AS channel,
+        $result = $this->db->GetRow('SELECT d.*, t.name AS nastypename, c.name AS channel, d.ownerid,
 				(CASE WHEN lst.name2 IS NOT NULL THEN ' . $this->db->Concat('lst.name2', "' '", 'lst.name') . ' ELSE lst.name END) AS street_name,
 				lt.name AS street_type, lc.name AS city_name,
 				lb.name AS borough_name, lb.type AS borough_type,

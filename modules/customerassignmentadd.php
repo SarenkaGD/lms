@@ -29,23 +29,21 @@ $customer = $DB->GetRow('SELECT id, divisionid, '
     .$DB->Concat('lastname',"' '",'name').' AS name
     FROM customerview WHERE id = ?', array($_GET['id']));
 
-if(!$customer)
-{
+if (!$customer) {
     $SESSION->redirect('?'.$SESSION->get('backto'));
 }
 
-if(isset($_POST['assignment']))
-{
+if (isset($_POST['assignment'])) {
 	$a = $_POST['assignment'];
 
-	foreach($a as $key => $val)
-	    if(!is_array($val))
+	foreach ($a as $key => $val) {
+	    if (!is_array($val))
 		    $a[$key] = trim($val);
+	}
 
 	$period = sprintf('%d',$a['period']);
 
-	switch($period)
-	{
+	switch($period) {
 		case DAILY:
 			$at = 0;
 		break;
@@ -56,7 +54,7 @@ if(isset($_POST['assignment']))
 			if (ConfigHelper::checkConfig('phpui.use_current_payday') && $at == 0)
 				$at = strftime('%u', time());
 
-			if($at < 1 || $at > 7)
+			if ($at < 1 || $at > 7)
 				$error['at'] = trans('Incorrect day of week (1-7)!');
 		break;
 
@@ -81,21 +79,17 @@ if(isset($_POST['assignment']))
 				$d = date('j', time());
 				$m = date('n', time());
 				$a['at'] = $d.'/'.$m;
-			}
-			elseif(!preg_match('/^[0-9]{2}\/[0-9]{2}$/', $a['at']))
-			{
+			} elseif(!preg_match('/^[0-9]{2}\/[0-9]{2}$/', $a['at'])) {
 				$error['at'] = trans('Incorrect date format! Enter date in DD/MM format!');
-			}
-			else
-			{
+			} else {
 				list($d,$m) = explode('/',$a['at']);
 			}
 
-			if(!$error)
-			{
-				if($d>30 || $d<1 || ($d>28 && $m==2))
+			if (!$error) {
+				if ($d>30 || $d<1 || ($d>28 && $m==2))
 					$error['at'] = trans('This month doesn\'t contain specified number of days');
-				if($m>3 || $m<1)
+
+				if ($m>3 || $m<1)
 					$error['at'] = trans('Incorrect month number (max.3)!');
 
 				$at = ($m-1) * 100 + $d;
@@ -109,17 +103,15 @@ if(isset($_POST['assignment']))
 				$d = date('j', time());
 				$m = date('n', time());
 				$a['at'] = $d.'/'.$m;
-			}
-			else
-			{
+			} else {
 				list($d,$m) = explode('/',$a['at']);
 			}
 
-			if(!$error)
-			{
-				if($d>30 || $d<1 || ($d>28 && $m==2))
+			if (!$error) {
+				if ($d>30 || $d<1 || ($d>28 && $m==2))
 					$error['at'] = trans('This month doesn\'t contain specified number of days');
-				if($m>6 || $m<1)
+
+				if ($m>6 || $m<1)
 					$error['at'] = trans('Incorrect month number (max.6)!');
 
 				$at = ($m-1) * 100 + $d;
@@ -131,21 +123,17 @@ if(isset($_POST['assignment']))
 				$d = date('j', time());
 				$m = date('n', time());
 				$a['at'] = $d.'/'.$m;
-			}
-			elseif(!preg_match('/^[0-9]{2}\/[0-9]{2}$/', $a['at']))
-			{
+			} elseif(!preg_match('/^[0-9]{2}\/[0-9]{2}$/', $a['at'])) {
 				$error['at'] = trans('Incorrect date format! Enter date in DD/MM format!');
-			}
-			else
-			{
+			} else {
 				list($d,$m) = explode('/',$a['at']);
 			}
 
-			if(!$error)
-			{
-				if($d>30 || $d<1 || ($d>28 && $m==2))
+			if (!$error) {
+				if ($d>30 || $d<1 || ($d>28 && $m==2))
 					$error['at'] = trans('This month doesn\'t contain specified number of days');
-				if($m>12 || $m<1)
+
+				if ($m>12 || $m<1)
 					$error['at'] = trans('Incorrect month number');
 
 				$ttime = mktime(12, 0, 0, $m, $d, 1990);
@@ -156,60 +144,53 @@ if(isset($_POST['assignment']))
 		default: // DISPOSABLE
 			$period = DISPOSABLE;
 
-			if(preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $a['at']))
-			{
+			if(preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $a['at'])) {
 				list($y, $m, $d) = explode('/', $a['at']);
-				if(checkdate($m, $d, $y))
-				{
+				if (checkdate($m, $d, $y)) {
 					$at = mktime(0, 0, 0, $m, $d, $y);
 
 					if ($at < mktime(0, 0, 0) && !$a['atwarning']) {
 						$a['atwarning'] = TRUE;
 						$error['at'] = trans('Incorrect date!');
 					}
-				}
-				else
+				} else
 					$error['at'] = trans('Incorrect date format! Enter date in YYYY/MM/DD format!');
-			}
-			else
+			} else
 				$error['at'] = trans('Incorrect date format! Enter date in YYYY/MM/DD format!');
 		break;
 	}
 
-	if($a['datefrom'] == '')
+	if ($a['datefrom'] == '') {
 		$from = 0;
-	elseif(preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/',$a['datefrom']))
-	{
+	} elseif(preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/',$a['datefrom'])) {
 		list($y, $m, $d) = explode('/', $a['datefrom']);
-		if(checkdate($m, $d, $y))
+
+		if (checkdate($m, $d, $y))
 			$from = mktime(0, 0, 0, $m, $d, $y);
 		else
 			$error['datefrom'] = trans('Incorrect charging time!');
-	}
-	else
+	} else
 		$error['datefrom'] = trans('Incorrect charging time!');
 
-	if($a['dateto'] == '')
+	if ($a['dateto'] == '') {
 		$to = 0;
-	elseif(preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $a['dateto']))
-	{
+	} elseif(preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/', $a['dateto'])) {
 		list($y, $m, $d) = explode('/', $a['dateto']);
-		if(checkdate($m, $d, $y))
+
+		if (checkdate($m, $d, $y))
 			$to = mktime(23, 59, 59, $m, $d, $y);
 		else
 			$error['dateto'] = trans('Incorrect charging time!');
-	}
-	else
+	} else
 		$error['dateto'] = trans('Incorrect charging time!');
 
-	if($to < $from && $to != 0 && $from != 0)
+	if ($to < $from && $to != 0 && $from != 0)
 		$error['dateto'] = trans('Incorrect date range!');
 
 	$a['discount'] = str_replace(',', '.', $a['discount']);
 	$a['pdiscount'] = 0;
 	$a['vdiscount'] = 0;
-	if (preg_match('/^[0-9]+(\.[0-9]+)*$/', $a['discount']))
-	{
+	if (preg_match('/^[0-9]+(\.[0-9]+)*$/', $a['discount'])) {
 		$a['pdiscount'] = ($a['discount_type'] == DISCOUNT_PERCENTAGE ? floatval($a['discount']) : 0);
 		$a['vdiscount'] = ($a['discount_type'] == DISCOUNT_AMOUNT ? floatval($a['discount']) : 0);
 	}
@@ -275,9 +256,8 @@ if(isset($_POST['assignment']))
         );
         $a = $hook_data['a'];
         $error = $hook_data['error'];
-        
-	if (!$error)
-	{
+
+	if (!$error) {
 		$a['customerid'] = $customer['id'];
 		$a['period']     = $period;
 		$a['at']         = $at;
@@ -285,7 +265,28 @@ if(isset($_POST['assignment']))
 		$a['dateto']     = $to;
 
 		$DB->BeginTrans();
-		$LMS->AddAssignment($a);
+
+		if (is_array($a['stariffid'])) {
+			$copy_a = $a;
+		
+			foreach ($a['stariffid'] as $v) {
+				if (!$v)
+					continue;
+
+			    $copy_a['promotiontariffid'] = $v;
+				$tariffid = $LMS->AddAssignment($copy_a);
+			}
+		} else {
+			$LMS->AddAssignment($a);
+		}
+
+        if ($a['tarifftype'] == TARIFF_PHONE && !empty($a['phones'])) {
+            $tariffid = $tariffid[0];
+
+            foreach($a['phones'] as $p)
+                $DB->Execute('INSERT INTO voip_number_assignments (number_id, assignment_id) VALUES (?,?)', array($p, $tariffid));
+        }
+
 		$DB->CommitTrans();
 
 		$LMS->executeHook(

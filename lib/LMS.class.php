@@ -494,6 +494,18 @@ class LMS
         return $manager->getCustomerNodes($id, $count);
     }
 
+    public function getCustomerNetDevNodes($id, $count = null)
+    {
+        $manager = $this->getCustomerManager();
+        return $manager->getCustomerNetDevNodes($id, $count);
+    }
+
+    public function GetCustomerNetDevs($customer_id)
+    {
+        $manager = $this->getCustomerManager();
+        return $manager->GetCustomerNetDevs($customer_id);
+    }
+
     public function GetCustomerNetworks($id, $count = null)
     {
         $manager = $this->getCustomerManager();
@@ -855,6 +867,12 @@ class LMS
         return $manager->SetNodeLinkType($node, $link);
     }
 
+    public function updateNodeField($nodeid, $field, $value)
+    {
+        $manager = $this->getNodeManager();
+        return $manager->updateNodeField($nodeid, $field, $value);
+    }
+
     /*
      *  Tarrifs and finances
      */
@@ -1041,6 +1059,11 @@ class LMS
     {
         $manager = $this->getNetworkManager();
         return $manager->ScanNodes();
+    }
+    public function GetNetworkPageForIp($netid, $ip)
+    {
+        $manager = $this->getNetworkManager();
+        return $manager->GetNetworkPageForIp($netid, $ip);
     }
 
     /*
@@ -2133,19 +2156,19 @@ class LMS
     public function GetNumberPlans($properties)
     {
         $manager = $this->getDocumentManager();
-        return $manager->GetNumberPlans($doctype, $cdate, $division, $next);
+        return $manager->GetNumberPlans($properties);
     }
 
-    public function GetNewDocumentNumber($doctype = NULL, $planid = NULL, $cdate = NULL)
+    public function GetNewDocumentNumber($properties)
     {
         $manager = $this->getDocumentManager();
-        return $manager->GetNewDocumentNumber($doctype, $planid, $cdate);
+        return $manager->GetNewDocumentNumber($properties);
     }
 
-    public function DocumentExists($number, $doctype = NULL, $planid = 0, $cdate = NULL)
+    public function DocumentExists($properties)
     {
         $manager = $this->getDocumentManager();
-        return $manager->DocumentExists($number, $doctype, $planid, $cdate);
+        return $manager->DocumentExists($properties);
     }
 
     /*
@@ -2222,6 +2245,12 @@ class LMS
         return $manager->CalcAt($period, $date);
     }
 
+    public function isDocumentPublished($id)
+    {
+        $manager = $this->getFinanaceManager();
+        return $manager->isDocumentPublished($id);
+    }
+
     /**
      * VoIP functions
      */
@@ -2296,13 +2325,23 @@ class LMS
         $manager = $this->getVoipAccountManager();
         return $manager->voipAccountUpdate($voipaccountdata);
     }
-    
+
     public function getVoipBillings(array $params)
     {
     	$manager = $this->getVoipAccountManager();
         return $manager->getVoipBillings($params);
     }
-    
+
+    public function getVoipTariffs()
+    {
+        return $this->getVoipAccountManager()->getVoipTariffs();
+    }
+
+    public function getVoipTariffRuleGroups()
+    {
+        return $this->getVoipAccountManager()->getVoipTariffRuleGroups();
+    }
+
 	/**
 	 * End VoIP functions
 	 */
@@ -3016,6 +3055,10 @@ class LMS
 		if (!empty($sender_name))
 			$from = "$sender_name <$from>";
 
+		if (!isset($which) || empty($which))
+			$which = array(trans('ORIGINAL'));
+		$count = count($which);
+
 		foreach ($docs as $doc) {
 			if ($doc['doctype'] == DOC_DNOTE) {
 				if ($dnote_filetype == 'pdf')
@@ -3031,8 +3074,14 @@ class LMS
 				$invoice = $this->GetInvoiceContent($doc['id']);
 			}
 
-			$invoice['type'] = trans('ORIGINAL');
-			$document->Draw($invoice);
+			$i = 0;
+			foreach ($which as $doctype) {
+				$i++;
+				$invoice['type'] = $doctype;
+				$document->Draw($invoice);
+				if ($i < $count)
+					$document->NewPage();
+			}
 			$res = $document->WriteToString();
 
 			$custemail = (!empty($debug_email) ? $debug_email : $doc['email']);
@@ -3044,7 +3093,12 @@ class LMS
 					$body = $mail_body;
 			$subject = $mail_subject;
 
-			$invoice_number = docnumber($doc['number'], $invoice_number, $doc['cdate'] + date('Z'));
+			$invoice_number = docnumber(array(
+				'number' => $doc['number'],
+				'template' => $invoice_number,
+				'cdate' => $doc['cdate'] + date('Z'),
+				'customerid' => $doc['customerid'],
+			));
 			$body = preg_replace('/%invoice/', $invoice_number, $body);
 			$body = preg_replace('/%balance/', $this->GetCustomerBalance($doc['customerid']), $body);
 			$body = preg_replace('/%today/', $year . '-' . $month . '-' . $day, $body);
@@ -3074,6 +3128,9 @@ class LMS
 						break;
 					case DOC_INVOICE:
 						$msg = trans('Invoice No. $a for $b', $invoice_number, $mailto);
+						break;
+					case DOC_INVOICE_PRO:
+						$msg = trans('Pro Forma Invoice No. $a for $b', $invoice_number, $mailto);
 						break;
 				}
 				if ($type == 'frontend') {
@@ -3137,7 +3194,6 @@ class LMS
 				foreach (explode(',', $custemail) as $email) {
 					if ($add_message && (!empty($dsn_email) || !empty($mdn_email))) {
 						if (!empty($dsn_email))
-							$headers['Delivery-Status-Notification-To'] = true;
 						$headers['X-LMS-Message-Item-Id'] = $msgitems[$doc['customerid']][$email];
 					}
 
@@ -3156,6 +3212,11 @@ class LMS
 					} else {
 						$status = MSG_SENT;
 						$res = NULL;
+					}
+
+					if ($status == MSG_SENT) {
+						$this->DB->Execute('UPDATE documents SET published = 1 WHERE id = ?', array($doc['id']));
+						$published = true;
 					}
 
 					if ($add_message)

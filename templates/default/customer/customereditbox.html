@@ -10,33 +10,6 @@
 		document.customeredit.elements['customerdata[pin]'].value =
 			generate_random_string(4 + Math.floor(Math.random() * 3), '0123456789');
 	}
-
-	function newcontact(type) {
-		var contactcountelem = document.getElementById(type + 'count');
-		var nr = contactcountelem.value;
-		var lastcontactelem = document.getElementById(type + (nr - 1));
-		var newrow = lastcontactelem.parentNode.insertRow(lastcontactelem.rowIndex + 1);
-		newrow.className = 'light';
-		newrow.id = type + nr;
-		var newcell = newrow.insertCell(0);
-		newcell.style.whiteSpace = 'nowrap';
-		switch (type) {
-			{foreach $_CUSTOMERCONTACTTYPES as $contacttype => $properties}
-			case '{$contacttype}':
-				innerHTML = '<HR><INPUT TYPE="text" size="{$properties.ui.size}" value="" name="customerdata[{$contacttype|cat:"s"}][' + nr + '][contact]"'
-					+ ' title="{$properties.ui.tip}">';
-				innerHTML += '{foreach $properties.ui.flags as $flagtype => $flagproperties}<label{if isset($flagproperties.tip)} title="{$flagproperties.tip}"{/if}><INPUT TYPE="checkbox" value="{$flagtype}" name="customerdata[{$contacttype|cat:"s"}][' + nr + '][type][]"> {$flagproperties.label}</label>{/foreach}';
-				innerHTML += '<BR><INPUT TYPE="text" size="68" value="" name="customerdata[{$contacttype|cat:"s"}][' + nr + '][name]"'
-					+ ' title="{trans("Enter contact name/description (optional)")}">';
-				break;
-			{/foreach}
-		}
-		newcell.innerHTML = innerHTML;
-		$(newcell).children("[title]").tooltip({
-			position: { my: "left top" }
-		});
-		contactcountelem.value = parseInt(nr) + 1;
-	}
 //-->
 </SCRIPT>
 <FORM name="customeredit" id="customeredit" method="post" action="?m=customeredit&id={$customerinfo.id}{if $recover}&action=recover{/if}">
@@ -303,7 +276,11 @@
 						{trans("Cutoff suspending:")}
 					</TD>
 					<TD>
-						<INPUT type="text" name="customerdata[cutoffstop]" id="cutoffstop" {if $customerinfo.cutoffstop}value="{$customerinfo.cutoffstop}"{/if} size="10" {tip class="calendar" text="Select date of cutoff suspending (optional)" trigger="cutoffstop"}>
+						<label>
+							<input type="checkbox" name="customerdata[cutoffstopindefinitely]" value="1" onchange="$('#cutoffstop').css('display', this.checked ? 'none' : '');"{if $customerinfo.cutoffstopindefinitely} checked{/if}>
+							{trans("indefinitely")}
+						</label>&nbsp;
+						<INPUT type="text" name="customerdata[cutoffstop]" id="cutoffstop" {if $customerinfo.cutoffstopindefinitely}style="display: none;"{elseif $customerinfo.cutoffstop}value="{$customerinfo.cutoffstop}"{/if} size="10" {tip class="calendar" text="Select date of cutoff suspending (optional)" trigger="cutoffstop"}>
 					</TD>
 				</TR>
 			</TABLE>
@@ -363,9 +340,7 @@
 			<IMG src="img/info1.gif" alt="">
 		</TD>
 		<TD style="width: 99%;">
-			<input type="checkbox" id="info_label" onclick="javascript:toggle_visual_editor('info');"{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'} checked{/if}>
-			<label for="info_label">{trans("visual editor")}</label><br>
-			<TEXTAREA name="customerdata[info]" id="info" COLS="60" ROWS="10" {tip text="Enter additional information (optional)"}>{$customerinfo.info|escape}</TEXTAREA>
+			<TEXTAREA name="customerdata[info]" class="lms-ui-wysiwyg-editor" COLS="60" ROWS="10" {tip text="Enter additional information (optional)"}{if isset($customerinfo.wysiwyg.info)} data-wysiwyg="{$customerinfo.wysiwyg.info}"{/if}>{$customerinfo.info|escape}</TEXTAREA>
 		</TD>
 	</TR>
 	<TR>
@@ -373,9 +348,7 @@
 			<IMG src="img/warningon.gif" alt="">
 		</TD>
 		<TD style="width: 99%;">
-			<input type="checkbox" id="message_label" onclick="javascript:toggle_visual_editor('message');"{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'} checked{/if}>
-			<label for="message_label">{trans("visual editor")}</label><br>
-			<TEXTAREA name="customerdata[message]" id="message" COLS="60" ROWS="10" {tip text="Enter notice contents (optional)"}>{$customerinfo.message|escape}</TEXTAREA>
+			<TEXTAREA name="customerdata[message]" class="lms-ui-wysiwyg-editor" COLS="60" ROWS="10" {tip text="Enter notice contents (optional)"}{if isset($customerinfo.wysiwyg.message)} data-wysiwyg="{$customerinfo.wysiwyg.message}"{/if}>{$customerinfo.message|escape}</TEXTAREA>
 		</TD>
 	</TR>
 	<TR>
@@ -383,9 +356,7 @@
 			<IMG src="img/note.gif" alt="">
 		</TD>
 		<TD style="width: 99%;">
-			<input type="checkbox" id="notes_label" onclick="javascript:toggle_visual_editor('notes');"{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'} checked{/if}>
-			<label for="notes_label">{trans("visual editor")}</label><br>
-			<TEXTAREA name="customerdata[notes]" id="notes" COLS="60" ROWS="10" {tip text="Enter notes (optional)"}>{$customerinfo.notes|escape}</TEXTAREA>
+			<TEXTAREA name="customerdata[notes]" class="lms-ui-wysiwyg-editor" COLS="60" ROWS="10" {tip text="Enter notes (optional)"}{if isset($customerinfo.wysiwyg.notes)} data-wysiwyg="{$customerinfo.wysiwyg.notes}"{/if}>{$customerinfo.notes|escape}</TEXTAREA>
 		</TD>
 	</TR>
 	<TR>
@@ -424,13 +395,8 @@
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-document.forms['customeredit'].elements['customerdata[lastname]'].focus();
-
-tinymce_init('{$_ui_language}');
-{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'}
-toggle_visual_editor('info');
-toggle_visual_editor('message');
-toggle_visual_editor('notes');
-{/if}
+	$(function() {
+		$('form[name="customeredit"] [name="customerdata[lastname]"]').focus();
+	});
 //-->
 </SCRIPT>

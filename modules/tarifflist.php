@@ -190,15 +190,16 @@ function GetTariffList($order = 'name,asc', $type = NULL, $customergroupid = NUL
 	if (!empty($tarifflist)) {
 		$tarifftags = $DB->GetAll('SELECT t.id AS tariff_id, t.name AS tariff_name, tt.name AS tag_name, tt.id AS tag_id
 			FROM tariffs t
-			LEFT JOIN tariffassignments ta ON (ta.tariffid = t.id)
-			LEFT JOIN tarifftags tt ON (ta.tarifftagid = tt.id)'
+			JOIN tariffassignments ta ON (ta.tariffid = t.id)
+			JOIN tarifftags tt ON (ta.tarifftagid = tt.id)'
 			. (!empty($tags) ? ' WHERE tarifftagid IN (' . implode(',', $tags). ')' : ''));
 		if (!empty($tarifftags))
-			foreach ($tarifftags as $tarifftag) {
-				if (!isset($tarifflist[$tarifftag['tariff_id']]['tags']))
-					$tarifflist[$tarifftag['tariff_id']]['tags'] = array();
-				$tarifflist[$tarifftag['tariff_id']]['tags'][] = $tarifftag;
-			}
+			foreach ($tarifftags as $tarifftag)
+				if (isset($tarifflist[$tarifftag['tariff_id']])) {
+					if (!isset($tarifflist[$tarifftag['tariff_id']]['tags']))
+						$tarifflist[$tarifftag['tariff_id']]['tags'] = array();
+					$tarifflist[$tarifftag['tariff_id']]['tags'][] = $tarifftag;
+				}
 	}
 
 	$tarifflist['total'] = sizeof($tarifflist);
@@ -220,8 +221,10 @@ else
 	$o = $_POST['o'];
 $SESSION->save('tlo', $o);
 
-if (!isset($_POST['t']))
+if (!isset($_POST['t']) && !isset($_GET['t']))
 	$SESSION->restore('tlt', $t);
+elseif (isset($_GET['t']))
+	$t = $_GET['t'];
 else
 	$t = $_POST['t'];
 $SESSION->save('tlt', $t);
@@ -244,11 +247,19 @@ else
 	$s = $_POST['s'];
 $SESSION->save('tls', $s);
 
-if (!isset($_POST['tg']))
+if (!isset($_POST['tg']) && !is_null($_POST['tg']))
 	$SESSION->restore('tltg', $tg);
 else
 	$tg = $_POST['tg'];
-$SESSION->save('tlt', $tg);
+if (isset($_GET['tag'])) {
+	if (!is_array($tg))
+		$tg = array();
+	if ($newtag = intval($_GET['tag'])) {
+		array_push($tg, $newtag);
+		$tg = array_unique($tg);
+	}
+}
+$SESSION->save('tltg', $tg);
 
 $tarifflist = GetTariffList($o, $t, $g, $p, $s, $tg);
 

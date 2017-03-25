@@ -22,7 +22,9 @@
  *  USA.
  *
  *  $Id$
- */ 
+ */
+
+global $LMS, $SESSION;
 
 /*!
  * \brief Check if string has date format.
@@ -35,9 +37,82 @@ function is_date($date) {
     return checkdate((int)$month,(int)$day,(int)$year);
 }
 
-if (isset($_GET['record'])) {
-    global $SESSION, $LMS;
+if (empty($_GET['action'])) {
+    $_GET['action'] = 'none';
+}
 
+switch ($_GET['action']) {
+    case 'getaccountinfo':
+        $id = (int) $_POST['accid'];
+        $user_accs = $LMS->DB->GetAllByKey('SELECT id FROM voipaccounts WHERE ownerid = ?', 'id', array( $SESSION->id ));
+
+        if ( !isset($user_accs[$id])) {
+            die();
+        }
+
+        $info = $LMS->DB->GetAll('SELECT vn.phone, vn.number_index, vacc.flags
+                                  FROM voip_numbers vn
+                                  LEFT JOIN voipaccounts vacc ON vn.voip_account_id = vacc.id
+                                  WHERE voip_account_id = ? ORDER BY vn.number_index', array($id));
+
+        die( json_encode( $info ) );
+    break;
+
+    case 'updateaccountinfo':
+        $rec = ($_POST['recording'] == 1) ? 1 : 0;
+        $id  = (int) $_POST['voipaccid'];
+
+        $user_accs = $LMS->DB->GetAllByKey('SELECT id FROM voipaccounts WHERE ownerid = ?', 'id', array($SESSION->id));
+
+        if ( !isset($user_accs[$id])) {
+            die(); // failure
+        }
+
+        $LMS->DB->BeginTrans();
+
+        // --- UPDATE CUSTOMER FLAG RESPONSIBILITY FOR CALL RECORDINGS ---
+        $flags = $LMS->DB->GetOne('SELECT flags FROM voipaccounts WHERE id = ?', array($id));
+
+        if ($rec) {
+            $flags |= CALL_FLAG_CUSTOMER_RECORDING;
+        } else {
+            $flags &= ~(CALL_FLAG_CUSTOMER_RECORDING);
+        }
+        $LMS->DB->Execute('UPDATE voipaccounts SET flags = ? WHERE id = ?', array($flags, $id));
+
+        if (isset($_POST['phones'])) {
+            // --- UPDATE CUSTOMER PHONE INDEXES ---
+            $phones = $_POST['phones'];
+
+            //get list of current phones
+            $current_phones = $LMS->DB->GetAllBykey('SELECT phone FROM voip_numbers WHERE voip_account_id = ?', 'phone', array($id));
+
+            // reset indexes before set new
+            $LMS->DB->Execute('UPDATE voip_numbers SET number_index = null WHERE voip_account_id = ?', array($id));
+
+            // set new indexes
+            if (count($_POST['phones']) != count($current_phones) ) {
+                $LMS->DB->RollbackTrans();
+                die();
+            }
+
+            $i = 0;
+            foreach ($phones as $p) {
+                if (!isset($current_phones[$p])) {
+                    $LMS->DB->RollbackTrans();
+                    die();
+                }
+
+                $LMS->DB->Execute('UPDATE voip_numbers SET number_index = ? WHERE phone ?LIKE? ?', array(++$i, $p));
+            }
+        }
+
+        $LMS->DB->CommitTrans();
+        die( json_encode(1) ); // success
+    break;
+}
+
+if (isset($_GET['record'])) {
     $uid = $LMS->DB->GetOne('SELECT uniqueid
                              FROM voip_cdr c
                              WHERE
@@ -70,27 +145,29 @@ if (isset($_GET['record'])) {
 function module_main() {
     global $LMS, $SMARTY, $SESSION;
 
-    $user_account_ids = array_keys($LMS->DB->GetAllByKey('SELECT id FROM voipaccounts
-                                                          WHERE ownerid = ?', 'id', array($SESSION->id)));
+    $phones = array();
+    $params = array();
 
-    if ($user_account_ids) {
+    $user_accounts = $LMS->DB->GetAllByKey('SELECT id, login, flags FROM voipaccounts
+                                            WHERE ownerid = ?', 'id', array($SESSION->id));
+
+    $user_acc_ids = (is_array($user_accounts)) ? array_keys($user_accounts) : '';
+
+    if ($user_acc_ids) {
         $tmp_phones = $LMS->DB->GetAll('SELECT phone FROM voip_numbers
-                                        WHERE voip_account_id IN ('.implode(',',$user_account_ids).');');
+                                        WHERE voip_account_id IN ('.implode(',',$user_acc_ids).');');
 
-        $phones = array();
         foreach($tmp_phones as $v) {
             $phones[] = $v['phone'];
         }
 
-        $params = array();
-
-        if (empty($_GET['phone']) && count($user_account_ids) > 1) {
-            $params['id'] = $user_account_ids;
+        if (empty($_GET['phone']) && count($user_acc_ids) > 1) {
+            $params['id'] = $user_acc_ids;
         } else {
             if (in_array($_GET['phone'], $phones))
                 $params['phone'] = $_GET['phone'];
             else
-                $params['id'] = $user_account_ids;
+                $params['id'] = $user_acc_ids;
         }
 
         if (isset($_GET['date_from']) && is_date($_GET['date_from']))
@@ -141,11 +218,12 @@ function module_main() {
     $pagin->setCurrentPage( ((!$_GET['page']) ? 1 : (int) $_GET['page']) );
     $pagin->setRange(3);
 
-    $SMARTY->assign('pagination'         , $pagin);
-    $SMARTY->assign('pagin_result'       , $pagin->getPages());
-    $SMARTY->assign('params'             , $params);
-    $SMARTY->assign('billings'           , $billings);
-    $SMARTY->assign('customer_phone_list', $phones);
+    $SMARTY->assign('pagination'            , $pagin);
+    $SMARTY->assign('pagin_result'          , $pagin->getPages());
+    $SMARTY->assign('params'                , $params);
+    $SMARTY->assign('billings'              , $billings);
+    $SMARTY->assign('customer_phone_list'   , $phones);
+    $SMARTY->assign('user_accounts'         , $user_accounts);
     $SMARTY->display('module:billing.html');
 }
 

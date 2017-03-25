@@ -77,7 +77,7 @@ $composer_autoload_path = VENDOR_DIR . DIRECTORY_SEPARATOR . 'autoload.php';
 if (file_exists($composer_autoload_path)) {
     require_once $composer_autoload_path;
 } else {
-    die($composer_autoload_path."Composer autoload not found. Run 'composer install' command from LMS directory and try again. More informations at https://getcomposer.org/");
+	die("Composer autoload not found. Run 'composer install' command from LMS directory and try again. More informations at https://getcomposer.org/");
 }
 
 // Do some checks and load config defaults
@@ -155,14 +155,6 @@ $plugin_manager = new LMSPluginManager();
 $LMS->setPluginManager($plugin_manager);
 $SMARTY->setPluginManager($plugin_manager);
 
-// Initialize Swekey class
-
-if (ConfigHelper::checkConfig('phpui.use_swekey')) {
-	require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'swekey' . DIRECTORY_SEPARATOR . 'lms_integration.php');
-	$LMS_SWEKEY = new LmsSwekeyIntegration($DB, $AUTH, $LMS);
-	$SMARTY->assign('lms_swekey', $LMS_SWEKEY->GetIntegrationScript($AUTH->id));
-}
-
 // Set some template and layout variables
 
 $SMARTY->setTemplateDir(null);
@@ -227,6 +219,7 @@ $documents_dirs = $plugin_manager->executeHook('documents_dir_initialized', $doc
 
 // Check privileges and execute modules
 if ($AUTH->islogged) {
+	$SMARTY->assign('main_menu_sortable_order', $SESSION->get_persistent_setting('main-menu-order'));
 	// Load plugin files and register hook callbacks
 	$plugins = $plugin_manager->getAllPluginInfo(LMSPluginManager::OLD_STYLE);
 	if (!empty($plugins))

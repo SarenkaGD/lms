@@ -10,7 +10,7 @@
 		box = document.forms['event'].elements['event[begintime]'];
 		document.forms['event'].elements['event[endtime]'].value = box.options[box.selectedIndex].value;
 	}
-	
+
 	function CheckEndtime()
 	{
 		start = document.forms['event'].elements['event[begintime]'];
@@ -90,7 +90,7 @@
 			{trans("Description:")}
 		</TD>
 		<TD width="98%">
-			<TEXTAREA name="event[description]" cols="50" rows="5" {tip text="Enter additional information (optional)"}>{$event.description}</TEXTAREA>
+			<TEXTAREA name="event[description]" class="lms-ui-wysiwyg-editor" cols="50" rows="5" {tip text="Enter additional information (optional)"}{if isset($event.wysiwyg.description)} data-wysiwyg="{$event.wysiwyg.description}"{/if}>{$event.description}</TEXTAREA>
 		</TD>
 	</TR>
 	<TR>
@@ -168,9 +168,9 @@
 		</TD>
 
 		<TD style="width: 98%;" class="multiselect nobr">
-			<SELECT name="event[userlist][]" id="userid" multiple>
+			<SELECT name="event[userlist][]" class="lms-ui-multiselect" multiple data-default-value="{trans("- select user -")}">
 				{foreach $userlist as $user}
-				<OPTION value="{$user.id}"{if !empty($event.userlist) && in_array($user.id, $event.userlist)} selected{/if}>{$user.name}</OPTION>
+				<OPTION value="{$user.id}"{if !empty($event.userlist) && in_array($user.id, $event.userlist)} selected{/if}>{$user.rname}</OPTION>
 				{/foreach}
 			</SELECT>
 
@@ -269,13 +269,12 @@
 </form>
 <SCRIPT type="text/javascript">
 <!--
-document.forms['event'].elements['event[title]'].focus();
-var userms = new multiselect({
-	id: 'userid',
-	defaultValue: '{trans("- select user -")}'
+$(function() {
+	$('form[name="event"] [name="event[title]"]').focus();
 });
 
 function update_user_selection(users) {
+	var userms = $('.lms-ui-multiselect').data('data-multiselect-object');
 	{if ConfigHelper::getConfig('phpui.event_usergroup_selection_type', 'update') == 'update'}
 	userms.updateSelection(users);
 	{else}

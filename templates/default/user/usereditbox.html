@@ -22,10 +22,21 @@
 			<IMG src="img/users.gif" alt="">
 		</TD>
 		<TD class="bold nobr">
-			{trans("First/last name:")}
+			{trans("First name:")}
 		</TD>
 		<TD>
-			<INPUT type="text" name="userinfo[name]" value="{$userinfo.name}" required size="40" {tip text="Enter user name" trigger="name"}>
+			<INPUT type="text" name="userinfo[firstname]" value="{$userinfo.firstname}" required size="40" {tip text="Enter user first name" trigger="firstname"}>
+		</TD>
+	</TR>
+	<TR>
+		<TD>
+			<IMG src="img/users.gif" alt="">
+		</TD>
+		<TD class="bold nobr">
+			{trans("Last name:")}
+		</TD>
+		<TD>
+			<INPUT type="text" name="userinfo[lastname]" value="{$userinfo.lastname}" required size="40" {tip text="Enter user last name" trigger="lastname"}>
 		</TD>
 	</TR>
 	<TR>
@@ -55,18 +66,6 @@
 			<INPUT type="tel" name="userinfo[phone]" value="{$userinfo.phone}" size="40" {tip text="Enter phone number for SMS notification (optional)" trigger="phone"}>
 		</TD>
 	</TR>
-	{if $userinfo.swekey_id}
-	<TR>
-		<TD class="nobr">
-			<IMG src="img/swekey/swekey-green-8x16.png" alt="">
-		</TD>
-		<TD class="bold">{trans("Swekey:")}</TD>
-		<TD>
-			<INPUT type="hidden" name="userinfo[swekey_id]" value="{$userinfo.swekey_id}">
-			{$userinfo.swekey_id}<INPUT type="checkbox" name="userinfo[use_swekey]" value="1" id="swekey"{if $userinfo.swekey_id} checked{/if}><label for="swekey">{trans("Use Swekey")}</label>
-		</TD>
-	</TR>
-	{/if}
 	<TR>
 		<TD class="nobr">
 			<IMG src="img/options.gif" alt="">
@@ -182,6 +181,8 @@
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-document.forms['useredit'].elements['userinfo[login]'].focus();
+$(function() {
+	$('form[name="useredit"] [name="userinfo[login]"]').focus();
+});
 //-->
 </SCRIPT>

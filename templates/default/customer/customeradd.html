@@ -2,7 +2,6 @@
 {block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
 {block name=module_content}
 <!--// $Id$ //-->
-<script type="text/javascript" src="img/tinymce3/tiny_mce.js"> </script>
 <H1>{$layout.pagetitle}</H1>
 <script type="text/javascript" src="img/location_box_expandable.js"></script>
 <SCRIPT type="text/javascript">
@@ -10,33 +9,6 @@
 	function randomize() {
 		document.customeradd.elements['customeradd[pin]'].value =
 			generate_random_string(4 + Math.floor(Math.random() * 3), '0123456789');
-	}
-
-	function newcontact(type) {
-		var contactcountelem = document.getElementById(type + 'count');
-		var nr = contactcountelem.value;
-		var lastcontactelem = document.getElementById(type + (nr - 1));
-		var newrow = lastcontactelem.parentNode.insertRow(lastcontactelem.rowIndex + 1);
-		newrow.className = 'light';
-		newrow.id = type + nr;
-		var newcell = newrow.insertCell(0);
-		newcell.style.whiteSpace = 'nowrap';
-		switch (type) {
-			{foreach $_CUSTOMERCONTACTTYPES as $contacttype => $properties}
-			case '{$contacttype}':
-				innerHTML = '<HR><INPUT TYPE="text" size="{$properties.ui.size}" value="" name="customeradd[{$contacttype|cat:"s"}][' + nr + '][contact]"'
-					+ ' title="{$properties.ui.tip}">';
-				innerHTML += '{foreach $properties.ui.flags as $flagtype => $flagproperties}<label{if isset($flagproperties.tip)} title="{$flagproperties.tip}"{/if}><INPUT TYPE="checkbox" value="{$flagtype}" name="customeradd[{$contacttype|cat:"s"}][' + nr + '][type][]"> {$flagproperties.label}</label>{/foreach}';
-				innerHTML += '<BR><INPUT TYPE="text" size="68" value="" name="customeradd[{$contacttype|cat:"s"}][' + nr + '][name]"'
-					+ ' title="{trans("Enter contact name/description (optional)")}">';
-				break;
-			{/foreach}
-		}
-		newcell.innerHTML = innerHTML;
-		$(newcell).children("[title]").tooltip({
-			position: { my: "left top" }
-		});
-		contactcountelem.value = parseInt(nr) + 1;
 	}
 //-->
 </SCRIPT>
@@ -336,7 +308,11 @@
 									{trans("Cutoff suspending:")}
 								</TD>
 								<TD>
-									<INPUT type="text" name="customeradd[cutoffstop]" id="cutoffstop" {if $customerinfo.cutoffstop}value="{$customerinfo.cutoffstop}"{/if} size="10" {tip class="calendar" text="Select date of cutoff suspending (optional)" trigger="cutoffstop"}>
+									<label>
+										<input type="checkbox" name="customeradd[cutoffstopindefinitely]" value="1" onchange="$('#cutoffstop').css('display', this.checked ? 'none' : '');"{if $customeradd.cutoffstopindefinitely} checked{/if}>
+										{trans("indefinitely")}
+									</label>&nbsp;
+									<INPUT type="text" name="customeradd[cutoffstop]" id="cutoffstop" {if $customeradd.cutoffstopindefinitely}style="display: none;"{elseif $customeradd.cutoffstop}value="{$customerinfo.cutoffstop}"{/if} size="10" {tip class="calendar" text="Select date of cutoff suspending (optional)" trigger="cutoffstop"}>
 								</TD>
 							</TR>
 						</TABLE>
@@ -394,25 +370,19 @@
 				<TR>
 					<TD style="width: 1%;"><IMG src="img/info1.gif" alt=""></TD>
 					<TD style="width: 99%;">
-						<input type="checkbox" id="info_label" onclick="javascript:toggle_visual_editor('info');"{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'} checked{/if}>
-						<label for="info_label">{trans("visual editor")}</label><br>
-						<TEXTAREA rows="10" cols="60" name="customeradd[info]" id="info" {tip text="Enter additional information (optional)"}>{$customeradd.info|escape}</TEXTAREA>
+						<TEXTAREA rows="10" cols="60" name="customeradd[info]" class="lms-ui-wysiwyg-editor" {tip text="Enter additional information (optional)"}{if isset($customeradd.wysiwyg.info)} data-wysiwyg="{$customeradd.wysiwyg.info}"{/if}>{$customeradd.info|escape}</TEXTAREA>
 					</TD>
 				</TR>
 				<TR>
 					<TD style="width: 1%;"><IMG src="img/warningon.gif" alt=""></TD>
 					<TD style="width: 99%;">
-						<input type="checkbox" id="message_label" onclick="javascript:toggle_visual_editor('message');"{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'} checked{/if}>
-						<label for="message_label">{trans("visual editor")}</label><br>
-						<TEXTAREA rows="10" cols="60" name="customeradd[message]" id="message" {tip text="Enter notice contents (optional)"}>{$customeradd.message|escape}</TEXTAREA>
+						<TEXTAREA rows="10" cols="60" name="customeradd[message]" class="lms-ui-wysiwyg-editor" {tip text="Enter notice contents (optional)"}{if isset($customeradd.wysiwyg.message)} data-wysiwyg="{$customeradd.wysiwyg.message}"{/if}>{$customeradd.message|escape}</TEXTAREA>
 					</TD>
 				</TR>
 				<TR>
 					<TD style="width: 1%;"><IMG src="img/note.gif" alt=""></TD>
 					<TD style="width: 99%;">
-						<input type="checkbox" id="notes_label" onclick="javascript:toggle_visual_editor('notes');"{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'} checked{/if}>
-						<label for="notes_label">{trans("visual editor")}</label><br>
-						<TEXTAREA rows="10" cols="60" name="customeradd[notes]" id="notes" {tip text="Enter notes (optional)"}>{$customeradd.notes|escape}</TEXTAREA>
+						<TEXTAREA rows="10" cols="60" name="customeradd[notes]" class="lms-ui-wysiwyg-editor" {tip text="Enter notes (optional)"}{if isset($customeradd.wysiwyg.notes)} data-wysiwyg="{$customeradd.wysiwyg.notes}"{/if}>{$customeradd.notes|escape}</TEXTAREA>
 					</TD>
 				</TR>
 				{/block}
@@ -431,15 +401,10 @@
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-	document.forms['customeradd'].elements['customeradd[lastname]'].focus();
+	$(function() {
+		$('form[name="customeradd"] [name="customeradd[lastname]"]').focus();
+	});
 	if(document.forms['customeradd'].elements['customeradd[pin]'].value == '') randomize();
-
-	tinymce_init('{$_ui_language}');
-	{if ConfigHelper::getConfig('phpui.default_editor') == 'wysiwyg'}
-	toggle_visual_editor('info');
-	toggle_visual_editor('message');
-	toggle_visual_editor('notes');
-	{/if}
 //-->
 </SCRIPT>
 {/block}

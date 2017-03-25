@@ -60,9 +60,7 @@ if (!isset($_GET['sent']) && isset($_SERVER['HTTP_REFERER']) && !preg_match('/m=
 	$add_message = ConfigHelper::checkConfig('sendinvoices.add_message');
 	$dsn_email = ConfigHelper::getConfig('sendinvoices.dsn_email', '', true);
 	$mdn_email = ConfigHelper::getConfig('sendinvoices.mdn_email', '', true);
-//echo ConfigHelper::getConfig('sendinvoices.smtp_host')." ".$smtp_port = ConfigHelper::getConfig('sendinvoices.smtp_port')." ".ConfigHelper::getConfig('sendinvoices.smtp_user');
-//echo ConfigHelper::getConfig('sendinvoices.smtp_pass')." ".ConfigHelper::getConfig('sendinvoices.smtp_auth');
-//exit;
+
 	if (empty($sender_email))
 		echo '<span class="red">' . trans("Fatal error: sender_email unset! Can't continue, exiting.") . '</span><br>';
 
@@ -91,12 +89,18 @@ if (!isset($_GET['sent']) && isset($_SERVER['HTTP_REFERER']) && !preg_match('/m=
 			JOIN (SELECT customerid, " . $DB->GroupConcat('contact') . " AS email
 				FROM customercontacts WHERE (type & ?) = ? GROUP BY customerid) m ON m.customerid = c.id
 			LEFT JOIN numberplans n ON n.id = d.numberplanid
-			WHERE d.type IN (?, ?, ?) AND d.id IN (" . implode(',', $docids) . ")
+			WHERE d.type IN (?, ?, ?, ?) AND d.id IN (" . implode(',', $docids) . ")
 			ORDER BY d.number",
 			array(CONTACT_INVOICES | CONTACT_DISABLED, CONTACT_INVOICES,
-				DOC_INVOICE, DOC_CNOTE, DOC_DNOTE));
+				DOC_INVOICE, DOC_CNOTE, DOC_DNOTE, DOC_INVOICE_PRO));
 
 		if (!empty($docs)) {
+			$which = array();
+			if (!empty($_GET['original'])) $which[] = trans('ORIGINAL');
+			if (!empty($_GET['copy'])) $which[] = trans('COPY');
+			if (!empty($_GET['duplicate'])) $which[] = trans('DUPLICATE');
+			if (empty($which)) $which[] = trans('ORIGINAL');
+
 			$currtime = time();
 			$LMS->SendInvoices($docs, 'frontend', compact('SMARTY', 'invoice_filetype', 'dnote_filetype',
 				'invoice_filename', 'dnote_filename', 'debug_email',

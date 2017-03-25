@@ -131,9 +131,9 @@ if(isset($_POST['event']))
 					$date,
 					$event['begintime'],
 					$enddate,
-					$event['endtime'], 
-					$AUTH->id, 
-					$event['status'], 
+					$event['endtime'],
+					$AUTH->id,
+					$event['status'],
 					intval($event['custid']),
 					$event['type'],
 					$id,
@@ -143,7 +143,7 @@ if(isset($_POST['event']))
 		if (!empty($event['userlist'])) {
 			$id = $DB->GetLastInsertID('events');
 			foreach($event['userlist'] as $userid)
-				$DB->Execute('INSERT INTO eventassignments (eventid, userid) 
+				$DB->Execute('INSERT INTO eventassignments (eventid, userid)
 					VALUES (?, ?)', array($id, $userid));
 		}
 
@@ -153,7 +153,7 @@ if(isset($_POST['event']))
 		{
 			$SESSION->redirect('?m=eventlist');
 		}
-		
+
 		unset($event['title']);
 		unset($event['description']);
                                 unset($event['categories']);
@@ -177,8 +177,8 @@ $layout['pagetitle'] = trans('New Event');
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
 $usergroups = $DB->GetAll('SELECT id, name FROM usergroups');
-$userlist = $DB->GetAll('SELECT id, name FROM users
-	WHERE deleted = 0 AND access = 1 ORDER BY login ASC');
+$userlist = $DB->GetAll('SELECT id, rname FROM vusers
+	WHERE deleted = 0 AND access = 1 ORDER BY lastname ASC');
 
 if (!isset($event['usergroup']))
 	$SESSION->restore('eventgid', $event['usergroup']);
@@ -196,7 +196,7 @@ $SMARTY->assign('tqname',$tqname);
 $SMARTY->assign('usergroups', $usergroups);
 $SMARTY->assign('error', $error);
 $SMARTY->assign('event', $event);
-$SMARTY->assign('hours', 
+$SMARTY->assign('hours',
 		array(0,30,100,130,200,230,300,330,400,430,500,530,
 		600,630,700,730,800,830,900,930,1000,1030,1100,1130,
 		1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,

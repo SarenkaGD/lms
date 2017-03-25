@@ -62,6 +62,8 @@ interface LMSCustomerManagerInterface
 
     public function getCustomerNodes($id, $count = null);
 
+    public function getCustomerNetDevs( $customer_id );
+
     public function GetCustomerNetworks($id, $count = null);
 
     public function GetCustomer($id, $short = false);
@@ -69,7 +71,7 @@ interface LMSCustomerManagerInterface
     public function customerUpdate($customerdata);
 
     public function deleteCustomer($id);
-    
+
     public function deleteCustomerPermanent($id);
 
     public function checkCustomerAddress($a_id, $c_id);

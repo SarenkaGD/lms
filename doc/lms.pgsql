@@ -11,7 +11,8 @@ DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
 	id integer DEFAULT nextval('users_id_seq'::text) NOT NULL,
 	login varchar(32) 	DEFAULT '' NOT NULL,
-	name varchar(64) 	DEFAULT '' NOT NULL,
+	firstname varchar(64)   DEFAULT '' NOT NULL,
+	lastname varchar(64) DEFAULT '' NOT NULL,
 	email varchar(255) 	DEFAULT '' NOT NULL,
 	phone varchar(32)   DEFAULT NULL,
 	position varchar(255) 	DEFAULT '' NOT NULL,
@@ -29,10 +30,10 @@ CREATE TABLE users (
 	access smallint DEFAULT 1 NOT NULL,
 	accessfrom integer DEFAULT 0 NOT NULL,
 	accessto integer DEFAULT 0 NOT NULL,
-	swekey_id varchar(32) DEFAULT NULL,
 	settings text NOT NULL DEFAULT '',
+	persistentsettings text NOT NULL DEFAULT '',
 	PRIMARY KEY (id),
-	UNIQUE (login, swekey_id)
+	UNIQUE (login)
 );
 
 /* --------------------------------------------------------
@@ -76,8 +77,8 @@ CREATE TABLE customers (
 
 CREATE INDEX customers_lastname_idx ON customers (lastname, name);
 
-/* -------------------------------------------------------- 
-  Structure of table "numberplans" 
+/* --------------------------------------------------------
+  Structure of table "numberplans"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS numberplans_id_seq;
 CREATE SEQUENCE numberplans_id_seq;
@@ -119,7 +120,7 @@ CREATE TABLE zipcodes (
 );
 CREATE INDEX zipcodes_stateid_idx ON zipcodes (stateid);
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "location_states"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS location_states_id_seq;
@@ -133,7 +134,7 @@ CREATE TABLE location_states (
     UNIQUE (name)
 );
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "location_districts"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS location_districts_id_seq;
@@ -149,7 +150,7 @@ CREATE TABLE location_districts (
     UNIQUE (stateid, name)
 );
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "location_boroughs"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS location_boroughs_id_seq;
@@ -166,7 +167,7 @@ CREATE TABLE location_boroughs (
     UNIQUE (districtid, name, type)
 );
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "location_cities"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS location_cities_id_seq;
@@ -184,7 +185,7 @@ CREATE TABLE location_cities (
 CREATE INDEX location_cities_cityid ON location_cities (cityid);
 CREATE INDEX location_cities_boroughid ON location_cities (boroughid, name);
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "location_street_types"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS location_street_types_id_seq;
@@ -196,7 +197,7 @@ CREATE TABLE location_street_types (
     PRIMARY KEY (id)
 );
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "location_streets"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS location_streets_id_seq;
@@ -423,7 +424,7 @@ CREATE TABLE hosts (
     UNIQUE (name)
 );
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "networks"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS networks_id_seq;
@@ -434,7 +435,7 @@ CREATE TABLE networks (
 	name varchar(255) 	DEFAULT '' NOT NULL,
 	address bigint 		DEFAULT 0 NOT NULL,
 	mask varchar(16) 	DEFAULT '' NOT NULL,
-	interface varchar(16) 	DEFAULT '' NOT NULL, 
+	interface varchar(16) 	DEFAULT '' NOT NULL,
 	gateway varchar(16) 	DEFAULT '' NOT NULL,
 	dns varchar(16) 	DEFAULT '' NOT NULL,
 	dns2 varchar(16) 	DEFAULT '' NOT NULL,
@@ -510,7 +511,7 @@ CREATE TABLE invprojects (
 );
 
 /* ---------------------------------------------------
- Structure of table "netnodes" 
+ Structure of table "netnodes"
 ------------------------------------------------------*/
 DROP SEQUENCE IF EXISTS netnodes_id_seq;
 CREATE SEQUENCE netnodes_id_seq;
@@ -536,7 +537,7 @@ CREATE TABLE netnodes (
 );
 
 /* ---------------------------------------------------
- Structure of table "netdeviceproducers" 
+ Structure of table "netdeviceproducers"
 ------------------------------------------------------*/
 DROP SEQUENCE IF EXISTS netdeviceproducers_id_seq;
 CREATE SEQUENCE netdeviceproducers_id_seq;
@@ -550,7 +551,7 @@ CREATE TABLE netdeviceproducers (
 );
 
 /* ---------------------------------------------------
- Structure of table "netdevicemodels" 
+ Structure of table "netdevicemodels"
 ------------------------------------------------------*/
 DROP SEQUENCE IF EXISTS netdevicemodels_id_seq;
 CREATE SEQUENCE netdevicemodels_id_seq;
@@ -630,7 +631,7 @@ CREATE TABLE netradiosectors (
 	UNIQUE (name, netdev)
 );
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "nodes"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS nodes_id_seq;
@@ -696,8 +697,8 @@ CREATE TABLE nodelocks (
 	PRIMARY KEY (id)
 );
 
-/* -------------------------------------------------------- 
-  Structure of table "macs" 
+/* --------------------------------------------------------
+  Structure of table "macs"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS macs_id_seq;
 CREATE SEQUENCE macs_id_seq;
@@ -711,8 +712,8 @@ CREATE TABLE macs (
 	CONSTRAINT macs_mac_key UNIQUE (mac, nodeid)
 );
 
-/* -------------------------------------------------------- 
-  Structure of table "nodegroups" 
+/* --------------------------------------------------------
+  Structure of table "nodegroups"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS nodegroups_id_seq;
 CREATE SEQUENCE nodegroups_id_seq;
@@ -726,8 +727,8 @@ CREATE TABLE nodegroups (
 	UNIQUE (name)
 );
 
-/* -------------------------------------------------------- 
-  Structure of table "nodegroupassignments" 
+/* --------------------------------------------------------
+  Structure of table "nodegroupassignments"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS nodegroupassignments_id_seq;
 CREATE SEQUENCE nodegroupassignments_id_seq;
@@ -740,8 +741,8 @@ CREATE TABLE nodegroupassignments (
 	CONSTRAINT nodegroupassignments_nodeid_key UNIQUE (nodeid, nodegroupid)
 );
 
-/* -------------------------------------------------------- 
-  Structure of table "nodeassignments" 
+/* --------------------------------------------------------
+  Structure of table "nodeassignments"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS nodeassignments_id_seq;
 CREATE SEQUENCE nodeassignments_id_seq;
@@ -957,7 +958,12 @@ CREATE TABLE voip_numbers (
     voip_account_id integer NOT NULL
         REFERENCES voipaccounts (id) ON DELETE CASCADE ON UPDATE CASCADE,
     phone varchar(20) NOT NULL,
-    UNIQUE(phone)
+    number_index smallint,
+    tariff_id integer NULL
+        REFERENCES tariffs (id) ON DELETE SET NULL ON UPDATE CASCADE,
+    UNIQUE(phone),
+    UNIQUE(voip_account_id, number_index),
+    PRIMARY KEY (id)
 );
 
 DROP SEQUENCE IF EXISTS voip_pool_numbers_id_seq;
@@ -970,6 +976,7 @@ CREATE TABLE voip_pool_numbers (
     poolstart varchar(20) NOT NULL,
     poolend varchar(20) NOT NULL,
     description text,
+    type smallint NOT NULL DEFAULT 1,
     PRIMARY KEY (id),
     UNIQUE (name)
 );
@@ -984,57 +991,15 @@ CREATE TABLE voip_emergency_numbers (
 );
 CREATE INDEX voip_emergency_numbers_number_idx ON voip_emergency_numbers (number);
 
-/* --------------------------------------------------------
-  Structure of table "tariffs"
--------------------------------------------------------- */
-DROP SEQUENCE IF EXISTS tariffs_id_seq;
-CREATE SEQUENCE tariffs_id_seq; 
-DROP TABLE IF EXISTS tariffs CASCADE;
-CREATE TABLE tariffs (
-	id integer DEFAULT nextval('tariffs_id_seq'::text) NOT NULL,
-	name varchar(255) 	DEFAULT '' NOT NULL,
-	type smallint		DEFAULT 1 NOT NULL,
-	value numeric(9,2) 	DEFAULT 0 NOT NULL,
-	period smallint 	DEFAULT NULL,
-	taxid integer 		DEFAULT 0 NOT NULL,
-	numberplanid integer DEFAULT NULL
-		REFERENCES numberplans (id) ON DELETE CASCADE ON UPDATE CASCADE DEFERRABLE INITIALLY DEFERRED,
-	prodid varchar(255) 	DEFAULT '' NOT NULL,
-	uprate integer		DEFAULT 0 NOT NULL,
-	upceil integer		DEFAULT 0 NOT NULL,
-	downrate integer	DEFAULT 0 NOT NULL,
-	downceil integer	DEFAULT 0 NOT NULL,
-	climit integer		DEFAULT 0 NOT NULL,
-	plimit integer		DEFAULT 0 NOT NULL,
-	dlimit integer		DEFAULT 0 NOT NULL,
-	uprate_n integer        DEFAULT NULL,
-	upceil_n integer        DEFAULT NULL,
-	downrate_n integer      DEFAULT NULL,
-	downceil_n integer      DEFAULT NULL,
-	climit_n integer        DEFAULT NULL,
-	plimit_n integer        DEFAULT NULL,
-	domain_limit integer	DEFAULT NULL,
-	alias_limit integer	DEFAULT NULL,
-	sh_limit integer	DEFAULT NULL,
-	www_limit integer	DEFAULT NULL,
-	mail_limit integer	DEFAULT NULL,
-	ftp_limit integer	DEFAULT NULL,
-	sql_limit integer	DEFAULT NULL,
-	quota_sh_limit integer	DEFAULT NULL,
-	quota_www_limit integer	DEFAULT NULL,
-	quota_mail_limit integer DEFAULT NULL,
-	quota_ftp_limit integer	DEFAULT NULL,
-	quota_sql_limit integer	DEFAULT NULL,
-	description text	DEFAULT '' NOT NULL,
-	disabled smallint 	DEFAULT 0 NOT NULL,
-	voip_tariff_id integer      DEFAULT NULL
-		REFERENCES voip_tariffs (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	voip_tariff_rule_id integer DEFAULT NULL
-		REFERENCES voip_rules (id) ON DELETE SET NULL ON UPDATE CASCADE,
-	PRIMARY KEY (id),
-	CONSTRAINT tariffs_name_key UNIQUE (name, value, period)
+DROP SEQUENCE IF EXISTS voip_number_assignments_id_seq;
+CREATE SEQUENCE voip_number_assignments_id_seq;
+DROP TABLE IF EXISTS voip_number_assignments CASCADE;
+CREATE TABLE voip_number_assignments (
+    id            integer DEFAULT nextval('voip_number_assignments_id_seq'::text) NOT NULL,
+    number_id     integer NOT NULL REFERENCES voip_numbers (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    assignment_id integer NOT NULL REFERENCES assignments  (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (id)
 );
-CREATE INDEX tariffs_type_idx ON tariffs (type);
 
 /* --------------------------------------------------------
   Structure of table "tariffstags"
@@ -1162,8 +1127,8 @@ CREATE TABLE payments (
 	PRIMARY KEY (id)
 );
 
-/* -------------------------------------------------------- 
-  Structure of table "taxes" 
+/* --------------------------------------------------------
+  Structure of table "taxes"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS taxes_id_seq;
 CREATE SEQUENCE taxes_id_seq;
@@ -1178,8 +1143,8 @@ CREATE TABLE taxes (
     PRIMARY KEY (id)
 );
 
-/* -------------------------------------------------------- 
-  Structure of table "documents" 
+/* --------------------------------------------------------
+  Structure of table "documents"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS documents_id_seq;
 CREATE SEQUENCE documents_id_seq;
@@ -1234,8 +1199,8 @@ CREATE INDEX documents_customerid_idx ON documents(customerid);
 CREATE INDEX documents_closed_idx ON documents(closed);
 CREATE INDEX documents_reference_idx ON documents(reference);
 
-/* -------------------------------------------------------- 
-  Structure of table "documentcontents" 
+/* --------------------------------------------------------
+  Structure of table "documentcontents"
 -------------------------------------------------------- */
 DROP TABLE IF EXISTS documentcontents CASCADE;
 CREATE TABLE documentcontents (
@@ -1250,7 +1215,7 @@ CREATE TABLE documentcontents (
 CREATE INDEX documentcontents_todate_idx ON documentcontents (todate);
 CREATE INDEX documentcontents_fromdate_idx ON documentcontents (fromdate);
 
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
   Structure of table "documentattachments"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS documentattachments_id_seq;
@@ -1269,8 +1234,8 @@ CREATE TABLE documentattachments (
 );
 CREATE INDEX documentattachments_md5sum_idx ON documentattachments (md5sum);
 
-/* -------------------------------------------------------- 
-  Structure of table "receiptcontents" 
+/* --------------------------------------------------------
+  Structure of table "receiptcontents"
 -------------------------------------------------------- */
 DROP TABLE IF EXISTS receiptcontents CASCADE;
 CREATE TABLE receiptcontents (
@@ -1283,8 +1248,8 @@ CREATE TABLE receiptcontents (
 CREATE INDEX receiptcontents_docid_idx ON receiptcontents(docid);
 CREATE INDEX receiptcontents_regid_idx ON receiptcontents(regid);
 
-/* -------------------------------------------------------- 
-  Structure of table "invoicecontents" 
+/* --------------------------------------------------------
+  Structure of table "invoicecontents"
 -------------------------------------------------------- */
 DROP TABLE IF EXISTS invoicecontents CASCADE;
 CREATE TABLE invoicecontents (
@@ -1302,8 +1267,8 @@ CREATE TABLE invoicecontents (
 );
 CREATE INDEX invoicecontents_docid_idx ON invoicecontents (docid);
 
-/* -------------------------------------------------------- 
-  Structure of table "debitnotecontents" 
+/* --------------------------------------------------------
+  Structure of table "debitnotecontents"
 -------------------------------------------------------- */
 DROP TABLE IF EXISTS debitnotecontents CASCADE;
 DROP SEQUENCE IF EXISTS debitnotecontents_id_seq;
@@ -1317,8 +1282,8 @@ CREATE TABLE debitnotecontents (
 	PRIMARY KEY (id),
 	CONSTRAINT debitnotecontents_docid_key UNIQUE (docid, itemid)
 );
-/* -------------------------------------------------------- 
-  Structure of table "numberplanassignments" 
+/* --------------------------------------------------------
+  Structure of table "numberplanassignments"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS numberplanassignments_id_seq;
 CREATE SEQUENCE numberplanassignments_id_seq;
@@ -1332,22 +1297,22 @@ CREATE TABLE numberplanassignments (
 );
 CREATE INDEX numberplanassignments_divisionid_idx ON numberplanassignments (divisionid);
 
-/* -------------------------------------------------------- 
-  Structure of table "customergroups" 
+/* --------------------------------------------------------
+  Structure of table "customergroups"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS customergroups_id_seq;
 CREATE SEQUENCE customergroups_id_seq;
 DROP TABLE IF EXISTS customergroups CASCADE;
 CREATE TABLE customergroups (
-	id integer DEFAULT nextval('customergroups_id_seq'::text) NOT NULL, 
-	name varchar(255) DEFAULT '' NOT NULL, 
-	description text DEFAULT '' NOT NULL, 
-	PRIMARY KEY (id), 
+	id integer DEFAULT nextval('customergroups_id_seq'::text) NOT NULL,
+	name varchar(255) DEFAULT '' NOT NULL,
+	description text DEFAULT '' NOT NULL,
+	PRIMARY KEY (id),
 	UNIQUE (name)
 );
 
-/* -------------------------------------------------------- 
-  Structure of table "customerassignments" 
+/* --------------------------------------------------------
+  Structure of table "customerassignments"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS customerassignments_id_seq;
 CREATE SEQUENCE customerassignments_id_seq;
@@ -1364,8 +1329,8 @@ CREATE TABLE customerassignments (
 
 CREATE INDEX customerassignments_customerid_idx ON customerassignments (customerid);
 
-/* -------------------------------------------------------- 
-  Structure of table "stats" 
+/* --------------------------------------------------------
+  Structure of table "stats"
 -------------------------------------------------------- */
 DROP TABLE IF EXISTS stats CASCADE;
 CREATE TABLE stats (
@@ -1379,8 +1344,8 @@ CREATE TABLE stats (
 CREATE INDEX stats_dt_idx ON stats(dt);
 CREATE INDEX stats_nodesessionid_idx ON stats(nodesessionid);
 
-/* -------------------------------------------------------- 
-  Structure of table "nodesessions" 
+/* --------------------------------------------------------
+  Structure of table "nodesessions"
 -------------------------------------------------------- */
 DROP SEQUENCE IF EXISTS nodesessions_id_seq;
 CREATE SEQUENCE nodesessions_id_seq;
@@ -1535,7 +1500,7 @@ DROP SEQUENCE IF EXISTS rtrights_id_seq;
 CREATE SEQUENCE rtrights_id_seq;
 DROP TABLE IF EXISTS rtrights CASCADE;
 CREATE TABLE rtrights (
-    id integer DEFAULT nextval('rtrights_id_seq'::text) NOT NULL, 
+    id integer DEFAULT nextval('rtrights_id_seq'::text) NOT NULL,
     userid integer NOT NULL
         REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE,
     queueid integer NOT NULL
@@ -1762,6 +1727,8 @@ CREATE TABLE events (
 	customerid 	integer 	DEFAULT 0 NOT NULL,
 	private 	smallint 	DEFAULT 0 NOT NULL,
 	closed 		smallint 	DEFAULT 0 NOT NULL,
+	closeddate	integer		DEFAULT 0 NOT NULL,
+	closeduserid	integer		DEFAULT 0 NOT NULL,
 	creationdate	integer		DEFAULT 0 NOT NULL,
 	moddate		integer		DEFAULT 0 NOT NULL,
 	moduserid	integer		DEFAULT 0 NOT NULL,
@@ -1791,12 +1758,12 @@ CREATE TABLE eventassignments (
 ------------------------------------------------------*/
 DROP TABLE IF EXISTS sessions CASCADE;
 CREATE TABLE sessions (
-    id 		varchar(50) 	NOT NULL DEFAULT '', 
-    ctime 	integer 	NOT NULL DEFAULT 0, 
-    mtime 	integer 	NOT NULL DEFAULT 0, 
-    atime 	integer 	NOT NULL DEFAULT 0, 
-    vdata 	text 		NOT NULL, 
-    content 	text 		NOT NULL, 
+    id 		varchar(50) 	NOT NULL DEFAULT '',
+    ctime 	integer 	NOT NULL DEFAULT 0,
+    mtime 	integer 	NOT NULL DEFAULT 0,
+    atime 	integer 	NOT NULL DEFAULT 0,
+    vdata 	text 		NOT NULL,
+    content 	text 		NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -1990,22 +1957,6 @@ CREATE TABLE dbinfo (
 );
 
 /* ---------------------------------------------------
- Structure of table "imessengers"
-------------------------------------------------------*/
-DROP SEQUENCE IF EXISTS imessengers_id_seq;
-CREATE SEQUENCE imessengers_id_seq;
-DROP TABLE IF EXISTS imessengers CASCADE;
-CREATE TABLE imessengers (
-    id 		integer         DEFAULT nextval('imessengers_id_seq'::text) NOT NULL,
-    customerid 	integer    	NOT NULL
-	    REFERENCES customers (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    uid 	varchar(32)     DEFAULT '' NOT NULL,
-    type 	smallint        DEFAULT 0 NOT NULL,
-    PRIMARY KEY (id)
-);
-CREATE INDEX imessengers_customerid_idx ON imessengers (customerid);
-
-/* ---------------------------------------------------
  Structure of table "customercontacts"
 ------------------------------------------------------*/
 DROP SEQUENCE IF EXISTS customercontacts_id_seq;
@@ -2017,7 +1968,7 @@ CREATE TABLE customercontacts (
 	    REFERENCES customers (id) ON DELETE CASCADE ON UPDATE CASCADE,
     name 	varchar(255) 	NOT NULL DEFAULT '',
     contact	varchar(255) 	NOT NULL DEFAULT '',
-    type    smallint        DEFAULT NULL,
+    type    integer         DEFAULT NULL,
     PRIMARY KEY (id)
 );
 CREATE INDEX customercontacts_customerid_idx ON customercontacts (customerid);
@@ -2090,7 +2041,7 @@ CREATE TABLE messageitems (
 	lastreaddate 	integer		DEFAULT 0 NOT NULL,
 	externalmsgid	integer		DEFAULT 0 NOT NULL,
         PRIMARY KEY (id)
-); 
+);
 
 CREATE INDEX messageitems_messageid_idx ON messageitems (messageid);
 CREATE INDEX messageitems_customerid_idx ON messageitems (customerid);
@@ -2326,10 +2277,10 @@ CREATE TABLE up_info_changes (
  Functions and Views
 ------------------------------------------------------*/
 CREATE OR REPLACE FUNCTION lms_current_user() RETURNS integer AS '
-SELECT 
-CASE 
-    WHEN current_setting(''lms.current_user'') = '''' 
-    THEN 0 
+SELECT
+CASE
+    WHEN current_setting(''lms.current_user'') = ''''
+    THEN 0
     ELSE current_setting(''lms.current_user'')::integer
 END
 ' LANGUAGE SQL;
@@ -2664,6 +2615,8 @@ INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
 ('userpanel', 'owner_stats', '0', '', 0),
 ('userpanel', 'default_categories', '1', '', 0),
 ('userpanel', 'auth_type', '1', '', 0),
+('userpanel', 'show_confirmed_documents_only', 'false', '', 0),
+('userpanel', 'module_order', '', '', 0),
 ('directories', 'userpanel_dir', 'userpanel', '', 0);
 
 INSERT INTO netdeviceproducers (id, name) VALUES

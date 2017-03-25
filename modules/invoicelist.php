@@ -24,7 +24,7 @@
  *  $Id$
  */
 
-function GetInvoicesList($search=NULL, $cat=NULL, $group=NULL, $hideclosed=NULL, $order, $pagelimit=100, $page=NULL)
+function GetInvoicesList($search=NULL, $cat=NULL, $group=NULL, $hideclosed=NULL, $order, $pagelimit=100, $page=NULL, $proforma = 0)
 {
 	global $DB;
 	
@@ -98,7 +98,7 @@ function GetInvoicesList($search=NULL, $cat=NULL, $group=NULL, $hideclosed=NULL,
 		$where .= ' AND closed = 0';
 
 	if($res = $DB->Exec('SELECT d.id AS id, number, cdate, type,
-			d.customerid, d.name, address, zip, city, countries.name AS country, template, closed, cancelled, 
+			d.customerid, d.name, address, zip, city, countries.name AS country, template, closed, cancelled, published,
 			CASE reference WHEN 0 THEN
 			    SUM(a.value*a.count) 
 			ELSE
@@ -121,15 +121,16 @@ function GetInvoicesList($search=NULL, $cat=NULL, $group=NULL, $hideclosed=NULL,
 				JOIN excludedgroups e ON (a.customergroupid = e.customergroupid)
 				WHERE e.userid = lms_current_user()
 				) e ON (e.customerid = d.customerid) 
-			WHERE e.customerid IS NULL AND 
-				(type = '.DOC_CNOTE.(($cat != 'cnotes') ? ' OR type = '.DOC_INVOICE : '').')'
+			WHERE e.customerid IS NULL AND '
+				. ($proforma ? 'type = ' . DOC_INVOICE_PRO
+					: '(type = '.DOC_CNOTE.(($cat != 'cnotes') ? ' OR type = '.DOC_INVOICE : '').')')
 			.$where
 			.(!empty($group['group']) ?
 			            ' AND '.(!empty($group['exclude']) ? 'NOT' : '').' EXISTS (
 			            SELECT 1 FROM customerassignments WHERE customergroupid = '.intval($group['group']).'
 			            AND customerid = d.customerid)' : '')
 			.' GROUP BY d.id, number, cdate, d.customerid, 
-			d.name, address, zip, city, template, closed, type, reference, countries.name, cancelled, sendinvoices '
+			d.name, address, zip, city, template, closed, type, reference, countries.name, cancelled, published, sendinvoices '
 			.(isset($having) ? $having : '')
 			.$sqlord.' '.$direction))
 	{
@@ -164,7 +165,9 @@ function GetInvoicesList($search=NULL, $cat=NULL, $group=NULL, $hideclosed=NULL,
 	return $result;
 }
 
-$layout['pagetitle'] = trans('Invoices List');
+$proforma = isset($_GET['proforma']) ? 1 : 0;
+
+$layout['pagetitle'] = $proforma ? trans('Pro Forma Invoice List') : trans('Invoices List');
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 
 $SESSION->restore('ilm', $marks);
@@ -231,7 +234,7 @@ elseif($c == 'month' && $s && preg_match('/^[0-9]{4}\/[0-9]{2}$/', $s))
 $pagelimit = ConfigHelper::getConfig('phpui.invoicelist_pagelimit');
 $page = !isset($_GET['page']) ? 0 : intval($_GET['page']);
 
-$invoicelist = GetInvoicesList($s, $c, array('group' => $g, 'exclude'=> $ge), $h, $o, $pagelimit, $page);
+$invoicelist = GetInvoicesList($s, $c, array('group' => $g, 'exclude'=> $ge), $h, $o, $pagelimit, $page, $proforma);
 
 $SESSION->restore('ilc', $listdata['cat']);
 $SESSION->restore('ils', $listdata['search']);
@@ -268,6 +271,7 @@ $SMARTY->assign('start',($page - 1) * $pagelimit);
 $SMARTY->assign('page',$page);
 $SMARTY->assign('marks',$marks);
 $SMARTY->assign('grouplist',$LMS->CustomergroupGetAll());
+$SMARTY->assign('proforma', $proforma);
 $SMARTY->assign('invoicelist',$invoicelist);
 $SMARTY->display('invoice/invoicelist.html');
 

@@ -25,19 +25,41 @@
  */
 
 function format_customer_phone($contact) {
-	return '<a class="phone_number" href="tel:' . $contact . '">' . $contact . '</a>';
+	return '<a class="phone_number" href="tel:' . $contact['contact'] . '">' . $contact['contact'] . '</a>';
 }
 
 function format_customer_email($contact) {
-	return '<a href="mailto:' . $contact . '">' . $contact . '</a>';
+	return '<a href="mailto:' . $contact['contact'] . '">' . $contact['contact'] . '</a>';
 }
 
 function format_customer_account($contact) {
-	return format_bankaccount($contact);
+	return format_bankaccount($contact['contact']);
 }
 
 function format_customer_url($contact) {
-	return '<a href="' . $contact . '">' . $contact . '</a>';
+	return '<a href="' . $contact['contact'] . '">' . $contact['contact'] . '</a>';
+}
+
+function format_customer_im($contact) {
+	switch ($contact['type'] & CONTACT_IM) {
+		case CONTACT_IM_GG:
+			return trans('Gadu-Gadu') . ': ' . '<IMG src="http://status.gadu-gadu.pl/users/status.asp?id=' . $contact['contact'] . '&styl=1" alt=""> '
+				. '<a href="gg:' . $contact['contact'] . '">' . $contact['contact'] . '</a>';
+			break;
+		case CONTACT_IM_YAHOO:
+			return trans('Yahoo') . ': ' . '<IMG src="http://opi.yahoo.com/online?u=' . $contact['contact'] . '&m=g&t=5"  alt=""> '
+				. '<a href="ymsgr:sendIM?' . $contact['contact'] . '">' . $contact['contact'] . '</a>';
+			break;
+		case CONTACT_IM_SKYPE:
+//			return trans('Skype') . ': ' . '<IMG src="http://mystatus.skype.com/smallicon/' . $contact['contact'] . '"  alt=""> '
+			return trans('Skype') . ': '
+				. '<a href="skype:' . $contact['contact'] . '">' . $contact['contact'] . '</a>';
+			break;
+		case CONTACT_IM_FACEBOOK:
+			return trans('Facebook') . ': '
+				. '<a href="https://m.me/' . $contact['contact'] . '">' . $contact['contact'] . '</a>';
+			break;
+	}
 }
 
 function validate_customer_phones(&$customerdata, &$contacts, &$error) {
@@ -227,7 +249,7 @@ $CUSTOMERCONTACTTYPES = array(
 			'size' => 50,
 			'tip' => trans('Enter bank account (optional)'),
 			'flags' => array(
-				CONTACT_MOBILE => array(
+				CONTACT_INVOICES => array(
 					'label' => $CONTACTTYPES[CONTACT_INVOICES],
 					'tip' => trans('Check if bank account should be visible on invoice'),
 				),
@@ -260,6 +282,31 @@ $CUSTOMERCONTACTTYPES = array(
 		'flagmask' => CONTACT_URL,
 		'formatter' => 'format_customer_url',
 		'validator' => 'validate_customer_urls',
+	),
+	'im' => array(
+		'ui' => array(
+			'legend' => array(
+				'icon' => 'img/skype.gif',
+				'text' => trans('Instant messengers'),
+			),
+			'inputtype' => 'text',
+			'size' => 16,
+			'tip' => trans('Enter IM uid (optional)'),
+			'typeselectors' => array(CONTACT_IM_GG, CONTACT_IM_YAHOO, CONTACT_IM_SKYPE, CONTACT_IM_FACEBOOK),
+			'flags' => array(
+				CONTACT_DISABLED => array(
+					'label' => $CONTACTTYPES[CONTACT_DISABLED],
+					'tip' => trans('Check if IM uid should be disabled'),
+				),
+				CONTACT_NOTIFICATIONS => array(
+					'label' => $CONTACTTYPES[CONTACT_NOTIFICATIONS],
+					'tip' => trans('Check if send notification'),
+				),
+			),
+		),
+		'flagmask' => CONTACT_IM_GG | CONTACT_IM_YAHOO | CONTACT_IM_SKYPE | CONTACT_IM_FACEBOOK,
+		'formatter' => 'format_customer_im',
+		'validator' => 'validate_customer_ims',
 	),
 );
 

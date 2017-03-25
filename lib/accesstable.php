@@ -25,7 +25,7 @@
  */
 
 // modules with access for everyone
-$global_access_regexp = '^(welcome|copyrights|logout|chpasswd|quicksearch|calendar)$';
+$global_access_regexp = '^(welcome|copyrights|logout|chpasswd|quicksearch|calendar|persistentsetting)$';
 
 $access_table = array(
 	'full_access' => array(
@@ -164,20 +164,19 @@ $access_table = array(
 	),
 );
 
-// read user-defined access rights table
-$custom_access_table = ConfigHelper::getConfig('phpui.custom_accesstable');
-if (!is_null($custom_access_table))
-	if (is_readable(SYS_DIR . DIRECTORY_SEPARATOR . $custom_access_table))
-		@include_once(SYS_DIR . DIRECTORY_SEPARATOR . $custom_access_table);
-	else if (is_readable($custom_access_table) && ($custom_access_table[0] == DIRECTORY_SEPARATOR))
-		@include_once($custom_access_table);
-	else if (is_readable(LIB_DIR . DIRECTORY_SEPARATOR . $custom_access_table))
-		@include_once(LIB_DIR . DIRECTORY_SEPARATOR . $custom_access_table);
-
 $access = AccessRights::getInstance();
 foreach ($access_table as $name => $permission)
 	$access->appendPermission(new Permission($name, $permission['label'],
 		array_key_exists('allow_regexp', $permission) ? $permission['allow_regexp'] : null,
 		array_key_exists('deny_regexp', $permission) ? $permission['deny_regexp'] : null)
 	);
+
+// read user-defined access rights table
+$custom_access_table = ConfigHelper::getConfig('phpui.custom_accesstable');
+if (!is_null($custom_access_table))
+	if (is_readable($custom_access_table) && ($custom_access_table[0] == DIRECTORY_SEPARATOR))
+		@include_once($custom_access_table);
+	else if (is_readable(LIB_DIR . DIRECTORY_SEPARATOR . $custom_access_table))
+		@include_once(LIB_DIR . DIRECTORY_SEPARATOR . $custom_access_table);
+
 ?>

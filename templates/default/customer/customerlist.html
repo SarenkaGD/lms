@@ -66,6 +66,7 @@
 				<OPTION VALUE="63"{if $listdata.state == 63} SELECTED{/if}>{trans("with connected nodes")}</OPTION>
 				<OPTION VALUE="64"{if $listdata.state == 64} SELECTED{/if}>{trans("with nodes")}</OPTION>
 				<OPTION VALUE="65"{if $listdata.state == 65} SELECTED{/if}>{trans("without nodes")}</OPTION>
+				<OPTION VALUE="66"{if $listdata.state == 66} SELECTED{/if}>{trans("without invoice flag")}</OPTION>
 			</SELECT>
 			{trans("Division")}:
 			<SELECT SIZE="1" NAME="d" ONCHANGE="document.choosefilter.submit();">
@@ -81,20 +82,31 @@
 				<OPTION value="{$networks[networks].id}" {if $listdata.network == $networks[networks].id} SELECTED {/if}>{$networks[networks].name|truncate:30:"...":true}</OPTION>
 				{/section}
 			</SELECT>
-			{trans("Group:")}
-			<SELECT SIZE="1" NAME="g" ONCHANGE="document.choosefilter.submit();">
-				<OPTION value="" {if !$listdata.customergroup} SELECTED {/if}>{trans("- all groups -")}</OPTION>
-				{section name=customergroups loop=$customergroups}
-				<OPTION value="{$customergroups[customergroups].id}" {if $listdata.customergroup == $customergroups[customergroups].id} SELECTED {/if}>{$customergroups[customergroups].name|truncate:30:"...":true}</OPTION>
-				{/section}
-			</SELECT>
-			{trans("Nodes Group:<!short>")}
-			<SELECT SIZE="1" NAME="ng" ONCHANGE="document.choosefilter.submit();">
-				<OPTION value="" {if !$listdata.nodegroup} SELECTED {/if}>{trans("- all groups -")}</OPTION>
-				{foreach from=$nodegroups item=nodegroup}
-				<OPTION value="{$nodegroup.id}" {if $listdata.nodegroup == $nodegroup.id} SELECTED {/if}>{$nodegroup.name|truncate:30:"...":true}</OPTION>
-				{/foreach}
-			</SELECT>
+
+			{if count($customergroups) > 0}
+				{trans("Group:")}
+				<SELECT SIZE="1" NAME="g" ONCHANGE="document.choosefilter.submit();">
+					<OPTION value="" {if !$listdata.customergroup} SELECTED {/if}>{trans("- all groups -")}</OPTION>
+					{section name=customergroups loop=$customergroups}
+					<OPTION value="{$customergroups[customergroups].id}" {if $listdata.customergroup == $customergroups[customergroups].id} SELECTED {/if}>{$customergroups[customergroups].name|truncate:30:"...":true}</OPTION>
+					{/section}
+				</SELECT>
+			{else}
+			      <input type="hidden" name="g" value="">
+			{/if}
+
+			{if count($nodegroups) > 0}
+				{trans("Nodes Group:<!short>")}
+				<SELECT SIZE="1" NAME="ng" ONCHANGE="document.choosefilter.submit();">
+					<OPTION value="" {if !$listdata.nodegroup} SELECTED {/if}>{trans("- all groups -")}</OPTION>
+					{foreach from=$nodegroups item=nodegroup}
+					<OPTION value="{$nodegroup.id}" {if $listdata.nodegroup == $nodegroup.id} SELECTED {/if}>{$nodegroup.name|truncate:30:"...":true}</OPTION>
+					{/foreach}
+				</SELECT>
+			{else}
+				<input type="hidden" name="ng" value="">
+			{/if}
+
                         {trans("Assigments:")}
                         <select size="1" name="assigments" onchange="document.choosefilter.submit();" {if $listdata.assigments}class="active"{/if}>
                             <option value="0" {if $listdata.assigments eq '0'} selected {/if}>{trans('- all -')}</option>

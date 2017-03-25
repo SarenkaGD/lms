@@ -34,7 +34,7 @@
 
     ({trans("night:")}
 
-    {if $val_night}{$val_night|default:0} kbit/s{else}{trans("not defined")}{/if})
+    {if $night}{$night|default:0} kbit/s{else}{trans("not defined")}{/if})
 {/function}
 
 {function restrictions}
@@ -66,7 +66,7 @@
         <TD WIDTH="100%" CLASS="flr container" COLSPAN="2">
             <TABLE WIDTH="100%" CELLPADDING="0">
                 <TR>
-                    <TD WIDTH="50%">
+                    <TD WIDTH="50%" CLASS="valign-top">
                         <TABLE CLASS="tariff_tab bold-second">
                             <TR>
                                 <TD><IMG SRC="img/value.gif" ALT=""></TD>
@@ -88,7 +88,7 @@
                             <TR>
                                 <TD><IMG SRC="img/money.gif" ALT=""></TD>
                                 <TD>{trans("Type:")}</TD>
-                                <TD>{assign var=typeid value=$tariff.type}{$_TARIFFTYPES.$typeid}</TD>
+                                <TD>{$_TARIFFTYPES[$tariff.type]}</TD>
                             </TR>
 
                             {if isset($tariff.numberplan)}
@@ -120,6 +120,7 @@
                                 <TD>{trans("Product ID:")}</TD>
                                 <TD>{$tariff.prodid}</TD>
                             </TR>
+                            {/if}
 
                             {if ConfigHelper::checkConfig('privileges.superuser') || !ConfigHelper::checkConfig('privileges.hide_summaries')}
                             <TR>
@@ -158,6 +159,7 @@
 
                         </TABLE>
                     </TD>
+                    {if $tariff.type != $smarty.const.TARIFF_PHONE}
                     <TD WIDTH="50%" CLASS="valign-top">
                         <TABLE CLASS="tariff_tab bold-second">
                             <TR>
@@ -197,11 +199,12 @@
                             </TR>
                         </TABLE>
                     </TD>
+                    {/if}
                 </TR>
             </TABLE>
         </TD>
     </TR>
-
+    {if $tariff.type != $smarty.const.TARIFF_PHONE && $tariff.type != $smarty.const.TARIFF_TV && $tariff.type != $smarty.const.TARIFF_INTERNET}
     <TR>
         <TD COLSPAN="2">
             <TABLE CLASS="tariff_tab bold-first">
@@ -261,9 +264,8 @@
             </TABLE>
         </TD>
     </TR>
-
-    {if $tariff.type == TARIFF_PHONE}
-    <TR CLASS="space_row">
+    {else if $tariff.type == $smarty.const.TARIFF_PHONE}
+    <TR>
         <TD COLSPAN="2">
             <TABLE CLASS="tariff_tab bold-first">
                 <TR>
@@ -312,7 +314,7 @@
 
     <TR>
         <TD WIDTH="100%" COLSPAN="2">
-            <TABLE CLASS="lmsbox-inner">
+            <TABLE CLASS="lmsbox-innerbox">
                 <THEAD>
                 <TR>
                     <TD CLASS="bold">{trans("Customers in Subscription:")}</TD>

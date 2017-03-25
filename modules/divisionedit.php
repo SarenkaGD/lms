@@ -100,6 +100,9 @@ if ( !empty($_POST['division']) ) {
 	if ($division['inv_paytime'] == '')
         $division['inv_paytime'] = NULL;
 
+	if (!preg_match('/^[0-9]*$/', $division['tax_office_code']))
+		$error['tax_office_code'] = trans('Invalid format of Tax Office Code!');
+
 	if (!$error) {
 		$LMS->UpdateAddress( $division );
 
@@ -133,9 +136,21 @@ if ( !empty($_POST['division']) ) {
 
 		$SESSION->redirect('?m=divisionlist');
 	}
+} else {
+	if ($olddiv['location_city'] || $olddiv['location_street']) {
+		$olddiv['teryt'] = true;
+		if ($olddiv['location_city'] && $olddiv['location_street']) {
+			preg_match('/^(?<city>.+)\s*,\s*(?<address>.+)$/', location_str($olddiv), $m);
+			$olddiv['city'] = $m['city'];
+			$oldciv['address'] = $m['address'];
+		}
+	}
 }
 
 $layout['pagetitle'] = trans('Edit Division: $a', $olddiv['shortname']);
+
+if ($_language == 'pl')
+	require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'tax_office_codes.php');
 
 $SESSION->save('backto', $_SERVER['QUERY_STRING']);
 

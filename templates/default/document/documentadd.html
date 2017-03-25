@@ -37,16 +37,11 @@
 	function show_templates() {
 	    document.getElementById("templates").style.display = "table-row";
 	}
-
-	function reset_customer()
-	{
-		if (document.documentadd.customerid.value)
-			document.documentadd.customer.value = document.documentadd.customerid.value;
-	}
 //-->
 </script>
 <FORM name="documentadd" method="POST" action="?m=documentadd">
 <INPUT type="submit" class="hiddenbtn">
+{if $customer.id}{$cid=$customer.id}{elseif $document.customerid}{$cid=$document.customerid}{else}{$cid=""}{/if}
 <TABLE class="lmsbox">
 	<COLGROUP>
 		<COL style="width: 1%;">
@@ -62,7 +57,7 @@
 			{trans("Title:")}
 		</TD>
 		<TD class="nobr">
-			<INPUT type="text" name="document[title]" value="{$document.title}" required {tip text="Enter document title" trigger="title"} size="40">
+			<INPUT type="text" id="title" name="document[title]" value="{$document.title}" required {tip text="Enter document title" trigger="title"} size="40">
 		</TD>
 	</TR>
     </THEAD>
@@ -183,7 +178,9 @@
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-	document.forms['documentadd'].elements['document[title]'].focus();
+	$(function() {
+		$('form[name="documentadd"] [name="document[title]"]').focus();
+	});
 	//setnumberplans();
 //-->
 </SCRIPT>

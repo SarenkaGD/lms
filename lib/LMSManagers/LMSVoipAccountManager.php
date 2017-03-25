@@ -269,11 +269,11 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
             $phones = array();
 
             foreach ($voipaccountdata['phone'] as $phone) {
-                $phones[] = "($id, '$phone')";
+                $phones[] = "($id, '$phone', " . (++$phone_index) . ')';
             }
 
             if ($phones) {
-                $DB->Execute('INSERT INTO voip_numbers (voip_account_id, phone) VALUES ' . implode(',', $phones));
+                $DB->Execute('INSERT INTO voip_numbers (voip_account_id, phone, number_index) VALUES ' . implode(',', $phones));
                 $DB->CommitTrans();
                 return $id;
             } else {
@@ -353,7 +353,7 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
             $result['modifiedby']    = $user_manager->getUserName($result['modid']);
             $result['creationdateh'] = date('Y/m/d, H:i', $result['creationdate']);
             $result['moddateh']      = date('Y/m/d, H:i', $result['moddate']);
-            $result['phones']        = $this->db->GetAll('SELECT phone FROM voip_numbers WHERE voip_account_id = ?;', array($id));
+            $result['phones']        = $this->db->GetAll('SELECT phone, number_index FROM voip_numbers WHERE voip_account_id = ?;', array($id));
             $result['owner']         = $customer_manager->getCustomerName($result['ownerid']);
             return $result;
         }
@@ -438,13 +438,17 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
         if ($result) {
             $this->db->Execute('UPDATE voip_numbers SET number_index = null WHERE voip_account_id = ?', array($data['id']));
             $current_phones = $this->db->GetAllByKey('SELECT phone FROM voip_numbers WHERE voip_account_id = ?;', 'phone', array($data['id']));
+            $phone_index = 0;
 
             $phone_to_delete = array();
             $phone_to_insert = array();
 
             foreach ($data['phone'] as $v) {
-                if (!isset($current_phones[$v]))
-                    $phone_to_insert[] = '('.$data['id'].",'$v')";
+                if (!isset($current_phones[$v])) {
+                    $phone_to_insert[] = '('.$data['id'].",'$v','" . (++$phone_index) . "')";
+                } else {
+                    $this->db->Execute('UPDATE voip_numbers SET number_index = ? WHERE phone ?LIKE? ?', array(++$phone_index, $v));
+                }
             }
 
             $data['phone'] = array_flip($data['phone']);
@@ -457,7 +461,7 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
                 $this->db->Execute('DELETE FROM voip_numbers WHERE ' . implode('OR', $phone_to_delete));
 
             if ($phone_to_insert)
-                $this->db->Execute('INSERT INTO voip_numbers (voip_account_id, phone) VALUES ' . implode(',', $phone_to_insert));
+                $this->db->Execute('INSERT INTO voip_numbers (voip_account_id, phone, number_index) VALUES ' . implode(',', $phone_to_insert));
 
             $this->db->CommitTrans();
             return TRUE;
@@ -502,11 +506,12 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
 
             $result['total'] = count($result['accounts']);
         }
+
         return $result;
     }
 
     /**
-     * Returns VoIP billings.
+     * Returns VoIP billing list.
      *
      * @param  array $p      Array with parameters
      * @return array $result Array with billings
@@ -571,7 +576,7 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
                 case CALL_NO_ANSWER:
                 case CALL_BUSY:
                 case CALL_SERVER_FAILED:
-                    $where[] = "cdr.status = " . $params['fstatus'];
+                    $where[] = 'cdr.status = ' . $params['fstatus'];
                 break;
             }
 
@@ -580,7 +585,7 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
             switch ($params['ftype']) {
                 case CALL_OUTGOING:
                 case CALL_INCOMING:
-                    $where[] = "cdr.type = " . $params['ftype'];
+                    $where[] = 'cdr.type = ' . $params['ftype'];
                 break;
             }
 
@@ -612,4 +617,21 @@ class LMSVoipAccountManager extends LMSManager implements LMSVoipAccountManagerI
         return $bill_list;
     }
 
+    /**
+     * Returns voip tariffs.
+     *
+     * @return array Array with tariffs
+     */
+    public function getVoipTariffs() {
+        return $this->db->GetAll('SELECT id, name, description FROM voip_tariffs');
+    }
+
+    /**
+     * Returns voip tariff rule groups.
+     *
+     * @return array Array with tariffs
+     */
+    public function getVoipTariffRuleGroups() {
+        return $this->db->GetAll('SELECT id, name, description FROM voip_rule_groups');
+    }
 }

@@ -31,7 +31,12 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 if(isset($_GET['id']) && $action == 'edit')
 {
+	if ($LMS->isDocumentPublished($_GET['id']) && !ConfigHelper::checkConfig('privileges.superuser'))
+		return;
+
 	$invoice = $LMS->GetInvoiceContent($_GET['id']);
+
+	$invoice['proforma'] = isset($_GET['proforma']) ? 1 : null;
 
 	$SESSION->remove('invoicecontents');
 	$SESSION->remove('invoicecustomer');
@@ -54,8 +59,7 @@ if(isset($_GET['id']) && $action == 'edit')
 		$nitem['tax']		= isset($taxeslist[$item['taxid']]) ? $taxeslist[$item['taxid']]['label'] : '';
 		$nitem['taxid']		= $item['taxid'];
 		$nitem['posuid']	= $i;
-		//Added for lms-stck Sarenka
-		if (ConfigHelper::getConfig('phpui.stock')) {
+		if (ConfigHelper::getConfig('phpui.stock')) {//Added for lms-stck Sarenka
 			$nitem['stockid'] = $DB->GetOne('SELECT stockid FROM stck_invoicecontentsassignments WHERE icdocid = ? AND icitemid = ?', array($_GET['id'],$item['itemid']));
 		}
 		$SESSION->restore('invoicecontents', $invoicecontents);
@@ -66,6 +70,28 @@ if(isset($_GET['id']) && $action == 'edit')
 	$invoice['oldcdate'] = $invoice['cdate'];
 	$invoice['oldsdate'] = $invoice['sdate'];
 	$invoice['olddeadline'] = $invoice['deadline'] = $invoice['cdate'] + $invoice['paytime'] * 86400;
+	$invoice['oldnumber'] = $invoice['number'];
+	$invoice['oldnumberplanid'] = $invoice['numberplanid'];
+
+	if ($invoice['proforma']) {
+		$currtime = time();
+		$invoice['cdate'] = $currtime;
+		$invoice['sdate'] = $currtime;
+		$invoice['deadline'] = $invoice['cdate'] + $invoice['paytime'] * 86400;
+
+		$customer = $LMS->GetCustomer($invoice['customerid'], true);
+		$invoice['numberplanid'] = $DB->GetOne('SELECT n.id FROM numberplans n
+			JOIN numberplanassignments a ON (n.id = a.planid)
+			WHERE n.doctype = ? AND n.isdefault = 1 AND a.divisionid = ?',
+			array(DOC_INVOICE, $customer['divisionid']));
+
+		$invoice['number'] = $LMS->GetNewDocumentNumber(array(
+			'doctype' => DOC_INVOICE,
+			'planid' => $invoice['numberplanid'],
+			'cdate' => $invoice['cdate'],
+		));
+	}	
+
 	$SESSION->save('invoice', $invoice);
 	$SESSION->save('invoiceid', $invoice['id']);
 }
@@ -76,8 +102,18 @@ $SESSION->restore('invoice', $invoice);
 $SESSION->restore('invoiceediterror', $error);
 $itemdata = r_trim($_POST);
 
-$ntempl = docnumber($invoice['number'], $invoice['template'], $invoice['cdate']);
-$layout['pagetitle'] = trans('Invoice Edit: $a', $ntempl);
+$ntempl = docnumber(array(
+	'number' => $invoice['number'],
+	'template' => $invoice['template'],
+	'cdate' => $invoice['cdate'],
+	'customerid' => $invoice['customerid'],
+));
+if (isset($invoice['proforma']))
+	$layout['pagetitle'] = trans('Conversion Pro Forma Invoice $a To Invoice', $ntempl);
+elseif($invoice['doctype'] == DOC_INVOICE_PRO)
+	$layout['pagetitle'] = trans('Pro Forma Invoice Edit: $a', $ntempl);
+else
+	$layout['pagetitle'] = trans('Invoice Edit: $a', $ntempl);
 
 if(isset($_GET['customerid']) && $_GET['customerid'] != '' && $LMS->CustomerExists($_GET['customerid']))
 	$action = 'setcustomer';
@@ -153,6 +189,8 @@ switch($action)
 		$olddeadline = $invoice['olddeadline'];
 		$oldcdate = $invoice['oldcdate'];
 		$oldsdate = $invoice['oldsdate'];
+		$oldnumber = $invoice['oldnumber'];
+		$oldnumberplanid = $invoice['oldnumberplanid'];
 		$closed   = $invoice['closed'];
 
 		unset($invoice);
@@ -167,6 +205,8 @@ switch($action)
 		$invoice['olddeadline'] = $olddeadline;
 		$invoice['oldcdate'] = $oldcdate;
 		$invoice['oldsdate'] = $oldsdate;
+		$invoice['oldnumber'] = $oldnumber;
+		$invoice['oldnumberplanid'] = $oldnumberplanid;
 
 		if($invoice['cdate']) // && !$invoice['cdatewarning'])
 		{
@@ -229,6 +269,20 @@ switch($action)
 		$invoice['customerid'] = $_POST['customerid'];
 		$invoice['closed']     = $closed;
 
+		if ($invoice['number']) {
+			if (!preg_match('/^[0-9]+$/', $invoice['number']))
+				$error['number'] = trans('Invoice number must be integer!');
+			elseif (($invoice['proforma'] || $invoice['oldnumber'] != $invoice['number']
+				|| $invoice['oldnumberplanid'] != $invoice['numberplanid']) && $LMS->DocumentExists(array(
+					'number' => $invoice['number'],
+					'doctype' => $invoice['proforma'] ? DOC_INVOICE_PRO : DOC_INVOICE,
+					'planid' => $invoice['numberplanid'],
+					'cdate' => $invoice['cdate'],
+					'customerid' => $cid,
+				)))
+				$error['number'] = trans('Invoice number $a already exists!', $invoice['number']);
+		}
+
 		if(!$error)
 			if($LMS->CustomerExists($invoice['customerid']))
 				$customer = $LMS->GetCustomer($invoice['customerid'], true);
@@ -239,7 +293,7 @@ switch($action)
 			break;
 
 		$SESSION->restore('invoiceid', $invoice['id']);
-		$invoice['type'] = DOC_INVOICE;
+		$invoice['type'] = $invoice['doctype'];
 
 		$prev_rec_addr = $DB->GetOne('SELECT recipient_address_id FROM documents WHERE id = ?;', array($invoice['id']));
 		if (empty($prev_rec_addr))
@@ -267,10 +321,39 @@ switch($action)
 		$iid   = $invoice['id'];
 
 		$DB->BeginTrans();
+		$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
 
 		$division = $DB->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
 			account, inv_header, inv_footer, inv_author, inv_cplace 
 			FROM vdivisions WHERE id = ? ;',array($customer['divisionid']));
+
+		if (!$invoice['number'])
+			$invoice['number'] = $LMS->GetNewDocumentNumber(array(
+				'doctype' => DOC_INVOICE,
+				'planid' => $invoice['numberplanid'],
+				'cdate' => $invoice['cdate'],
+			));
+		else {
+			if(!preg_match('/^[0-9]+$/', $invoice['number']))
+				$error['number'] = trans('Invoice number must be integer!');
+			elseif (($invoice['number'] != $invoice['oldnumber'] || $invoice['numberplanid'] != $invoice['oldnumberplanid'])
+				&& $LMS->DocumentExists(array(
+					'number' => $invoice['number'],
+					'doctype' => DOC_INVOICE,
+					'planid' => $invoice['numberplanid'],
+					'cdate' => $invoice['cdate'],
+				)))
+				$error['number'] = trans('Invoice number $a already exists!', $invoice['number']);
+
+			if ($error) {
+				$invoice['number'] = $LMS->GetNewDocumentNumber(array(
+					'doctype' => DOC_INVOICE,
+					'planid' => $invoice['numberplanid'],
+					'cdate' => $invoice['cdate'],
+				));
+				$error = null;
+			}
+		}
 
 		$args = array(
 			'cdate' => $cdate,
@@ -298,7 +381,6 @@ switch($action)
 			'div_inv_footer' => ($division['inv_footer'] ? $division['inv_footer'] : ''),
 			'div_inv_author' => ($division['inv_author'] ? $division['inv_author'] : ''),
 			'div_inv_cplace' => ($division['inv_cplace'] ? $division['inv_cplace'] : ''),
-			SYSLOG::RES_DOC => $iid,
 		);
 
 		$args['type'] = DOC_INVOICE;
@@ -319,7 +401,7 @@ switch($action)
 				name = ?, address = ?, ten = ?, ssn = ?, zip = ?, city = ?, divisionid = ?,
 				div_name = ?, div_shortname = ?, div_address = ?, div_city = ?, div_zip = ?, div_countryid = ?,
 				div_ten = ?, div_regon = ?, div_account = ?, div_inv_header = ?, div_inv_footer = ?,
-				div_inv_author = ?, div_inv_cplace = ?
+				div_inv_author = ?, div_inv_cplace = ?, type = ?, number = ?, fullnumber = ?, numberplanid = ?
 				WHERE id = ?', array_values($args));
 		if ($SYSLOG)
 			$SYSLOG->AddMessage(SYSLOG::RES_DOC, SYSLOG::OPER_UPDATE, $args,
@@ -327,14 +409,16 @@ switch($action)
 
 		if (!$invoice['closed']) {
 			if ($SYSLOG) {
-				$cashids = $DB->GetCol('SELECT id FROM cash WHERE docid = ?', array($iid));
-				foreach ($cashids as $cashid) {
-					$args = array(
-						SYSLOG::RES_CASH => $cashid,
-						SYSLOG::RES_DOC => $iid,
-						SYSLOG::RES_CUST => $customer['id'],
-					);
-					$SYSLOG->AddMessage(SYSLOG::RES_CASH, SYSLOG::OPER_DELETE, $args);
+				if ($invoice['doctype'] == DOC_INVOICE) {
+					$cashids = $DB->GetCol('SELECT id FROM cash WHERE docid = ?', array($iid));
+					foreach ($cashids as $cashid) {
+						$args = array(
+							SYSLOG::RES_CASH => $cashid,
+							SYSLOG::RES_DOC => $iid,
+							SYSLOG::RES_CUST => $customer['id'],
+						);
+						$SYSLOG->AddMessage(SYSLOG::RES_CASH, SYSLOG::OPER_DELETE, $args);
+					}
 				}
 				$itemids = $DB->GetCol('SELECT itemid FROM invoicecontents WHERE docid = ?', array($iid));
 				foreach ($itemids as $itemid) {
@@ -355,7 +439,8 @@ switch($action)
 				}
 			}
 			$DB->Execute('DELETE FROM invoicecontents WHERE docid = ?', array($iid));
-			$DB->Execute('DELETE FROM cash WHERE docid = ?', array($iid));
+			if ($invoice['doctype'] == DOC_INVOICE)
+				$DB->Execute('DELETE FROM cash WHERE docid = ?', array($iid));
 
 			$itemid=0;
 			foreach ($contents as $idx => $item) {
@@ -378,8 +463,7 @@ switch($action)
 					taxid, prodid, content, count, pdiscount, vdiscount, description, tariffid)
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
 
-				//Added for lms-stck by Sarenka - MAXCON
-				if (ConfigHelper::getConfig('phpui.stock')) {
+				if (ConfigHelper::getConfig('phpui.stock')) {//Added for lms-stck by Sarenka - MAXCON
 					$DB->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
 						VALUES(?, ?, ?)', array($iid, $itemid, $item['stockid']));
 					$LMSST->StockSell($iid, $item['stockid'], str_replace(',', '.', $item['valuebrutto']), $cdate);
@@ -389,24 +473,25 @@ switch($action)
 					$args[SYSLOG::RES_CUST] = $customer['id'];
 					$SYSLOG->AddMessage(SYSLOG::RES_INVOICECONT, SYSLOG::OPER_ADD, $args);
 				}
+				
+				if ($invoice['doctype'] == DOC_INVOICE || isset($invoice['proforma'])) {
+					$LMS->AddBalance(array(
+						'time' => $cdate,
+						'value' => $item['valuebrutto']*$item['count']*-1,
+						'taxid' => $item['taxid'],
+						'customerid' => $customer['id'],
+						'comment' => $item['name'],
+						'docid' => $iid,
+						'itemid' => $itemid
+						));
 
-				$LMS->AddBalance(array(
-					'time' => $cdate,
-					'value' => $item['valuebrutto']*$item['count']*-1,
-					'taxid' => $item['taxid'],
-					'customerid' => $customer['id'],
-					'comment' => $item['name'],
-					'docid' => $iid,
-					'itemid' => $itemid
-					));
-
-				//Added for lms-sstck by Sarenka = MAXCON
-				if (ConfigHelper::getConfig('phpui.stock')) {
-					$icid = $DB->GetLastInsertID('cash');
-					$DB->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stockid']));
+					if (ConfigHelper::getConfig('phpui.stock')) {//Added for lms-sstck by Sarenka = MAXCON
+						$icid = $DB->GetLastInsertID('cash');
+						$DB->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stockid']));
+					}
 				}
 			}
-		} else {
+		} elseif ($invoice['doctype'] == DOC_INVOICE) {
 			if ($SYSLOG) {
 				$cashids = $DB->GetCol('SELECT id FROM cash WHERE docid = ?', array($iid));
 				foreach ($cashids as $cashid) {
@@ -422,6 +507,7 @@ switch($action)
 				array($customer['id'], $iid));
 		}
 
+		$DB->UnLockTables();
 		$DB->CommitTrans();
 
 		if (isset($_GET['print']))
@@ -465,7 +551,7 @@ if (isset($customer) && !empty($customer)) {
 }
 $SMARTY->assign('numberplanlist', $LMS->GetNumberPlans($args));
 
-if (ConfigHelper::getConfig('phpui.stock'))
+if (ConfigHelper::getConfig('phpui.stock')) //Added for lms-sstck by Sarenka = MAXCON
 	$SMARTY->display('stck/invoiceedit.stck.html');
 else
 	$SMARTY->display('invoice/invoiceedit.html');

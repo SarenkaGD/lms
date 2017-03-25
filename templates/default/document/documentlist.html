@@ -127,14 +127,22 @@
 				</SELECT>
 				{trans("from")}&nbsp;<INPUT TYPE="text" NAME="from" SIZE="10" maxlength="10" value="{if $listdata.from > 0}{$listdata.from|date_format:"%Y/%m/%d"}{/if}" {tip class="calendar" text="Enter date in YYYY/MM/DD format (empty field means no limit) or click to choose it from calendar"}>
 				{trans("to")}&nbsp;<INPUT TYPE="text" NAME="to" SIZE="10" maxlength="10" value="{if $listdata.to > 0}{$listdata.to|date_format:"%Y/%m/%d"}{/if}" {tip class="calendar" text="Enter date in YYYY/MM/DD format (empty field means no limit) or click to choose it from calendar"}>&nbsp;
-				<SELECT name="p" onChange="filter()" {tip text="Select numbering plan"}>
-					<OPTION value="0">- {trans("all")} -</OPTION>
-					{foreach $numberplans as $plan}
-					{$period = $plan.period}
-					<OPTION value="{$plan.id}"{if $listdata.numberplan == $plan.id} selected{/if}>{number number=$plan.next template=$plan.template time=$invoice.cdate} ({$_NUM_PERIODS.$period})</OPTION>
-					{/foreach}
-				</SELECT>&nbsp;
-				<span class="bold">{trans("Status:")}</span>&nbsp;<SELECT name="s" onChange="filter()" {tip text="Select document status"}>
+
+				{if count($numberplans) > 0}
+					{trans("Number plan:")}
+					<SELECT name="p" onChange="filter()" {tip text="Select numbering plan"}>
+						<OPTION value="0">- {trans("all")} -</OPTION>
+						{foreach $numberplans as $plan}
+						{$period = $plan.period}
+						<OPTION value="{$plan.id}"{if $listdata.numberplan == $plan.id} selected{/if}>{number number=$plan.next template=$plan.template time=$invoice.cdate customerid=$listdata.customer} ({$_NUM_PERIODS.$period})</OPTION>
+						{/foreach}
+					</SELECT>&nbsp;
+				{else}
+					<input type="hidden" name="p" value="0">
+				{/if}
+
+				{trans("Status:")}
+				<SELECT name="s" onChange="filter()" {tip text="Select document status"}>
 					<OPTION value="-1">- {trans("all")} - </OPTION>
 					<OPTION value="0"{if $listdata.status == 0} selected{/if}>{trans("unconfirmed")}</OPTION>
 					<OPTION value="1"{if $listdata.status == 1} selected{/if}>{trans("confirmed")}</OPTION>
@@ -159,7 +167,7 @@
 		<TD class="nobr" onclick="window.open('?m=documentview&amp;id={$doc.docid}');"{if $doc.description} {tip text=$doc.description}{/if}>
 			{$doc.cdate|date_format:"%Y/%m/%d %H:%M"}{if $doc.sdate} / {$doc.sdate|date_format:"%Y/%m/%d %H:%M"}{/if}
 			{if $doc.number}<BR>
-				<B>{number number=$doc.number template=$doc.template time=$doc.cdate}</B>
+				<B>{number number=$doc.number template=$doc.template time=$doc.cdate customerid=$doc.customerid}</B>
 			{/if}
 		</TD>
 		<TD class="nobr" onclick="window.open('?m=documentview&amp;id={$doc.docid}');">
@@ -227,6 +235,7 @@
 	{/if}
 	<TR>
 		<TD COLSPAN="5">
+			{if count($documentlist) > 0}
 			<TABLE WIDTH="100%">
 				<TR>
 					<TD class="nobr">
@@ -242,6 +251,7 @@
 					</TD>
 				</TR>
 			</TABLE>
+			{/if}
 		</TD>
 	</TR>
     </TFOOT>

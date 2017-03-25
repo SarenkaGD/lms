@@ -373,6 +373,8 @@ $query = 'SELECT
 			       FROM
 			          voip_cdr vc LEFT JOIN voipaccounts va ON vc.callervoipaccountid = va.id
 			       WHERE
+			          a.id in (SELECT assignment_id FROM voip_number_assignments vna
+                               LEFT JOIN voip_numbers vn ON vna.number_id = vn.id WHERE vn.phone = vc.caller) AND
 			          va.ownerid = a.customerid AND
 			          vc.call_start_time >= (CASE a.period
 				                               WHEN " . YEARLY     . ' THEN ' . mktime(0, 0, 0, $month  , 1, $year-1) . '
@@ -420,10 +422,12 @@ $query = 'SELECT
 
 $billings = $DB->GetAll($query, array(CSTATUS_CONNECTED, CSTATUS_DEBT_COLLECTION, TARIFF_PHONE,
 	DISPOSABLE, $today, DAILY, WEEKLY, $weekday, MONTHLY, $dom, QUARTERLY, $quarter, HALFYEARLY, $halfyear, YEARLY, $yearday,
-	$currtime, $currtime));	
-	
-foreach ($billings as $v)
-	array_push($assigns, $v);
+	$currtime, $currtime));
+
+if ($billings) {
+	foreach ($billings as $v)
+		array_push($assigns, $v);
+}
 
 if (empty($assigns))
 	die;

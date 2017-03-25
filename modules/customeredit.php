@@ -127,28 +127,6 @@ elseif (isset($_POST['customerdata']))
 	if ($customerdata['status'] == 1 && $LMS->GetCustomerNodesNo($customerdata['id'])) 
 		$error['status'] = trans('Interested customers can\'t have computers!');
 
-	foreach($customerdata['uid'] as $idx => $val)
-	{
-		$val = trim($val);
-		switch($idx)
-		{
-			case IM_GG:
-				if($val!='' && !check_gg($val))
-					$error['gg'] = trans('Incorrect IM uin!');
-			break;
-			case IM_YAHOO:
-				if($val!='' && !check_yahoo($val))
-					$error['yahoo'] = trans('Incorrect IM uin!');
-			break;
-			case IM_SKYPE:
-				if($val!='' && !check_skype($val))
-					$error['skype'] = trans('Incorrect IM uin!');
-			break;
-		}
-
-		if($val) $im[$idx] = $val;
-	}
-
 	$contacts = array();
 
 	$emaileinvoice = false;
@@ -167,7 +145,9 @@ elseif (isset($_POST['customerdata']))
 	if (isset($customerdata['invoicenotice']) && !$emaileinvoice)
 		$error['invoicenotice'] = trans('If the customer wants to receive an electronic invoice must be checked e-mail address to which to send e-invoices');
 
-	if ($customerdata['cutoffstop'] == '')
+	if (isset($customerdata['cutoffstopindefinitely']))
+		$cutoffstop = intval(pow(2, 31) - 1);
+	elseif ($customerdata['cutoffstop'] == '')
 		$cutoffstop = 0;
 	elseif (check_date($customerdata['cutoffstop'])) {
 		list ($y, $m, $d) = explode('/', $customerdata['cutoffstop']);
@@ -213,34 +193,6 @@ elseif (isset($_POST['customerdata']))
                 );
                 $customeradd = $hook_data['customeradd'];
                 $id = $hook_data['id'];
-                
-		if ($SYSLOG) {
-			$imids = $DB->GetCol('SELECT id FROM imessengers WHERE customerid = ?', array($customerdata['id']));
-			if (!empty($imids))
-				foreach ($imids as $imid) {
-					$args = array(
-						SYSLOG::RES_IMCONTACT => $imid,
-						SYSLOG::RES_CUST => $customerdata['id']
-					);
-					$SYSLOG->AddMessage(SYSLOG::RES_IMCONTACT, SYSLOG::OPER_DELETE, $args);
-				}
-		}
-		$DB->Execute('DELETE FROM imessengers WHERE customerid = ?', array($customerdata['id']));
-		if(isset($im))
-			foreach($im as $idx => $val) {
-				$DB->Execute('INSERT INTO imessengers (customerid, uid, type)
-					VALUES(?, ?, ?)', array($customerdata['id'], $val, $idx));
-				if ($SYSLOG) {
-					$imid = $DB->GetLastInsertID('imessengers');
-					$args = array(
-						SYSLOG::RES_IMCONTACT => $imid,
-						SYSLOG::RES_CUST => $customerdata['id'],
-						'uid' => $val,
-						'type' => $idx
-					);
-					$SYSLOG->AddMessage(SYSLOG::RES_IMCONTACT, SYSLOG::OPER_ADD, $args);
-				}
-			}
 
 		if ($SYSLOG) {
 			$contactids = $DB->GetCol('SELECT id FROM customercontacts WHERE customerid = ?', array($customerdata['id']));
@@ -299,18 +251,15 @@ elseif (isset($_POST['customerdata']))
 } else {
 	$customerinfo = $LMS->GetCustomer($_GET['id']);
 
+	$customerinfo['cutoffstopindefinitely'] = 0;
 	if ($customerinfo['cutoffstop'])
-		$customerinfo['cutoffstop'] = strftime('%Y/%m/%d', $customerinfo['cutoffstop']);
+		if ($customerinfo['cutoffstop'] == intval(pow(2, 31) - 1)) {
+			$customerinfo['cutoffstop'] = 0;
+			$customerinfo['cutoffstopindefinitely'] = 1;
+		} else
+			$customerinfo['cutoffstop'] = strftime('%Y/%m/%d', $customerinfo['cutoffstop']);
 	else
 		$customerinfo['cutoffstop'] = 0;
-
-	if($customerinfo['messengers'])
-		foreach($customerinfo['messengers'] as $idx => $val)
-			$customerinfo['uid'][$idx] = $val['uid'];
-
-	foreach (array_keys($CUSTOMERCONTACTTYPES) as $contacttype)
-		if (empty($customerinfo[$contacttype . 's']))
-			$customerinfo[$contacttype . 's'][] = array();
 
 	if (!empty($customerinfo['accounts']))
 		foreach ($customerinfo['accounts'] as &$account)

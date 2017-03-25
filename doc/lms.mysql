@@ -21,6 +21,7 @@ DROP VIEW IF EXISTS vusers;
 DROP VIEW IF EXISTS vdivisions;
 
 DROP TABLE IF EXISTS voip_emergency_numbers;
+DROP TABLE IF EXISTS voip_numbers;
 DROP TABLE IF EXISTS voip_price_groups;
 DROP TABLE IF EXISTS voip_rules;
 DROP TABLE IF EXISTS voip_cdr;
@@ -31,6 +32,7 @@ DROP TABLE IF EXISTS voip_prefix_groups;
 DROP TABLE IF EXISTS voip_rule_groups;
 DROP TABLE IF EXISTS voip_rule_states;
 DROP TABLE IF EXISTS voip_pool_numbers;
+DROP TABLE IF EXISTS voip_number_assignments;
 
 DROP TABLE IF EXISTS up_info_changes;
 DROP TABLE IF EXISTS up_help;
@@ -58,7 +60,6 @@ DROP TABLE IF EXISTS zipcodes;
 DROP TABLE IF EXISTS countries;
 DROP TABLE IF EXISTS states;
 DROP TABLE IF EXISTS customercontacts;
-DROP TABLE IF EXISTS imessengers;
 DROP TABLE IF EXISTS cashreglog;
 DROP TABLE IF EXISTS cashregs;
 DROP TABLE IF EXISTS cashrights;
@@ -152,7 +153,8 @@ SET SESSION sql_mode   = '';
 CREATE TABLE users (
   id int(11)            NOT NULL auto_increment,
   login varchar(32)     NOT NULL DEFAULT '',
-  name varchar(64)      NOT NULL DEFAULT '',
+  firstname varchar(64) NOT NULL DEFAULT '',
+  lastname varchar(64) NOT NULL DEFAULT '',
   email varchar(255)    NOT NULL DEFAULT '',
   phone varchar(32)     DEFAULT NULL,
   position varchar(255) NOT NULL DEFAULT '',
@@ -170,11 +172,15 @@ CREATE TABLE users (
   access tinyint(1) NOT NULL DEFAULT '1',
   accessfrom int(11) NOT NULL DEFAULT '0',
   accessto int(11) NOT NULL DEFAULT '0',
-  swekey_id varchar(32) NULL DEFAULT NULL,
   settings mediumtext NOT NULL DEFAULT '',
+  persistentsettings mediumtext NOT NULL DEFAULT '',
   PRIMARY KEY  (id),
-  UNIQUE KEY login (login, swekey_id)
+  UNIQUE KEY login (login)
 ) ENGINE=InnoDB;
+
+CREATE VIEW vusers AS
+	SELECT *, CONCAT(firstname, ' ', lastname) AS name, CONCAT(lastname, ' ', firstname) AS rname
+	FROM users;
 
 # --------------------------------------------------------
 #
@@ -881,7 +887,7 @@ CREATE TABLE rtattachments (
 # Structure of table  rtrights
 #
 CREATE TABLE rtrights (
-    id INT(11) NOT NULL auto_increment, 
+    id INT(11) NOT NULL auto_increment,
     userid INT(11) NOT NULL,
     queueid INT(11) NOT NULL,
     rights INT(11) DEFAULT 0 NOT NULL,
@@ -2140,9 +2146,9 @@ CREATE TABLE passwdhistory (
 
 CREATE VIEW nas AS
     SELECT n.id, inet_ntoa(n.ipaddr) AS nasname, d.shortname, d.nastype AS type,
-	d.clients AS ports, d.secret, d.community, d.description 
-        FROM nodes n 
-        JOIN netdevices d ON (n.netdev = d.id) 
+	d.clients AS ports, d.secret, d.community, d.description
+        FROM nodes n
+        JOIN netdevices d ON (n.netdev = d.id)
         WHERE n.nas = 1;
 
 CREATE VIEW vnodes_mac AS
@@ -2539,6 +2545,8 @@ INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
 ('userpanel','owner_stats','0','',0),
 ('userpanel','default_categories','1','',0),
 ('userpanel','auth_type','1','',0),
+('userpanel', 'show_confirmed_documents_only', 'false', '', 0),
+('userpanel', 'module_order', '', '', 0),
 ('directories','userpanel_dir','userpanel','',0);
 
 INSERT INTO netdeviceproducers (id, name) VALUES

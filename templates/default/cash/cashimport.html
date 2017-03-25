@@ -21,69 +21,80 @@
 <FORM NAME="cashimport" ACTION="?m=cashimport" METHOD="post">
 <INPUT type="submit" class="hiddenbtn">
 <TABLE class="lmsbox">
+	<COLGROUP>
+		<COL style="width: 1%;">
+		<COL style="width: 1%;">
+		<COL style="width: 1%;">
+		<COL style="width: 40%;">
+		<COL style="width: 55%;">
+		<COL style="width: 1%;">
+		<COL style="width: 1%;">
+	</COLGROUP>
     <THEAD>
 	<TR>
-		<TD WIDTH="1%">
+		<TD>
 			{trans("ID:")}
 		</TD>
-		<TD WIDTH="1%">
+		<TD>
 			{trans("Date:")}
 		</TD>
-		<TD WIDTH="1%">
-			<B>{trans("Value:")}</B>
+		<TD class="bold">
+			{trans("Value:")}
 		</TD>
-		<TD WIDTH="40%">
+		<TD>
 			{trans("Customer:")}
 		</TD>
-		<TD WIDTH="55%">
+		<TD>
 			{trans("Description:")}
 		</TD>
-		<TD WIDTH="1%" nowrap>
+		<TD class="nobr">
 			{trans("Link to:")}
 		</TD>
-		<TD WIDTH="1%" ALIGN="RIGHT" nowrap>
-			<B>{trans("Total:")} {$listdata.total}</B>&nbsp;
+		<TD class="text-right bold nobr">
+			{trans("Total:")} {$listdata.total}&nbsp;
 		</TD>
 	</TR>
     </THEAD>
-    <TBODY>
+    <TBODY class="lms-ui-multi-check">
 	{foreach from=$divisions item=division}{if $division.list}
 	<TR class="dark">
-		<TD colspan="4">
-		    <IMG src="img/division.gif" alt=""> <B>{$division.name}</B>
+		<TD colspan="4" class="bold">
+			<IMG src="img/division.gif" alt=""> {$division.name}
 		</TD>
-		<TD colspan="3" align="right">
-		    <A href="?m=cashimport&action=csv&division={$division.id}">{trans("Download (CSV)")}</a> <IMG src="img/save.gif" alt="">
+		<TD colspan="3" class="text-right">
+			<A href="?m=cashimport&action=csv&division={$division.id}">{trans("Download (CSV)")}</a> <IMG src="img/save.gif" alt="">
 		</TD>
 	</TR>
 		{cycle values="light,lucid" print=false}
 		{foreach from=$division.list item=item}
 		<TR class="{cycle}">
-		    <TD>
-			{$item.id|string_format:"%04d"}
-		    </TD>
-		    <TD NOWRAP>
-			{$item.date|date_format:"%Y/%m/%d"}
-		    </TD>
-		    <TD NOWRAP ALIGN="RIGHT">
-			<B>{$item.value|money_format}</B>
-		    </TD>
-		    <TD ALIGN="LEFT">
-			{if $item.customer}{$item.customer}
-			{elseif $item.customerid}
-			    {assign var=cust value=$item.customerid}
-			    {$customerlist.$cust.customername}
-			{/if}
-		    </TD>
+			<TD>
+				{$item.id|string_format:"%04d"}
+			</TD>
+			<TD class="nobr">
+				{$item.date|date_format:"%Y/%m/%d"}
+			</TD>
+			<TD class="text-right bold nobr">
+				{$item.value|money_format}
+			</TD>
+			<TD class="text-left">
+				{if $item.customer}{$item.customer}
+				{elseif $item.customerid}
+				{assign var=cust value=$item.customerid}
+				{$customerlist.$cust.customername}
+				{/if}
+			 </TD>
 			<TD class="text-left">
 				{$item.description}
 			</TD>
-			<TD class="text-right nobr" colspan="2">
+			<TD class="text-left nobr">
 				{customerlist form="cashimport" customers=$customerlist selected=$item.customerid selectname="custid[{$item.id}]" inputname="customer[{$item.id}]"}
-				<INPUT TYPE="checkbox" NAME="marks[{$item.id}]" VALUE="{$item.id}">
 			</TD>
-	    </TR>
-	    {/foreach}
+			<TD class="text-right">
+				<INPUT TYPE="checkbox" NAME="marks[{$item.id}]" VALUE="{$item.id}" class="lms-ui-multi-check">
+			</TD>
+		</TR>
+		{/foreach}
 	{/if}{/foreach}
 	{if !$listdata.total}
 	<TR>
@@ -97,7 +108,7 @@
 	<TR class="dark">
 		<TD class="nobr" colspan="3">
 			<label>
-				<INPUT type="checkbox" name="allbox" onchange="CheckAll('cashimport', this)" value="1">
+				<INPUT type="checkbox" name="allbox" class="lms-ui-multi-check-all" value="1">
 				{trans("Check All")}
 			</label>
 		</TD>
@@ -161,39 +172,43 @@
 <FORM name="parser" enctype="multipart/form-data" method="post" action="?m=cashimportparser">
 <INPUT type="submit" class="hiddenbtn">
 <TABLE class="lmsbox">
+	<COLGROUP>
+		<COL style="width: 1%;">
+		<COL style="width: 99%;">
+	</COLGROUP>
     <THEAD>
 	<TR>
-		<TD width="100%" colspan="2">
-			<B>{trans("Import from file")}:</B>
+		<TD colspan="2" class="bold">
+			{trans("Import from file:")}
 		</TD>
 	</TR>
     </THEAD>
     <TBODY>
 	<TR>
-		<TD width="1%" NOWRAP>
+		<TD class="bold nobr">
 			<IMG src="img/attach.gif" alt="">
-			<B>{trans("Import file:")} </B>
+			{trans("Import file:")}
 		</TD>
-		<TD width="99%" NOWRAP>
+		<TD class="nobr">
 			<INPUT name="file" type="file" size="70" {tip text="Enter path to file or click 'Browse' button" trigger="file"}>
 		</TD>
 	</TR>
 	<TR>
-		<TD width="1%" NOWRAP>
+		<TD class="bold nobr">
 			<IMG src="img/isource.gif" alt="">
-			<B>{trans("Source:")} </B>
+			{trans("Source:")}
 		</TD>
-		<TD width="99%" NOWRAP>
+		<TD class="nobr">
 			<SELECT name="source" {tip text="Select import source (optional)" trigger="source"}>
-			<OPTION value="0">{trans("- auto -")}</OPTION> 
-			{foreach from=$sourcelist item=item}
-			<OPTION value="{$item.id}">{$item.name}</OPTION>
-			{/foreach}
+				<OPTION value="0">{trans("- auto -")}</OPTION> 
+				{foreach $sourcelist as $item}
+				<OPTION value="{$item.id}">{$item.name}</OPTION>
+				{/foreach}
 			</SELECT>
 		</TD>
 	</TR>
 	<TR>
-		<TD colspan="2" width="100%" align="right" nowrap>
+		<TD colspan="2" class="buttons">
 			<A href="javascript:document.parser.submit();">{trans("Submit")} <IMG src="img/save.gif" alt=""></A>
 		</TD>
 	</TR>
@@ -215,7 +230,7 @@
     <TBODY>
 	<TR class="dark">
 		<TD>
-			<TABLE{if !empty($sourcefiles)} class="lms-ui-datatable lms-ui-datatable-column-search lms-ui-datatable-column-toggle" data-order='[[ 0, "desc" ]]' data-page-length="25" data-state-save="true" style="display: none;"{/if} width="100%">
+			<TABLE id="cashimport-packages-datatable"{if !empty($sourcefiles)} class="lms-ui-datatable lms-ui-datatable-column-search lms-ui-datatable-column-toggle" data-order='[[ 0, "desc" ]]' data-page-length="25" data-state-save="true" style="display: none;"{/if} width="100%">
 				<COLGROUP>
 					<COL style="width: 1%;">
 					<COL style="width: 96%;">
@@ -225,11 +240,11 @@
 				</COLGROUP>
 				<THEAD>
 				<TR>
-					<TH class="bold nobr">{trans("Date:")}</TD>
-					<TH class="text-left nobr">{trans("Filename:")}</TD>
-					<TH class="text-center nobr" data-searchable="false">{trans("User:")}</TD>
-					<TH class="text-center nobr" data-searchable="false">{trans("Records:")}</TD>
-					<TH data-orderable="false" data-searchable="false">&nbsp;</TD>
+					<TH class="bold nobr">{trans("Date:")}</TH>
+					<TH class="text-left nobr">{trans("Filename:")}</TH>
+					<TH class="text-center nobr" data-searchable="true" data-select-value="true">{trans("User:")}</TH>
+					<TH class="text-center nobr" data-searchable="false">{trans("Records:")}</TH>
+					<TH data-orderable="false" data-searchable="false">&nbsp;</TH>
 				</TR>
 				</THEAD>
 				<TBODY>

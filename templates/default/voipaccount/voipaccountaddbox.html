@@ -1,16 +1,24 @@
 <!--// $Id$ //-->
+
+{assign var=remove_number value='<span class="ui-icon ui-icon-closethick remove-number"></span>'}
+
+{if $pool_list}
+    {assign var=pool_number_select value='<span class="ui-icon ui-icon-clipboard show-pool-list"></span>'}
+    {include file='voipaccount/voipaccountaddboxdialog.html'}
+{else}
+    {assign var=pool_number_select value=''}
+{/if}
+
 <form name="voipaccountadd" method="post" action="?m=voipaccountadd{if $customerinfo.id}&ownerid={$customerinfo.id}{/if}">
     <input type="submit" class="hiddenbtn">
 
-    {assign var=remove_number value='<a href="javascript:void(0);" class="remove_number"><span class="ui-icon ui-icon-closethick"></span></a>'}
-
     <style>
-        .phone-table tr:hover td:nth-child(2) div a {
+        .phone-table tr:hover td:nth-child(2) div span {
             visibility: visible;
             cursor: pointer;
         }
 
-        .phone-table tr td:nth-child(2) div a {
+        .phone-table tr td:nth-child(2) div span {
             visibility: hidden;
         }
     </style>
@@ -28,7 +36,7 @@
                     {trans("Login:")}
                 </td>
                 <td>
-                    <input type="text" name="voipaccountdata[login]" value="{$voipaccountdata.login}" maxlength="32" size="20" required {tip text="Enter voip account login" trigger="login" bold=1}>
+                    <input type="text" id="voip-login" name="voipaccountdata[login]" value="{$voipaccountdata.login}" maxlength="32" size="20" {tip text="Enter voip account login" trigger="login" bold=1}>
                 </td>
             </tr>
             {/block}
@@ -41,7 +49,7 @@
                     {trans("Password:")}
                 </td>
                 <td>
-                    <input type="{if ConfigHelper::checkPrivilege('hide_voip_passwords')}password{else}text{/if}" name="voipaccountdata[passwd]" value="{$voipaccountdata.passwd}" required {tip text="Enter password" trigger="passwd"}>
+                    <input type="{if ConfigHelper::checkPrivilege('hide_voip_passwords')}password{else}text{/if}" name="voipaccountdata[passwd]" value="{$voipaccountdata.passwd}" {tip text="Enter password" trigger="passwd"}>
                 </td>
             </tr>
             {/block}
@@ -55,25 +63,25 @@
                     <table id="phone_numbers_table" class="phone-table">
                         <tr>
                             <td><input type="tel" name="voipaccountdata[phone][0]" value="{$voipaccountdata.phone[0]}" {tip trigger="phone0"}></td>
-                            <td><div><a href="#" id="add_number"><span class="ui-icon ui-icon-plusthick"></span></a></div></td>
+                            <td>
+                                <div>
+                                    {$pool_number_select}
+                                    <span class="ui-icon ui-icon-closethick remove-number{if !isset($voipaccountdata.phone) || empty($voipaccountdata.phone)} lms-ui-visibility-hidden{/if}"></span>
+                                </div>
+                            </td>
                         </tr>
 
                         {if isset($voipaccountdata['phone'])}
-                            {assign var=phone_next_index value=1}
-                            {foreach from=$voipaccountdata['phone'] key=k item=phone}
-                                {if $k==0 || $phone==''}{continue}{/if}
-
-                                {if $k > $phone_next_index}
-                                    {assign var=phone_next_index value=$k}
-                                {/if}
-
+                            {foreach $voipaccountdata['phone'] as $k => $phone}
+                                {if $phone@first || $phone==''}{continue}{/if}
                                 <tr class="row">
                                     <td><input type="tel" name="voipaccountdata[phone][{$k}]" value="{$phone}" {tip trigger="phone{$k}"}></td>
-                                    <td><div>{$remove_number}</div></td>
+                                    <td><div>{$pool_number_select} {$remove_number}</div></td>
                                 </tr>
                             {/foreach}
                         {/if}
                     </table>
+                    <a href="#" id="add_number"><span class="ui-icon ui-icon-plusthick"></span> {trans("add next")}</a>
                 </td>
             </tr>
             {/block}

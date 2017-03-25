@@ -239,9 +239,9 @@
 			<IMG src="img/money.gif" alt=""> {trans("Tariffs:")}
 		</TD>
 		<TD style="width: 99%;" class="multiselect">
-			<SELECT SIZE="1" name="search[tariffs][]" multiple id="customertariffs">
-				{foreach from=$tariffs item=item}
-				 	<OPTION VALUE="{$item.id}">{$item.name}</OPTION>
+			<SELECT SIZE="1" name="search[tariffs][]" class="lms-ui-multiselect" multiple data-default-value="{trans("- all -")}">
+				{foreach $tariffs as $item}
+				<OPTION VALUE="{$item.id}">{$item.name}</OPTION>
 				{/foreach}
 			</SELECT>
 		</TD>
@@ -344,6 +344,7 @@
 		<TD style="width: 99%;">
 			<SELECT SIZE="1" name="g">
 				<OPTION value="" {if !$listdata.customergroup} SELECTED {/if}>{trans("- all groups -")}</OPTION>
+				<OPTION value="-1"{if $listdata.customergroup == -1} selected{/if}>{trans("- without assigned groups -")}</OPTION>
 				{section name=customergroups loop=$customergroups}
 				<OPTION value="{$customergroups[customergroups].id}" {if $listdata.customergroup == $customergroups[customergroups].id} SELECTED {/if}>{$customergroups[customergroups].name|truncate:50:"...":true}</OPTION>
 				{/section}
@@ -375,11 +376,9 @@
 </FORM>
 <SCRIPT type="text/javascript">
 <!--
-document.forms['customersearch'].elements['search[customername]'].focus();
-multiselect({
-	id: 'customertariffs',
-	defaultValue: '{trans("- all -")}'
-});
+	$(function() {
+		$('form[name="customersearch"] [name="search[customername]"]').focus();
+	});
 //-->
 </SCRIPT>
 {/block}

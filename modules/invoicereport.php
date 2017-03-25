@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2013 LMS Developers
+ *  (C) Copyright 2001-2016 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -72,7 +72,7 @@ if(!empty($_POST['group']))
 	else
 		$groups = intval($_POST['group']);
 
-	$groupwhere = ' AND '.(isset($_POST['groupexclude']) ? 'NOT' : '').' 
+	$groupwhere = ' AND '.(isset($_POST['groupexclude']) ? 'NOT' : '').'
 		EXISTS (SELECT 1 FROM customerassignments a
 			WHERE a.customergroupid IN ('.$groups.')
 			AND a.customerid = d.customerid)';
@@ -93,7 +93,7 @@ if(!empty($_POST['division']))
 {
 	$divwhere = ' AND d.divisionid '.(isset($_POST['divexclude']) ? '!=' : '=').' '.intval($_POST['division']);
 
-	$divname = $DB->GetOne('SELECT name FROM divisions WHERE id = ?', 
+	$divname = $DB->GetOne('SELECT name FROM divisions WHERE id = ?',
 			array(intval($_POST['division'])));
 
 	$layout['division'] = $divname;
@@ -170,7 +170,12 @@ if ($items) {
 		$invoicelist[$idx]['custname'] = $row['name'];
 		$invoicelist[$idx]['custaddress'] = $row['zip'].' '.$row['city'].', '.$row['address'];
 		$invoicelist[$idx]['ten'] = ($row['ten'] ? trans('TEN').' '.$row['ten'] : ($row['ssn'] ? trans('SSN').' '.$row['ssn'] : ''));
-		$invoicelist[$idx]['number'] = docnumber($row['number'], $row['template'], $row['cdate']);
+		$invoicelist[$idx]['number'] = docnumber(array(
+			'number' => $row['number'],
+			'template' => $row['template'],
+			'cdate' => $row['cdate'],
+			'customerid' => $row['customerid'],
+		));
 		$invoicelist[$idx]['cdate'] = $row['cdate'];
 		$invoicelist[$idx]['sdate'] = $row['sdate'];
 		$invoicelist[$idx]['pdate'] = $row['cdate'] + ($row['paytime'] * 86400);
@@ -190,8 +195,8 @@ if ($items) {
 			// I think we can simply do query here instead of building
 			// big sql join in $items query, we've got so many credit notes?
 			$item = $DB->GetRow('SELECT taxid, value, count
-						FROM invoicecontents 
-						WHERE docid=? AND itemid=?', 
+						FROM invoicecontents
+						WHERE docid=? AND itemid=?',
 						array($row['reference'], $row['itemid']));
 
 			$row['value'] += $item['value'];
@@ -304,17 +309,25 @@ if(isset($_POST['extended']))
 	$SMARTY->assign('pagescount', sizeof($pages));
 	$SMARTY->assign('reccount', $reccount);
 	if (strtolower(ConfigHelper::getConfig('phpui.report_type')) == 'pdf') {
+		$SMARTY->assign('printcustomerid', $_POST['printcustomerid']);
+		$SMARTY->assign('printonlysummary', $_POST['printonlysummary']);
 		$output = $SMARTY->fetch('invoice/invoicereport-ext.html');
 		html2pdf($output, trans('Reports'), $layout['pagetitle'], NULL, NULL, 'L', array(5, 5, 5, 5), ($_GET['save'] == 1) ? true : false);
 	} else {
+		$SMARTY->assign('printcustomerid', $_POST['printcustomerid']);
+		$SMARTY->assign('printonlysummary', $_POST['printonlysummary']);
 		$SMARTY->display('invoice/invoicereport-ext.html');
 	}
 }
 else {
 	if (strtolower(ConfigHelper::getConfig('phpui.report_type')) == 'pdf') {
+		$SMARTY->assign('printcustomerid', $_POST['printcustomerid']);
+		$SMARTY->assign('printonlysummary', $_POST['printonlysummary']);
 		$output = $SMARTY->fetch('invoice/invoicereport.html');
 		html2pdf($output, trans('Reports'), $layout['pagetitle'], NULL, NULL, 'L', array(5, 5, 5, 5), ($_GET['save'] == 1) ? true : false);
 	} else {
+		$SMARTY->assign('printcustomerid', $_POST['printcustomerid']);
+		$SMARTY->assign('printonlysummary', $_POST['printonlysummary']);
 		$SMARTY->display('invoice/invoicereport.html');
 	}
 }

@@ -395,6 +395,7 @@ class LMSNodeManager extends LMSManager implements LMSNodeManagerInterface
 				. ($status == 5 ? ' AND n.location_city IS NULL' : '')
 				. ($status == 6 ? ' AND n.netdev = 0' : '')
 				. ($status == 7 ? ' AND n.warning = 1' : '')
+				. ($status == 8 ? ' AND (n.latitude IS NULL OR n.longitude IS NULL)' : '')
 				. ($customergroup ? ' AND customergroupid = ' . intval($customergroup) : '')
 				. ($nodegroup ? ' AND nodegroupid = ' . intval($nodegroup) : '')
 				. (isset($searchargs) ? $searchargs : '')
@@ -732,4 +733,64 @@ class LMSNodeManager extends LMSManager implements LMSNodeManagerInterface
         return $res;
     }
 
+    /*
+     * \brief Update single node filed.
+     *
+     * \param int    $nodeid
+     * \param string $field  field from database to update
+     * \param mixed  $value  new value
+     */
+    public function updateNodeField( $nodeid, $field, $value ) {
+        $nodeid    = (int) $nodeid;
+        $field     = strtolower($field);
+        $error_msg = 0;
+
+        switch ($field) {
+            case 'authtype':
+                if (!is_numeric($value)) {
+                    $error_msg = "Value isn't a number";
+                } else {
+                    global $SESSIONTYPES;
+
+                    $value = (int) $value;
+                    $tmp   = 0;
+
+                    foreach ($SESSIONTYPES as $k=>$v) {
+                        if( $value & $k ) {
+                            $tmp += $k;
+                        }
+                    }
+
+                    $value = $tmp;
+                }
+            break;
+
+            case 'nas':
+            case 'halfduplex':
+            case 'chkmac':
+                $value = ($value == 1) ? 1 : 0;
+            break;
+
+            default:
+                $error_msg = "Unknown field name.";
+        }
+
+        $SYSLOG = SYSLOG::getInstance();
+
+        if ($SYSLOG) {
+            $args = array(
+                SYSLOG::RES_NODE => $nodeid,
+                'field' => $field,
+                'value' => $value
+            );
+
+            $SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
+        }
+
+        if (!$error) {
+            $this->db->Execute('UPDATE nodes SET ' . $field . ' = ? WHERE id = ?;', array($value, $nodeid));
+        } else {
+            return $error_msg;
+        }
+    }
 }

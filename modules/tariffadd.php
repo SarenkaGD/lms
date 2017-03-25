@@ -168,7 +168,11 @@ $layout['pagetitle'] = trans('New Subscription');
 
 $SMARTY->assign('taxeslist',$LMS->GetTaxes());
 $SMARTY->assign('tariff', $tariff);
-$SMARTY->assign('numberplanlist', $LMS->GetNumberPlans(DOC_INVOICE));
+$SMARTY->assign('voip_tariffs', $LMS->getVoipTariffs());
+$SMARTY->assign('voip_tariffrules', $LMS->getVoipTariffRuleGroups());
+$SMARTY->assign('numberplanlist', $LMS->GetNumberPlans(array(
+	'doctype' => DOC_INVOICE,
+)));
 $SMARTY->display('tariff/tariffadd.html');
 
 ?>

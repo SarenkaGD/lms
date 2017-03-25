@@ -57,12 +57,21 @@ if (isset($_POST['document'])) {
 		$error['number'] = trans('Selected numbering plan doesn\'t match customer\'s division!');
 	elseif ($document['number'] == '') {
 	// check number
-		$tmp = $LMS->GetNewDocumentNumber($document['type'], $document['numberplanid']);
+		$tmp = $LMS->GetNewDocumentNumber(array(
+			'doctype' => $document['type'],
+			'planid' => $document['numberplanid'],
+			'customerid' => $document['customerid'],
+		));
 		$document['number'] = $tmp ? $tmp : 0;
 		$autonumber = true;
 	} elseif (!preg_match('/^[0-9]+$/', $document['number']))
 		$error['number'] = trans('Document number must be an integer!');
-	elseif ($LMS->DocumentExists($document['number'], $document['type'], $document['numberplanid']))
+	elseif ($LMS->DocumentExists(array(
+			'number' => $document['number'],
+			'doctype' => $document['type'],
+			'planid' => $document['numberplanid'],
+			'customerid' => $document['customerid'],
+		)))
 		$error['number'] = trans('Document with specified number exists!');
 
 	if ($document['fromdate']) {

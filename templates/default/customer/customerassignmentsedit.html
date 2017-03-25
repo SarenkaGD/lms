@@ -5,57 +5,41 @@
 <H1>{$layout.pagetitle}</H1>
 <SCRIPT type="text/javascript">
 <!--
-	function set_tariff()
-	{
-		var val = document.forms['assignment'].elements['assignment[tariffid]'].value;
+	var tariffTypes = [];
+	{foreach $tariffs as $tariff}
+	tariffTypes[{$tariff.id}] = {$tariff.tarifftype};
+	{/foreach}
+	
+	function assignment_submit() {
+		{if ConfigHelper::checkConfig('phpui.node_assignment_warning')}
+		var tariffid = parseInt($('form[name="assignment"] select[name="assignment[tariffid]"]').val());
+		
+		if (isNaN(tariffid)) {
+			document.assignment.submit();
+			return;
+		}
 
-		{if $promotionschemas}
-		document.getElementById('a_schema').style.display = val == -2 ? '' : 'none';
-		document.getElementById('a_schematariff').style.display = val == -2 ? '' : 'none';
+		switch (tariffid) {
+			case -1:
+				document.assignment.submit();
+				return;
+			case -2:
+				tariffid = parseInt($('form[name="assignment"] select[name="assignment[stariffid]"]').val());
+				break;
+		}
+
+		if (tariffTypes[tariffid] == {$smarty.const.TARIFF_INTERNET} &&
+			!$('#nodeslist :checked:not([name="allbox"])').length &&
+			!confirm('{trans("No nodes has been selected for assignment, by at least one is recommended! Are you sure you want to continue despite of this?")}')){
+			return false;
+		}
 		{/if}
 
-		document.getElementById('a_tax').style.display = val == '' ? '' : 'none';
-		document.getElementById('a_value').style.display = val == '' ? '' : 'none';
-		document.getElementById('a_productid').style.display = val == '' ? '' : 'none';
-		document.getElementById('a_name').style.display = val == '' ? '' : 'none';
-                document.getElementById('a_attribute').style.display = val == '' ? 'none' : '';
-		document.getElementById('a_options').style.display = val == -1 ? 'none' : '';
-		var a_nodes = document.getElementById('a_nodes');
-		if (a_nodes !== null)
-			document.getElementById('a_nodes').style.display = val == -1 ? 'none' : '';
-		document.getElementById('a_day').style.display = val == -1 ? 'none' : '';
-		{if ConfigHelper::checkConfig('privileges.superuser') || !ConfigHelper::checkConfig('privileges.hide_finances')}
-		document.getElementById('a_discount').style.display = val < -1 ? 'none' : '';
-		{/if}
+		document.assignment.submit();
 	}
-
-{if $promotionschemas}
-	function set_schema()
-	{
-		var sid = document.forms['assignment'].elements['assignment[schemaid]'].value,
-			assignments = { {strip}
-			{foreach name=fps from=$promotionschemas item=schema}
-				{if $smarty.foreach.fps.index},{/if}"{$schema.id}": [{$schema.tariffs}]
-			{/foreach}
-			{/strip} },
-			select = document.forms['assignment'].elements['assignment[stariffid]'],
-			t_select = document.forms['assignment'].elements['assignment[tariffid]'],
-			options = t_select.getElementsByTagName('OPTION'),
-			selected = select.value,
-			i, len;
-
-		// remove old options
-		select.innerHTML = '';
-		// copy options from t_select element
-		for (i=0, len=options.length; i<len; i++)
-			if (inArray(assignments[sid], options[i].value))
-				select.appendChild(options[i].cloneNode(true));
-
-		select.value = selected;
-	}
-{/if}
 //-->
 </SCRIPT>
+
 <FORM method="POST" name="assignment" action="?m={$layout.module}{if $assignment.id}&id={$assignment.id}{if $assignment.liabilityid}&lid={$assignment.liabilityid}{/if}{else}&id={$customerinfo.id}{/if}">
 <INPUT type="submit" class="hiddenbtn">
 <TABLE class="lmsbox">
@@ -481,11 +465,11 @@
 				<A href="?m=customerinfo&id={$customerinfo.id}">{trans("Cancel")} <IMG src="img/cancel.gif" alt=""></A>
 			</TD>
 		</TR>
->>>>>>> 19afad197d41b6807db016d789415899ac8d85e9
     </TBODY>
 </TABLE>
 </FORM>
 <BR>
+
 {include file="customer/customerassignments.html"}
 <SCRIPT type="text/javascript">
 <!--
