@@ -134,12 +134,6 @@ class LMSStck {
 				break;
 		}
 
-		/*if ($wgl = $this->DB->GetAll('SELECT w.id, w.name, w.comment, w.def,
-			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
-			FROM stck_warehouses w
-			LEFT JOIN stck_stock s ON s.warehouseid = w.id AND s.pricesell IS NULL AND s.leavedate = 0
-			WHERE w.deleted = 0 
-			GROUP BY (w.id)'*/
 		if ($wgl = $this->DB->GetAll('SELECT w.id, w.name, w.comment, w.def,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_warehouses w
@@ -173,23 +167,11 @@ class LMSStck {
 		return $this->DB->GetOne("SELECT COUNT(id) FROM stck_stock s WHERE s.warehouseid = ? AND s.deleted = 0", array($id));
 	}
 
-/*	function WarehouseStockValue($id) {
-		return $this->DB->GetOne("SELECT SUM(s.pricebuy) FROM stck_stock s WHERE s.warehouseid = ? AND s.active = 1", array($id));
-	}
-*/
 	function WarehouseDel($id) {
 		$this->DB->Execute("UPDATE stck_warehouses SET deleted = 1, moddate = ?NOW?, modid = ? WHERE id = ?", array($this->AUTH->id, $id));
 	}
 
 	function WarehouseGetInfoById($id) {
-		/*if ($wi = $this->DB->GetRow("SELECT w.*, u.name as createdby,
-			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
-			FROM stck_warehouses w
-			LEFT JOIN users u ON w.creatorid = u.id
-			LEFT JOIN stck_stock s ON s.warehouseid = w.id
-			WHERE w.id = ? AND u.id = w.creatorid AND s.pricesell IS NULL", array($id))) {
-			//$wi['count'] = $this->WarehouseStockCount($id);
-			//$wi['value'] = $this->WarehouseStockValue($id);*/
 		if ($wi = $this->DB->GetRow("SELECT w.*, u.name as createdby,
 			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
 			FROM stck_warehouses w
@@ -374,12 +356,6 @@ class LMSStck {
 			WHERE p.groupid = ? AND s.deleted = 0 AND p.id = s.productid", array($id));
 	}
 
-/*	function GroupStockValue($id) {
-		return $this->DB->GetOne("SELECT SUM(s.pricebuy)
-			FROM stck_stock s, stck_products p
-			WHERE p.groupid = ? AND s.active = 1 AND p.id = s.productid", array($id));
-	}
-*/
 	function GroupExists($id) {
 		switch($this->DB->GetOne('SELECT deleted FROM stck_manufacturers WHERE id=?', array($id))) {
 			case '0':
@@ -412,14 +388,6 @@ class LMSStck {
 				break;
 		}
 		
-		/*if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment, g.*,
-			COALESCE(SUM(s.pricebuynet), 0) as valuenet,  COALESCE(SUM(s.pricebuygross), 0) as valuegross, COUNT(s.id) as count
-			FROM stck_groups g
-			LEFT JOIN stck_stock s ON s.groupid = g.id
-			WHERE s.sold = 0'
-			.($start ? ' AND UPPER(g.name) LIKE \''.$start.'%\' ' : '')
-			.' GROUP BY (g.id)'
-			.($sqlord != '' ? $sqlord.' '.$direction : ''))) {*/
 		if ($ggl = $this->DB->GetAll('SELECT g.id as gid, g.name as gname, g.comment as gcomment, g.*, sij.valuenet, sij.valuegross, sij.count
 			FROM stck_groups g
 			LEFT JOIN (
