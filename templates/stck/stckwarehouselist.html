@@ -1,5 +1,6 @@
-{include file="header.html"}
-<!--// $Id: warehouselist.html,v 1.26 2009/11/13 09:33:06 alec Exp $ //-->
+{extends file="layout.html"}
+{block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
+{block name=module_content}
 <H1>{$layout.pagetitle}</H1>
 <TABLE CELLPADDING="3" width="100%">
 	<TR CLASS="dark" {tip text="Click on column name to change sorting order"}>
@@ -81,4 +82,4 @@
 		</TD>
 	</TR>			
 </TABLE>
-{include file="footer.html"}
+{/block}

@@ -1,4 +1,6 @@
-{include file="header.html"}
+{extends file="layout.html"}
+{block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
+{block name=module_content}
 <SCRIPT TYPE="text/javascript">
 <!--
 function filter() {
@@ -164,4 +166,4 @@ function pays() {
 	</TR>
 	</tfoot>
 </TABLE>
-{include file="footer.html"}
+{/block}

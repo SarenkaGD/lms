@@ -144,7 +144,7 @@ switch($action)
 			$SESSION->restore('noteid', $note['id']);
 
 			$DB->BeginTrans();
-                        $DB->LockTables(array('documents', 'cash', 'debitnotecontents', 'numberplans'));
+                        $DB->LockTables(array('documents', 'cash', 'debitnotecontents', 'numberplans','vdivisions'));
 
 			$cdate = !empty($note['cdate']) ? $note['cdate'] : time();
 

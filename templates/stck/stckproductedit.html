@@ -1,5 +1,6 @@
-{include file="header.html"}
-<!--// $Id: productedit.html,v 1.35 2009/09/09 22:19:57 ceho Exp $ //-->
+{extends file="layout.html"}
+{block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
+{block name=module_content}
 <H1>{$layout.pagetitle}</H1>
 <P><FORM METHOD="POST" ACTION="?m=stckproductedit&id={$productedit.id}" NAME="productedit">
 <INPUT type="submit" class="hiddenbtn">
@@ -124,4 +125,4 @@
 document.forms['productedit'].elements['productedit[name]'].focus();
 //-->
 </SCRIPT>
-{include file="footer.html"}
+{/block}

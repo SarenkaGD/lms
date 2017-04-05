@@ -321,7 +321,7 @@ switch($action)
 		$iid   = $invoice['id'];
 
 		$DB->BeginTrans();
-		$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
+		$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions'));
 
 		$division = $DB->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
 			account, inv_header, inv_footer, inv_author, inv_cplace 
@@ -489,7 +489,6 @@ switch($action)
 						$icid = $DB->GetLastInsertID('cash');
 						$DB->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stockid']));
 					}
-				}
 			}
 		} elseif ($invoice['doctype'] == DOC_INVOICE) {
 			if ($SYSLOG) {

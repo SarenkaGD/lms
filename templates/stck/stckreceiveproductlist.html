@@ -1,4 +1,6 @@
-{include file="header.html"}
+{extends file="layout.html"}
+{block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
+{block name=module_content}
 <script type="text/javascript" src="/stock/js/jquery.simplemodal.js"></script>
 <link href="/stock/js/jquery.simplemodal.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="/stock/js/common.js"></script>
@@ -257,4 +259,4 @@ document.forms['receivenote'].elements['pinput'].focus();
 //-->
 </SCRIPT>
 
-{include file="footer.html"}
+{/block}

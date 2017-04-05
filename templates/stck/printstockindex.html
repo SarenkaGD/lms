@@ -1,5 +1,6 @@
-{include file="header.html"}
-<!--// $Id: printindex.html,v 1.103 2011/12/06 20:56:44 chilek Exp $ //-->
+{extends file="layout.html"}
+{block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
+{block name=module_content}
 <H1>{$layout.pagetitle}</H1>
 {include file="calendar_js.html"}
 <P><FORM method="POST" name="printinventory" id="printinventory" action="?m=printstock&type=inventory" target="_blank">
@@ -191,4 +192,4 @@ var cal14 = new calendar(document.printstocklistbrep.elements['params[eday]']);
 cal14.time_comp = false;
 //-->
 </SCRIPT>
-{include file="footer.html"}
+{/block}

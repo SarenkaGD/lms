@@ -44,7 +44,11 @@
                         <tr>
                             <td style="width: 1%" class="nobr">
                                 {trans("Search:")}
-								{include file="quicksearchcontents.html"}
+								{if ConfigHelper::getConfig('phpui.stock')}<!--Add if for lms-stck-->
+									{include file="stck/stckquicksearchcontents.html"}
+								{else}
+									{include file="quicksearchcontents.html"}
+								{/if}
                                 {* Enter key submit hack for IE *}
 								{* don't change this to img element as it breaks auto search after pressing enter outside autosuggest box *}
                                 <input type="image" src="img/empty.gif" width="0" height="0" style="border: none;">

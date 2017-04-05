@@ -1,4 +1,6 @@
-{include file="header.html"}
+{extends file="layout.html"}
+{block name=title}::: LMS :{$layout.pagetitle|striphtml} :::{/block}
+{block name=module_content}
 {if !$layout.popup}<h1>{$layout.pagetitle}</h1>
 {else}
 {include file="stck/modal.html"}
@@ -39,4 +41,4 @@
 document.forms['manufactureradd'].elements['manufactureradd[name]'].focus();
 //-->
 </SCRIPT>
-{include file="footer.html"}
+{/block}

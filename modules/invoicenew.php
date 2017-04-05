@@ -338,12 +338,11 @@ switch($action)
 			break;
 
 		$DB->BeginTrans();
-		$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
 		
-		if (ConfigHelper::getConfig('phpui.stock'))//Added for STCK by Sarenka MAXCON
-			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions','stck_cashassignments','stck_invoicecontentsassignments','stck_stock'));
+		if (ConfigHelper::getConfig('phpui.stock'))//Added if/else (clean) for STCK by Sarenka MAXCON
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions','stck_cashassignments','stck_invoicecontentsassignments','stck_stock'));
 		else
-			 $DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions'));
+			 $DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions'));
 		//END STCK
 
 		if(!$invoice['number'])
