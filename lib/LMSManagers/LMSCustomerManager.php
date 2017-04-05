@@ -339,7 +339,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 
             // INSERT ADDRESSES
             foreach ( $customeradd['addresses'] as $v ) {
-                $a = $location_manager->InsertCustomerAddress( $id, $v );
+                $location_manager->InsertCustomerAddress( $id, $v );
 
                 // update country states
                 if ( $v['location_zip'] && $v['location_state'] ) {
@@ -394,11 +394,11 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
     {
         extract($params);
 
-        if(is_null($order))
+        if(isset($order) && is_null($order))
             $order = 'customername,asc';
-        if(is_null($sqlskey))
+        if(isset($sqlskey) && is_null($sqlskey))
             $sqlskey = 'AND';
-        if(is_null($count))
+        if(isset($count) && is_null($count))
             $count = FALSE;
 
         list($order, $direction) = sscanf($order, '%[^,],%s');
@@ -1276,10 +1276,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
                                           addr.house as location_house, addr.zip as location_zip,
                                           addr.country_id as location_country_id, addr.flat as location_flat,
                                           ca.type as location_address_type, addr.location,
-                                          (CASE WHEN
-                                              addr.city_id is not null AND addr.street_id is not null
-                                              THEN 1 ELSE 0
-                                          END) as teryt
+                                          (CASE WHEN addr.city_id is not null THEN 1 ELSE 0 END) as teryt
                                        FROM
                                           customers cv
                                           LEFT JOIN customer_addresses ca ON ca.customer_id = cv.id
@@ -1288,7 +1285,6 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
                                           cv.id = ?' .
                                           (($hide_deleted) ? ' AND cv.deleted != 1' : ''), 'address_id',
                                        array( $id ));
-
 
         if ( !$data ) {
             return array();

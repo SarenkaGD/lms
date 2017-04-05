@@ -157,21 +157,10 @@ $SYSLOG = SYSLOG::getInstance();
  * \return array       associative array with paremeters
  */
 function parse_teryt_building_row( $row ) {
-    $pattern = '(?<id>.*);(?<woj>.*);(?<powiat>.*);(?<gmina>.*);' .
-               '(?<terc>.*);(?<miejscowosc>.*);(?<simc>.*);' .
-               '(?<ulica>.*);(?<ulic>.*);(?<building_num>.*);' .
-               '(?<longitude>.*);(?<latitude>.*)';
+	static $column_names = array('id', 'woj', 'powiat', 'gmina', 'terc', 'miejscowosc',
+		'simc', 'ulica', 'ulic', 'building_num', 'longitude', 'latitude');
 
-    $row = str_replace("\r", '', $row);
-    preg_match('/^'.$pattern.'$/', $row, $matches);
-
-    foreach ( $matches as $k=>$v ) {
-        if ( is_numeric($k) ) {
-            unset( $matches[$k] );
-        }
-    }
-
-    return $matches;
+	return array_combine($column_names, explode(';', str_replace("\r", '', $row)));
 }
 
 /*!
@@ -181,12 +170,15 @@ function parse_teryt_building_row( $row ) {
  * \return array
  */
 function parse_teryt_xml_row( $xml_string ) {
+    static $column_names = array('WOJ' => true, 'POW' => true, 'GMI' => true,
+        'RODZ' => true, 'RODZ_GMI' => true, 'SYM' => true, 'SYMPOD' => true, 'SYM_UL' => true);
+
     $row = array();
     $tmp = explode( "\n", trim($xml_string) );
 
     foreach ( $tmp as $col ) {
         if ( preg_match('/^<col name="(?<key>[_a-zA-Z0-9]+)"\/?>((?<val>[^<]+)<\/col>)?/', $col, $matches) ) {
-            if ( in_array( $matches['key'], array('WOJ','POW','GMI','RODZ','RODZ_GMI','SYM','SYMPOD','SYM_UL') ) ) {
+            if ( isset( $column_names[$matches['key']]) ) {
                 $matches['val'] = intval($matches['val']);
             }
 
@@ -245,7 +237,6 @@ $stderr = fopen('php://stderr', 'w');
 define('PROGRESS_ROW_COUNT', 1000);
 define('BUILDING_BASE_ZIP_NAME', 'baza_punktow_adresowych_2016.zip');
 define('BUILDING_BASE_ZIP_URL', 'https://form.teleinfrastruktura.gov.pl/help-files/baza_punktow_adresowych_2016.zip');
-$building_base_name = 'baza_punktow_adresowych_2016.csv';
 
 $only_unique_city_matches = isset($options['only-unique-city-matches']);
 
@@ -276,6 +267,8 @@ else
 		fwrite($stderr, "Output directory specified in ini file does not exist!" . PHP_EOL);
 		die;
 	}
+
+$building_base_name = $teryt_dir . DIRECTORY_SEPARATOR . 'baza_punktow_adresowych_2016.csv';
 
 //==============================================================================
 // Download required files
@@ -866,6 +859,8 @@ if ( isset($options['update']) ) {
 	        continue;
 	    }
 
+        $row['nazwa_1'] = trim($row['nazwa_1']);
+        $row['nazwa_2'] = trim($row['nazwa_2']);
 	    $key    = $row['sym_ul'].':'.$row['sym'];
 	    $data   = $ulic[$key];
 	    $typeid = intval( $str_types[$row['cecha']] );
@@ -1051,14 +1046,14 @@ if ( isset($options['buildings']) ) {
             $to_update = array();
         }
 
-        // location buildings progres
+        // location building database creation progress
 		if (!$quiet)
-			echo "$i/$steps" . PHP_EOL;
+			printf("%.2f%%\r", ($i * 100) / $steps);
         ++$i;
     }
 
 	if (!$quiet)
-		echo 'Removing old buildings' . PHP_EOL;
+		echo 'Removing old buildings...' . PHP_EOL;
 
     $DB->Execute('DELETE FROM location_buildings WHERE updated = 0;');
     $DB->Execute('UPDATE location_buildings SET updated = 0;');
@@ -1141,7 +1136,7 @@ if ( isset($options['delete']) ) {
 		echo 'Deleting downloaded files...' . PHP_EOL;
 
     if ( !empty($building_base_name) && file_exists($building_base_name)) {
-        unlink($teryt_dir . DIRECTORY_SEPARATOR . $building_base_name );
+        unlink($building_base_name);
     }
 
     unlink($teryt_dir . DIRECTORY_SEPARATOR . BUILDING_BASE_ZIP_NAME);

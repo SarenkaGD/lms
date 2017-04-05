@@ -338,7 +338,7 @@ $(function() {
 			});
 			$('thead input', elem).on('keyup change search', function() {
 				$(elem).DataTable().column($(this).parent().index() + ':visible')
-					.search(this.value.length ? '^' + this.value + '$' : '', true).draw();
+					.search(this.value.length ? this.value : '', true).draw();
 			});
 			$('thead select', elem).on('change', function() {
 				var value = this.value;
@@ -358,6 +358,7 @@ $(function() {
 				var searchFields = $('thead input[type="search"],thead select', elem);
 				api.columns().every(function(index) {
 					var columnState = state.columns[index];
+					var searchValue = '';
 					if (!columnState.visible) {
 						return;
 					}
@@ -365,8 +366,15 @@ $(function() {
 						$(searchFields[i]).val(state.columns[index].search.search.replace(/[\^\$]/g, ''));
 					} else {
 						$(searchFields[i]).val(searchColumns[index].search.replace(/[\^\$]/g, ''));
-						api.column(index).search(
-							searchColumns[index].search.length ? '^' + searchColumns[index].search + '$' : '', true).draw();
+						if (searchColumns[index].search.length) {
+							if ($(searchFields[i]).is('thead select')) {
+								searchValue = '^' + searchColumns[index].search + '$';
+							} else {
+								searchValue = searchColumns[index].search;
+							}
+						}
+						console.log(searchValue);
+						api.column(index).search(searchValue, true).draw();
 					}
 					i++;
 				});
@@ -781,22 +789,12 @@ $(function() {
 			'?m=quicksearch&ajax=1&mode=' + $(input).attr('data-mode') + '&what=', lmsSettings.quickSearchAutoSubmit);
 	});
 
-	qs_inputs.prev().addClass('lms-ui-quick-search')
-		.on('mouseenter click', function(e) {
-		if (e.type == 'mouseenter') {
-			if (qs_timer != null) {
-				clearTimeout(qs_timer);
-			}
-			var qs_img = this;
-			qs_timer = setTimeout(function() {
-				('input.lms-ui-quick-search-active', qs_inputs).removeClass('lms-ui-quick-search-active');
-				$(qs_img).next().addClass('lms-ui-quick-search-active').focus();
-				qs_timer = null;
-			}, 300);
-		} else {
-			('input.lms-ui-quick-search-active', qs_inputs).removeClass('lms-ui-quick-search-active');
-			$(this).next().addClass('lms-ui-quick-search-active').focus();
-		}
+	qs_inputs.on('click', function(e) {
+		('input.lms-ui-quick-search-active', qs_inputs).removeClass('lms-ui-quick-search-active');
+		$(this).addClass('lms-ui-quick-search-active').focus();
+	}).prev().on('click', function(e) {
+		('input.lms-ui-quick-search-active', qs_inputs).removeClass('lms-ui-quick-search-active');
+		$(this).next().addClass('lms-ui-quick-search-active').focus();
 	});
 	qs_inputs.first().addClass('lms-ui-quick-search-active').focus();
 

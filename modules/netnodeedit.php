@@ -30,7 +30,7 @@ if (empty($id)) {
     $id = intval($_POST['id']);
 }
 
-if (!$DB->GetOne('SELECT * FROM netnodes WHERE id=?',array($id)))
+if (!$LMS->NetNodeExists($id))
 	$SESSION->redirect('?m=netnodelist');
 
 if (isset($_POST['netnode'])) {
@@ -59,58 +59,19 @@ if (isset($_POST['netnode'])) {
 	}
 
 	if (!$error) {
-		$ipi = $netnodedata['invprojectid'];
-		if ($ipi == '-1') {
-			$DB->BeginTrans();
+		if (intval($netnodedata['invprojectid']) == -1) {
 			$DB->Execute("INSERT INTO invprojects (name, type) VALUES (?, ?)",
 				array($netnodedata['projectname'], INV_PROJECT_REGULAR));
-			$ipi = $DB->GetLastInsertID('invprojects');
-			$DB->CommitTrans();
+			$netnodedata['invprojectid'] = $DB->GetLastInsertID('invprojects');
 		}
 
-		$args = array(
-			'name'            => $netnodedata['name'],
-			'type'            => $netnodedata['type'],
-			'status'          => $netnodedata['status'],
-			'longitude'       => !empty($netnodedata['longitude']) ? str_replace(',', '.', $netnodedata['longitude']) : null,
-			'latitude'        => !empty($netnodedata['latitude'])  ? str_replace(',', '.', $netnodedata['latitude'])  : null,
-			'ownership'       => $netnodedata['ownership'],
-			'coowner'         => $netnodedata['coowner'],
-			'uip'             => $netnodedata['uip'],
-			'miar'            => $netnodedata['miar'],
-			'divisionid'      => $netnodedata['divisionid'],
-			'invprojectid'    => $netnodedata['invprojectid'] == '-1' || intval($ipi) > 0 ? intval($ipi) : null
-		);
-
-		// if address_id is set then update
-		if ( isset($netnodedata['address_id']) ) {
-			$LMS->UpdateAddress( $netnodedata );
-		} else {
-		// else insert new address
-			$addr_id = $LMS->InsertAddress( $netnodedata );
-
-			if ( $addr_id && $addr_id >= 0 ) {
-				$args['address_id'] = $addr_id;
-			}
-		}
-
-		$DB->Execute('UPDATE netnodes SET ' . implode(' = ?, ', array_keys($args)) . ' = ? WHERE id = ?',
-			array_merge(array_values($args), array($id)));
+		$LMS->NetNodeUpdate($netnodedata);
 		$LMS->CleanupInvprojects();
+
 		$SESSION->redirect('?m=netnodeinfo&id=' . $id);
 	}
 } else {
-	$netnodedata = $DB->GetRow("SELECT n.*,p.name AS projectname,
-									addr.name as location_name, addr.id as address_id,
-									addr.state as location_state_name, addr.state_id as location_state,
-									addr.zip as location_zip, addr.country_id as location_country,
-									addr.city as location_city_name, addr.street as location_street_name,
-									addr.city_id as location_city, addr.street_id as location_street,
-									addr.house as location_house, addr.flat as location_flat
-								FROM netnodes n
-									LEFT JOIN addresses addr ON n.address_id = addr.id
-									LEFT JOIN invprojects p ON n.invprojectid=p.id
-								WHERE n.id=?", array($id));
+	$netnodedata = $LMS->GetNetNode($id);
 
 	if ($netnodedata['location_city'] || $netnodedata['location_street']) {
 		$netnodedata['teryt'] = true;

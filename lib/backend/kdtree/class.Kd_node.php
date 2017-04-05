@@ -1,9 +1,9 @@
 <?php
 
 /*
- * LMS version 1.11-git
+ *  LMS version 1.11-git
  *
- *  (C) Copyright 2001-2017 LMS Developers
+ *  Copyright (C) 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -24,19 +24,21 @@
  *  $Id$
  */
 
-$id = intval($_GET['id']);
+/*!
+ * \class Kd_node
+ * \brief Assistant class for Kd_tree.
+ */
+class Kd_node {
 
-if (!$LMS->NetNodeExists($id))
-	$SESSION->redirect('?m=netnodelist');
+    public $loc   = null;
+    public $left  = null;
+    public $right = null;
 
-$DB->BeginTrans();
-
-$LMS->NetNodeDelete($id);
-
-$LMS->CleanupInvprojects();
-
-$DB->CommitTrans();
-
-$SESSION->redirect('?m=netnodelist');
+    public function __construct( array $p = null ) {
+        if ( $p ) {
+            $this->loc = $p;
+        }
+    }
+}
 
 ?>

@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2016 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -131,7 +131,7 @@ function check_ipv6($ip)
 {
         // fast exit for localhost
 	if (strlen($ip) < 3)
-	        return $IP == '::';
+	        return $ip == '::';
 	
 	// Check if part is in IPv4 format
 	if (strpos($ip, '.')) {
@@ -1154,3 +1154,33 @@ function trim_rec( $data ) {
         return trim($data);
     }
 }
+
+/*!
+ * \brief Google Maps Geocode service function
+ *
+ * \param $location string location formatted human-friendly
+ * \return mixed Result in associative array or null on error
+ */
+
+function geocode($location) {
+	$api_key = ConfigHelper::getConfig('phpui.googlemaps_api_key', '', true);
+	$address = urlencode($location);
+	$link = "http://maps.googleapis.com/maps/api/geocode/json?address=" . $address . "&sensor=false"
+		. (empty($api_key) ? '' : 'key=' . $api_key);
+	if (($res = @file_get_contents($link)) === false)
+		return null;
+	$page = json_decode($res, true);
+	$latitude = str_replace(',', '.', $page["results"][0]["geometry"]["location"]["lat"]);
+	$longitude = str_replace(',', '.', $page["results"][0]["geometry"]["location"]["lng"]);
+	$status = $page["status"];
+	$accuracy = $page["results"][0]["geometry"]["location_type"];
+	return array(
+		'status' => $status,
+		'accuracy' => $accuracy,
+		'latitude' => $latitude,
+		'longitude' => $longitude,
+		'raw-result' => $page,
+	);
+}
+
+?>

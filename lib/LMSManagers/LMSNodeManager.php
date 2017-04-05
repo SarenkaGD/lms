@@ -787,10 +787,28 @@ class LMSNodeManager extends LMSManager implements LMSNodeManagerInterface
             $SYSLOG->AddMessage(SYSLOG::RES_NODE, SYSLOG::OPER_UPDATE, $args);
         }
 
-        if (!$error) {
+        if ( !$error_msg ) {
             $this->db->Execute('UPDATE nodes SET ' . $field . ' = ? WHERE id = ?;', array($value, $nodeid));
         } else {
             return $error_msg;
         }
     }
+
+	public function GetUniqueNodeLocations($customerid) {
+		$nodes = $this->db->GetAll('SELECT id AS nodeid, location FROM vnodes WHERE ownerid = ?',
+			array($customerid));
+		if (empty($nodes))
+			return null;
+
+		$customer_manager = new LMSCustomerManager($this->db, $this->auth, $this->cache, $this->syslog);
+		$locations = array();
+		foreach ($nodes as $node)
+			if (empty($node['location'])) {
+				if (!isset($default_location))
+					$default_location = $customer_manager->getAddressForCustomerStuff($customerid);
+				$locations[] = $default_location;
+			} else
+				$locations[] = $node['location'];
+		return array_unique($locations);
+	}
 }
