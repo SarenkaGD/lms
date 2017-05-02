@@ -150,7 +150,8 @@ class LMSHelpdeskManager extends LMSManager implements LMSHelpdeskManagerInterfa
 
     public function GetQueueList($stats = true)
     {
-        if ($result = $this->db->GetAll('SELECT q.id, name, email, description
+        if ($result = $this->db->GetAll('SELECT q.id, name, email, description, newticketsubject, newticketbody,
+					newmessagesubject, newmessagebody, resolveticketsubject, resolveticketbody
 				FROM rtqueues q'
                 . (!ConfigHelper::checkConfig('privileges.superuser') ? ' JOIN rtrights r ON r.queueid = q.id
 					WHERE r.rights <> 0 AND r.userid = ?' : '') . ' ORDER BY name', array($this->auth->id))) {
@@ -374,9 +375,10 @@ class LMSHelpdeskManager extends LMSManager implements LMSHelpdeskManagerInterfa
 				VALUES (?, ?)', array($id, $catid));
 
         if (!empty($files) && ConfigHelper::getConfig('rt.mail_dir')) {
-            $dir = ConfigHelper::getConfig('rt.mail_dir') . sprintf('/%06d/%06d', $id, $msgid);
-            @mkdir(ConfigHelper::getConfig('rt.mail_dir') . sprintf('/%06d', $id), 0700);
-            @mkdir($dir, 0700);
+            $dir = ConfigHelper::getConfig('rt.mail_dir') . DIRECTORY_SEPARATOR . sprintf('%06d' . DIRECTORY_SEPARATOR . '%06d', $id, $msgid);
+            $dir_permission = intval(ConfigHelper::getConfig('rt.mail_dir_permission', '0700'), 8);
+            @mkdir(ConfigHelper::getConfig('rt.mail_dir') . DIRECTORY_SEPARATOR . sprintf('%06d', $id), $dir_permission);
+            @mkdir($dir, $dir_permission);
             foreach ($files as $file) {
                 $newfile = $dir . DIRECTORY_SEPARATOR . $file['name'];
                 if (@rename($ticket['tmppath'] . DIRECTORY_SEPARATOR . $file['name'], $newfile))

@@ -1693,6 +1693,8 @@ class LMS
 				$smtp_username = ConfigHelper::getConfig('mail.smtp_username');
 				if (!empty($smtp_username) || isset($smtp_options['user'])) {
 					$params['auth'] = (!isset($smtp_options['auth']) ? ConfigHelper::getConfig('mail.smtp_auth_type', true) : $smtp_options['auth']);
+					if ($params['auth'] == 'false')
+						$params['auth'] = false;
 					$params['username'] = (!isset($smtp_options['user']) ? $smtp_username : $smtp_options['user']);
 					$params['password'] = (!isset($smtp_options['pass']) ? ConfigHelper::getConfig('mail.smtp_password') : $smtp_options['pass']);
 				} else
@@ -1762,8 +1764,20 @@ class LMS
 			if (!empty($smtp_username) || isset($smtp_options['user'])) {
 				$this->mail_object->Username = (!isset($smtp_options['user']) ? $smtp_username : $smtp_options['user']);
 				$this->mail_object->Password = (!isset($smtp_options['pass']) ? ConfigHelper::getConfig('mail.smtp_password') : $smtp_options['pass']);
-				$this->mail_object->SMTPAuth  = (!isset($smtp_options['auth']) ? ConfigHelper::getConfig('mail.smtp_auth_type', true) : $smtp_options['auth']);
-				$this->mail_object->SMTPSecure  = (!isset($smtp_options['auth']) ? ConfigHelper::getConfig('mail.smtp_secure', true) : $smtp_options['auth']);
+				$auth_type = isset($smtp_options['auth']) ? $smtp_options['auth'] : ConfigHelper::getConfig('mail.smtp_auth_type', true);
+				if (is_bool($auth_type))
+					$this->mail_object->SMTPAuth = $auth_type;
+				elseif ($auth_type == 'false')
+					$this->mail_object->SMTPAuth = false;
+				else {
+					$this->mail_object->SMTPAuth = true;
+					$this->mail_object->AuthType = $auth_type;
+				}
+				$this->mail_object->SMTPSecure = ConfigHelper::getConfig('mail.smtp_secure', '', true);
+				if ($this->mail_object->SMTPSecure == 'false') {
+					$this->mail_object->SMTPSecure = '';
+					$this->mail_object->SMTPAutoTLS = false;
+				}
 			}
 
 			$this->mail_object->SMTPOptions = array(
@@ -1780,8 +1794,12 @@ class LMS
 			if (isset($_SERVER['HTTP_USER_AGENT']))
 				$this->mail_object->addCustomHeader('X-HTTP-User-Agent: '.$_SERVER['HTTP_USER_AGENT']);
 
-			if (isset($headers['X-LMS-Message-Item-Id']))
-				$this->mail_object->addCustomHeader('X-LMS-Message-Item-Id: ' . $headers['X-LMS-Message-Item-Id']);
+			foreach (array('X-LMS-Message-Item-id', 'References', 'In-Reply-To', 'Message-ID') as $header_name)
+				if (isset($headers[$header_name]))
+					if ($header_name == 'Message-ID')
+						$this->mail_object->MessageID = $headers[$header_name];
+					else
+						$this->mail_object->addCustomHeader($header_name . ': ' . $headers[$header_name]);
 
 			if (isset($headers['Disposition-Notification-To']))
 				$this->mail_object->ConfirmReadingTo = $headers['Disposition-Notification-To'];
@@ -2274,6 +2292,11 @@ class LMS
     public function CopyAddress( $address_id ) {
         $manager = $this->getLocationManager();
         return $manager->CopyAddress( $address_id );
+    }
+
+    public function GetAddress( $address_id ) {
+        $manager = $this->getLocationManager();
+        return $manager->GetAddress( $address_id );
     }
 
     public function GetNAStypes()

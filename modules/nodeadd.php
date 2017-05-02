@@ -43,6 +43,9 @@ if (isset($_GET['ownerid']))
 if (isset($_GET['preip']))
 	$nodedata['ipaddr'] = $_GET['preip'];
 
+if (isset($_GET['prenetwork']))
+    $nodedata['netid'] = $_GET['prenetwork'];
+
 if (isset($_GET['premac']))
 	$nodedata['macs'][] = $_GET['premac'];
 
@@ -272,7 +275,9 @@ $nprojects = $DB->GetAll("SELECT * FROM invprojects WHERE type<>? ORDER BY name"
 	array(INV_PROJECT_SYSTEM));
 $SMARTY->assign('NNprojects',$nprojects);
 
-include(MODULES_DIR . '/nodexajax.inc.php');
+$LMS->InitXajax();
+include(MODULES_DIR . DIRECTORY_SEPARATOR . 'nodexajax.inc.php');
+include(MODULES_DIR . DIRECTORY_SEPARATOR . 'geocodexajax.inc.php');
 
 $nodedata = $LMS->ExecHook('node_add_init', $nodedata);
 

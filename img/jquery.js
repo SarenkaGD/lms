@@ -373,7 +373,7 @@ $(function() {
 								searchValue = searchColumns[index].search;
 							}
 						}
-						console.log(searchValue);
+						//console.log(searchValue);
 						api.column(index).search(searchValue, true).draw();
 					}
 					i++;
@@ -493,8 +493,24 @@ $(function() {
 			displayStart: init.displayStart,
 			searchCols: init.searchColumns,
 			stateSave: init.stateSave,
+			stateSaveProps: init.stateSaveProps,
 			ordering: init.ordering,
-			orderCellsTop: init.orderCellsTop
+			orderCellsTop: init.orderCellsTop,
+			stateSaveParams: function(settings, data) {
+				var api = new $.fn.dataTable.Api(settings);
+				var stateSaveProps = api.init().stateSaveProps;
+				if (!Array.isArray(stateSaveProps)) {
+					return;
+				}
+				for (var property in data) {
+					if (data.hasOwnProperty(property)) {
+						if (property == "time" || stateSaveProps.indexOf(property) >= 0) {
+							continue;
+						}
+						delete data[property];
+					}
+				}
+			}
 		})
 		.on('mouseenter', 'tbody > tr', function() {
 			$(this).siblings('tr').removeClass('highlight');
@@ -516,8 +532,13 @@ $(function() {
 			init.searchColumns = eval(init.searchColumns);
 		}
 		init.stateSave = $(this).attr('data-state-save');
+		init.stateSaveProps = true;
 		if (init.stateSave === undefined) {
 			init.stateSave = false;
+		} else if (init.stateSave.match(/^\[(.+)\]$/)) {
+			init.stateSaveProps = JSON.parse(RegExp.$1);
+		} else {
+			init.stateSave = true;
 		}
 		init.ordering = $(this).attr('data-ordering');
 		if (init.ordering === undefined) {

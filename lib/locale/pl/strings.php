@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2016 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -37,6 +37,7 @@ $_LANG['Enter Tax Office Code (optional)'] = 'Wprowadź Kod Urzędu Podatkowego 
 $_LANG['Invalid format of Tax Office Code!'] = 'Niepoprawny format Kodu Urzędu Podatkowego!';
 
 $_LANG['Notify customer:'] = 'Powiadom klienta:';
+$_LANG['Notify customer via SMS:'] = 'Powiadom klienta SMS-em:';
 
 $_LANG['billing'] = 'biling';
 $_LANG['Billing'] = 'Biling';
@@ -255,6 +256,7 @@ $_LANG['Browse'] = 'Przeglądaj';
 $_LANG['Browse Configuration'] = 'Przeglądaj konfigurację';
 $_LANG['Bug Tracking System'] = 'System śledzenia błędów';
 $_LANG['bytes'] = 'bajtów';
+$_LANG['Incorrect IP address'] = 'Nieprawidłowy adres IP';
 $_LANG['Cancel'] = 'Anuluj';
 $_LANG['Can\'t change value of tax rate which was used in the past!'] = 'Nie można zmienić wartości stawki podatkowej, która była już używana w przeszłości';
 $_LANG['No prefix groups assigned to tariff rule.'] = 'Nie przypisano grup do reguły taryfikacyjnej.';
@@ -270,6 +272,7 @@ $_LANG['Cautions:'] = 'Uwagi:';
 $_LANG['Change connection type'] = 'Zmień typ połączenia';
 $_LANG['Connection type:'] = 'Typ połączenia:';
 $_LANG['incoming'] = 'przychodzące';
+$_LANG['Allows you to display IP address usage from whole network.'] = 'Umożliwia wyświetlenie użycia adresów IP z całej sieci.';
 $_LANG['outgoing'] = 'wychodzące';
 $_LANG['answered'] = 'odebrano';
 $_LANG['no answer'] = 'nie odebrano';
@@ -506,8 +509,8 @@ $_LANG['End:'] = 'Koniec:';
 $_LANG['End of DHCP range:'] = 'Koniec zakresu DHCP:';
 $_LANG['End of DHCP range has to be equal or greater than start!'] = 'Koniec zakresu DHCP musi być równy lub większy niż jego początek!';
 $_LANG['End time must not precede start time!'] = 'Czas zakończenia musi być późniejszy niż czas rozpoczęcia!';
-$_LANG['Enter 4 to 6 digits PIN number (optional)'] = 'Wprowadź 4 do 6-u cyfr numeru PIN (opcjonalnie)';
-$_LANG['Enter account quota in MB'] = 'Wprowadź quotę dla konta w MB';
+$_LANG['Enter 4 to 6 digits PIN number'] = 'Wprowadź 4 do 6-u cyfr numeru PIN';
+$_LANG['Enter account quota in MB'] = 'Wprowadź limit dla konta w MB';
 $_LANG['Enter account name'] = 'Wprowadź nazwę konta';
 $_LANG['Enter additional information'] = 'Wprowadź dodatkowe informacje';
 $_LANG['Enter additional information (optional)'] = 'Wprowadź dodatkowe informacje (opcjonalnie)';
@@ -1011,11 +1014,13 @@ $_LANG['Network Devices'] = 'Urządzenia sieciowe';
 $_LANG['Network Devices:'] = 'Urządzenia sieciowe:';
 $_LANG['Network devices list'] = 'Lista urządzeń sieciowych';
 $_LANG['Network Edit: $a'] = 'Edycja sieci: $a';
+$_LANG['Network usage'] = 'Wykorzystanie sieci';
 $_LANG['Network Map'] = 'Mapa sieci';
 $_LANG['Network map type. Use "flash" if you have Ming library or "gd" if your PHP supports gdlib. By default LMS will try to generate flash map, with fallback to GD if it fails.'] = 'Typ mapy urządzeń sieciowych. Jesli posiadasz bibliotekę Ming użyj "flash", a jeśli twoje PHP wspiera gdlib możesz ustawić na "gd". Domyślnie LMS spróbuje wygenerować mapę we flashu, a jeśli to się nie uda, utworzy mapę przy pomocy GD.';
 $_LANG['Network name:'] = 'Nazwa sieci:';
 $_LANG['Network name contains forbidden characters!'] = 'Nazwa sieci zawiera niedozwolone znaki!';
 $_LANG['Network name is required!'] = 'Nazwa sieci jest wymagana!';
+$_LANG['Network name already exists!'] = 'Nazwa sieci jest obecnie używana!';
 $_LANG['Host/network/prefix (interface):'] = 'Host/sieć/prefiks (interfejs):';
 $_LANG['networks and devices management'] = 'zarządzanie sieciami i urządzeniami';
 $_LANG['Network size:'] = 'Rozmiar sieci:';
@@ -1226,7 +1231,7 @@ $_LANG['Queues List'] = 'Lista kolejek';
 $_LANG['Queue with specified name already exists!'] = 'Kolejka o podanej nazwie już istnieje!';
 $_LANG['Tariff rule with specified name already exists!'] = 'Reguła taryfikacyjna o podanej nazwie już istnieje!';
 $_LANG['Price list with specified name already exists!'] = 'Cennik o podanej nazwie już istnieje!';
-$_LANG['Quota (sh/mail/www/ftp/sql):'] = 'Limit (sh/mail/www/ftp/sql):';
+$_LANG['Quota (sh/mail/www/ftp/sql/cloud):'] = 'Limit (sh/mail/www/ftp/sql/chmura):';
 $_LANG['Read'] = 'Odczyt';
 $_LANG['recorded call available for customer'] = 'nagranie dostępne dla klienta';
 $_LANG['recorded call unavailable for customer'] = 'nagranie niedostępne dla klienta';
@@ -1263,7 +1268,6 @@ $_LANG['Remove this item from list'] = 'Usuń tę pozycję z listy';
 $_LANG['Removing network $a'] = 'Usuń sieć $a';
 $_LANG['Repeat password:'] = 'Powtórz hasło:';
 $_LANG['Reply'] = 'Odpowiedź';
-$_LANG['Requester name required!'] = 'Nazwa lub nazwisko zgłaszającego jest wymagane!';
 $_LANG['Requests Tracking'] = 'System Obsługi Zgłoszeń';
 $_LANG['Resolve'] = 'Rozwiąż';
 $_LANG['resolved'] = 'rozwiązany';
@@ -1494,8 +1498,8 @@ $_LANG['Total Invoiceless Income'] = 'Łączny przychód bezrachunkowy';
 $_LANG['Total Invoiceless Income ($a to $b)'] = 'Łączny przychód bezrachunkowy ($a do $b)';
 $_LANG['Total Tax'] = 'Suma PTU';
 $_LANG['Type:'] = 'Typ:';
-$_LANG['Type/Quota:'] = 'Typ/Quota:';
-$_LANG['Type (sh/mail/www/ftp/sql):'] = 'Typ (sh/mail/www/ftp/sql):';
+$_LANG['Type/Quota:'] = 'Typ/Limit:';
+$_LANG['Type (sh/mail/www/ftp/sql/cloud):'] = 'Typ (sh/mail/www/ftp/sql/chmura):';
 $_LANG['configuration'] = 'konfiguracja interfejsu użytkownika';
 $_LANG['uncompressed'] = 'nieskompresowaną';
 $_LANG['Unit:'] = 'JM:';
@@ -2122,11 +2126,13 @@ $_LANG['Enter limit of ftp accounts'] = 'Wprowadź limit liczby kont ftp';
 $_LANG['Enter limit of shell accounts'] = 'Wprowadź limit liczby kont shellowych';
 $_LANG['Enter limit of sql accounts'] = 'Wprowadź limit liczby kont sql';
 $_LANG['Enter limit of www accounts'] = 'Wprowadź limit liczby kont www';
+$_LANG['Enter limit of cloud accounts'] = 'Wprowadź limit liczby kont w chmurze';
 $_LANG['Enter quota limit of e-mail account'] = 'Wprowadź limit rozmiaru konta e-mail';
 $_LANG['Enter quota limit of ftp account'] = 'Wprowadź limit rozmiaru konta ftp';
 $_LANG['Enter quota limit of shell account'] = 'Wprowadź limit rozmiaru konta shellowego';
 $_LANG['Enter quota limit of sql account'] = 'Wprowadź limit rozmiaru konta sql';
 $_LANG['Enter quota limit of www account'] = 'Wprowadź limit rozmiaru konta www';
+$_LANG['Enter quota limit of cloud account'] = 'Wprowadź limit rozmiaru konta w chmurze';
 $_LANG['Forward e-mail:'] = 'E-mail przekierowania:';
 $_LANG['Hosting:'] = 'Hosting:';
 $_LANG['Limit of account aliases:'] = 'Limit liczby aliasów:';
@@ -2136,12 +2142,14 @@ $_LANG['Limit of ftp accounts:'] = 'Limit liczby kont ftp:';
 $_LANG['Limit of shell accounts:'] = 'Limit liczby kont shellowych:';
 $_LANG['Limit of sql accounts:'] = 'Limit liczby kont sql:';
 $_LANG['Limit of www accounts:'] = 'Limit liczby kont www:';
+$_LANG['Limit of cloud accounts:'] = 'Limit liczby kont w chmurze:';
 $_LANG['not expire'] = 'nie wygasa';
 $_LANG['Quota limit of e-mail account:'] = 'Limit rozmiaru konta e-mail:';
 $_LANG['Quota limit of ftp account:'] = 'Limit rozmiaru konta ftp:';
 $_LANG['Quota limit of shell account:'] = 'Limit rozmiaru konta shellowego:';
 $_LANG['Quota limit of sql account:'] = 'Limit rozmiaru konta sql:';
 $_LANG['Quota limit of www account:'] = 'Limit rozmiaru konta www:';
+$_LANG['Quota limit of cloud account:'] = 'Limit rozmiaru konta w chmurze:';
 $_LANG['Exceeded \'$a\' accounts limit of selected customer ($b)!'] = 'Przekroczony limit liczby kont typu \'$a\' dla wybranego klienta ($b)!';
 $_LANG['Exceeded \'$a\' account quota limit of selected customer ($b)!'] = 'Przekroczony limit rozmiaru konta typu \'$a\' dla wybranego klienta ($b)!';
 $_LANG['Exceeded aliases limit of selected customer ($a)!'] = 'Przekroczony limit liczby aliasów dla wybranego klienta ($a)!';
@@ -2168,6 +2176,7 @@ $_LANG['Alias Search Results'] = 'Wyniki wyszukiwania aliasów';
 $_LANG['Domain Search Results'] = 'Wyniki wyszukiwania domen';
 $_LANG['IP Network Search Results'] = 'Wyniki wyszukiwania sieci IP';
 $_LANG['Account Search Results'] = 'Wyniki wyszukiwania kont';
+$_LANG['Result'] = 'Wynik';
 $_LANG['Find aliases matching the following search criteria:'] = 'Wyświetl aliasy spełniające następujące kryteria';
 $_LANG['Find domain matching the following search criteria:'] = 'Wyświetl domeny spełniające następujące kryteria';
 $_LANG['BCC e-mail:'] = 'E-mail BCC:';
@@ -2728,6 +2737,7 @@ $_LANG['<!borough_abbr>'] = 'gm.';
 $_LANG['<!district_abbr>'] = 'pow.';
 $_LANG['City'] = 'Miejscowość';
 $_LANG['Click to add.'] = 'Kliknij aby dodać.';
+$_LANG['Click to add network.'] = 'Kliknij aby dodać sieć.';
 $_LANG['Click to select location'] = 'Kliknij aby wybrać położenie';
 $_LANG['District'] = 'Powiat';
 $_LANG['Enter city name'] = 'Wprowadź nazwę miasta';
@@ -3631,4 +3641,20 @@ $_LANG['Helpdesk assignment:'] = 'Przypisanie do Helpdesk:';
 $_LANG['This event is not assigned to any helpdesk request.'] = 'Zdarzenie nie jest przypisane do żadnego zgłoszenia w helpdesk.';
 $_LANG['Request not assigned to any customer.'] = 'Zgłoszenie nie jest przypisane do żadnego klienta.';
 $_LANG['Request not assigned to any customer location.'] = 'Zgłoszenie nie jest przypisane do żadnej lokalizacji klienta.';
+
+$_LANG['Result:'] = 'Wynik:';
+
+$_LANG['(no subject)'] = '(brak tematu)';
+
+$_LANG['cloud'] = 'chmura';
+
+$_LANG['New ticket body should not be empty if you set new ticket subject!'] = 'Treść powiadomienia o nowym zgłoszeniu nie może być pusta w sytuacji, gdy ustawiono temat powiadomienia o nowym zgłoszeniu!';
+$_LANG['New ticket subject should not be empty if you set new ticket body!'] = 'Temat powiadomienia o nowym zgłoszeniu nie może być pusty w sytuacji, gdy ustawiono treść powiadomienia o nowym zgłoszeniu!';
+
+$_LANG['New message body should not be empty if you set new message subject!'] = 'Treść powiadomienia o nowej wiadomości nie może być pusta w sytuacji, gdy ustawiono temat powiadomienia o nowej wiadomości!';
+$_LANG['New message subject should not be empty if you set new message body!'] = 'Temat powiadomienia o nowej wiadomości nie może być pusty w sytuacji, gdy ustawiono treść powiadomienia o nowej wiadomości!';
+
+$_LANG['Resolve ticket body should not be empty if you set resolve ticket subject!'] = 'Treść powiadomienia o zamknięciu zgłoszenia nie może być pusta w sytuacji, gdy ustawiono temat powiadomienia o zamknięciu zgłoszenia!';
+$_LANG['Resolve ticket subject should not be empty if you set resolve ticket body!'] = 'Temat powiadomienia o zamknięciu zgłoszenia nie może być pusty w sytuacji, gdy ustawiono treść powiadomienia o zamknięciu zgłoszenia!';
+
 ?>

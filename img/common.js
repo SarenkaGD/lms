@@ -97,6 +97,14 @@ function ipchoosewin(hostparams) {
 	return openSelectWindow2(url, 'chooseip', 350, 380, 'true', ipelem, netelem);
 }
 
+function long2ip(ip) {
+    if (!isFinite(ip)) {
+        return false;
+    }
+
+    return [ip >>> 24, ip >>> 16 & 0xFF, ip >>> 8 & 0xFF, ip & 0xFF].join('.');
+}
+
 function macchoosewin(formfield)
 {
 	return openSelectWindow('?m=choosemac','choosemac',290,380,'true',formfield);
@@ -892,30 +900,6 @@ function _getAddressList( action, v ) {
 }
 
 /*!
- * \brief Put address coordinates to inputs by single address string.
- *
- * \param string address_str address string
- * \param string latitude_id id of latitude input
- * \param string latitude_id id of longitude input
- */
-function setAddressLocation( address_str, latitude_id, longitude_id ) {
-    var address = null;
-
-    $.ajax({
-        url    : "?m=customeraddresses&action=geocode&address=" + address_str,
-        async  : false,
-        success: function(data) {
-            address = JSON.parse( data );
-        }
-    });
-
-    if ( address['accuracy'] == 'ROOFTOP' ) {
-        $(longitude_id).val(address['longitude']);
-        $(latitude_id).val(address['latitude']);
-    }
-}
-
-/*!
  * \brief Concatenate address fields to one string.
  *
  * \param string address
@@ -938,6 +922,8 @@ function location_str( city, street, house, flat, zip = undefined, state = undef
     }
     else if ( city.length > 0 ) {
         location += city;
+        if (!street.length)
+            location += ", " + city;
     }
     else if ( street.length > 0 ) {
         location += street;

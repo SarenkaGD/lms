@@ -181,6 +181,14 @@ function check_mask($mask)
 	}
 }
 
+/*!
+ * \brief Returns network broadcast address by IP and mask.
+ *
+ * \param  string  $ip   IP address 192.168.0.0, 10.0.0.4, etc.
+ * \param  string  $mask Network mask 255.255.255.000, etc.
+ * \return longint       Network broadcast address
+ * \return false         Incorrect IP or Mask
+ */
 function getbraddr($ip,$mask)
 {
 	if(check_ip($ip) && check_mask($mask))
@@ -194,6 +202,14 @@ function getbraddr($ip,$mask)
 		return false;
 }
 
+/*!
+ * \brief Returns network address by IP and mask.
+ *
+ * \param  string  $ip   IP address 192.168.0.0, 10.0.0.4, etc.
+ * \param  string  $mask Network mask 255.255.255.000, etc.
+ * \return longint       Network IP
+ * \return false         Incorrect IP or Mask
+ */
 function getnetaddr($ip,$mask)
 {
 	if(check_ip($ip) && check_mask($mask))
@@ -529,6 +545,11 @@ function moneyf($value)
 	return sprintf($LANGDEFS[$_language]['money_format'], $value);
 }
 
+function moneyf_in_words($value) {
+	global $LANGDEFS, $_language;
+	return sprintf($LANGDEFS[$_language]['money_format_in_words'], to_words(floor($value)), to_words(round(($value - floor($value)) * 100)));
+}
+
 if (!function_exists('bcmod'))
 {
     function bcmod( $x, $y )
@@ -693,6 +714,36 @@ function clear_utf($str)
 		$r .= $ch1=='?' ? $ch2 : $ch1;
 	}
 	return $r;
+}
+
+function mazovia_to_utf8($text) {
+	static $mazovia_regexp = array(
+		'/\x86/', // ą
+		'/\x92/', // ł
+		'/\x9e/', // ś
+		'/\x8d/', // ć
+		'/\xa4/', // ń
+		'/\xa6/', // ź
+		'/\x91/', // ę
+		'/\xa2/', // ó
+		'/\xa7/', // ż
+		'/\x8f/', // Ą
+		'/\x9c/', // Ł
+		'/\x98/', // Ś
+		'/\x95/', // Ć
+		'/\xa5/', // Ń
+		'/\xa0/', // Ź
+		'/\x90/', // Ę
+		'/\xa3/', // Ó
+		'/\xa1/', // Ż
+	);
+
+	static $utf8_codes = array(
+		'ą', 'ł', 'ś', 'ć', 'ń', 'ź', 'ę', 'ó', 'ż',
+		'Ą', 'Ł', 'Ś', 'Ć', 'Ń', 'Ź', 'Ę', 'Ó', 'Ż',
+	);
+
+	return preg_replace($mazovia_regexp, $utf8_codes, $text);
 }
 
 function lastonline_date($timestamp)

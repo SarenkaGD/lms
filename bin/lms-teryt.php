@@ -160,7 +160,13 @@ function parse_teryt_building_row( $row ) {
 	static $column_names = array('id', 'woj', 'powiat', 'gmina', 'terc', 'miejscowosc',
 		'simc', 'ulica', 'ulic', 'building_num', 'longitude', 'latitude');
 
-	return array_combine($column_names, explode(';', str_replace("\r", '', $row)));
+	$exp_row = explode(';', str_replace("\r", '', $row));
+
+	if ( count($column_names) == count($exp_row) ) {
+        return array_combine($column_names, $exp_row);
+    } else {
+	    return null;
+    }
 }
 
 /*!
@@ -952,7 +958,7 @@ if ( isset($options['buildings']) ) {
     $previous_line = '';
 
     // create location cache
-    $location_cache = new LocationCache('full');
+    $location_cache = new LocationCache(LocationCache::LOAD_FULL);
 
 	if (!$quiet)
 		echo 'Parsing file...' . PHP_EOL;
@@ -990,22 +996,32 @@ if ( isset($options['buildings']) ) {
                 continue;
             }
 
-            if ( !preg_match('/^[0-9a-zA-Z \/łŁ]*$/', $v['building_num']) ) {
+            if ( !preg_match('#^[0-9a-zA-Z /łŁ]*$#', $v['building_num']) ) {
                 fwrite($stderr, 'warning: house number contains incorrect characters in row '.$l . PHP_EOL);
                 continue;
             }
 
-            $v['simc'] = ltrim($v['simc'], '0');
-            $simc      = $v['simc'];
-            $city      = $location_cache->getCityByIdent( $simc );
+            $terc = $v['terc'];
+            $simc = $v['simc'];
+            $ulic = $v['ulic'];
+
+            $city = $location_cache->getCityByIdent($terc, $simc);
 
             if ( !$city ) {
-                fwrite($stderr, 'warning: teryt city id '.$v['simc'].' was\'t found in database' . PHP_EOL);
+                fwrite($stderr, 'warning: teryt terc ' . $terc . ', simc ' . $simc . ' wasn\'t found in database in row ' . $l . PHP_EOL);
                 continue;
             }
 
-            $street   = $location_cache->getStreetByIdent( $city['id'], ltrim($v['ulic'],'0') );
-            $building = $location_cache->buildingExists( $city['id'], $street['id'], $v['building_num'] );
+			if ($ulic == '99999')
+				$street = array('id' => '0');
+			else {
+				$street = $location_cache->getStreetByIdent( $city['id'], $ulic );
+				if (empty($street)) {
+					fwrite($stderr, 'warning: teryt terc ' . $terc . ', simc ' . $simc . ', ulic ' . $ulic . ' wasn\'t found in database in row ' . $l . PHP_EOL);
+					continue;
+				}
+			}
+			$building = $location_cache->buildingExists( $city['id'], $street['id'], $v['building_num'] );
 
             if ( $building ) {
                 $fields_to_update = array();
