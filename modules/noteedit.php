@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2016 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -32,19 +32,21 @@ if(isset($_GET['id']) && $action=='edit')
 	if ($LMS->isDocumentPublished($_GET['id']) && !ConfigHelper::checkConfig('privileges.superuser'))
 		return;
 
+	$note = $LMS->GetNoteContent($_GET['id']);
+
     $SESSION->remove('notecontents');
     $SESSION->remove('notecustomer');
 
     $i = 0;
-    foreach ($note['content'] as $item) {
-	$i++;
-	$nitem['description']	= $item['description'];
-	$nitem['value']		= $item['value'];
-	$nitem['posuid']	= $i;
-	$SESSION->restore('notecontents', $notecontents);
-	$notecontents[] = $nitem;
-	$SESSION->save('notecontents', $notecontents);
-    }
+	foreach ($note['content'] as $item) {
+		$i++;
+		$nitem['description']	= $item['description'];
+		$nitem['value']		= $item['value'];
+		$nitem['posuid']	= $i;
+		$SESSION->restore('notecontents', $notecontents);
+		$notecontents[] = $nitem;
+		$SESSION->save('notecontents', $notecontents);
+	}
 
     $SESSION->save('notecustomer', $LMS->GetCustomer($note['customerid'], true));
     $note['oldcdate'] = $note['cdate'];

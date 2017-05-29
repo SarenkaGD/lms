@@ -3,7 +3,7 @@
 /*
  *  LMS version 1.11-git
  *
- *  Copyright (C) 2001-2016 LMS Developers
+ *  Copyright (C) 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -300,6 +300,8 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
     {
         $location_manager = new LMSLocationManager($this->db, $this->auth, $this->cache, $this->syslog);
 
+		$capitalize_customer_names = ConfigHelper::checkValue(ConfigHelper::getConfig('phpui.capitalize_customer_names', true));
+
         $args = array(
             'extid'          => $customeradd['extid'],
             'name'           => $customeradd['name'],
@@ -332,7 +334,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
                         creatorid, info, notes, message, pin, regon, rbename, rbe,
                         icn, cutoffstop, consentdate, einvoice, divisionid, paytime, paytype,
                         invoicenotice, mailingnotice)
-                    VALUES (?, ?, UPPER(?), ?, ?, ?, ?, ?NOW?,
+                    VALUES (?, ?, ' . ($capitalize_customer_names ? 'UPPER(?)' : '?') . ', ?, ?, ?, ?, ?NOW?,
                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args))
         ) {
             $id = $this->db->GetLastInsertID('customers');
@@ -885,7 +887,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
                                               ls.id as location_street_id, va.location_house, va.location_flat, nd.description, nd.producer,
                                               nd.model, nd.serialnumber, nd.ports, nd.purchasetime, nd.guaranteeperiod, nd.shortname, nd.nastype,
                                               nd.clients, nd.community, nd.channelid, nd.longitude, nd.latitude, nd.netnodeid, nd.invprojectid,
-                                              nd.status, nd.netdevicemodelid, nd.ownerid, no.authtype
+                                              nd.status, nd.netdevicemodelid, nd.ownerid, no.authtype, va.id as address_id
                                            FROM
                                               netdevices nd
                                               LEFT JOIN vaddresses va ON nd.address_id = va.id
@@ -930,8 +932,9 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 
 		require_once(LIB_DIR . DIRECTORY_SEPARATOR . 'customercontacttypes.php');
 
+		$capitalize_customer_names = ConfigHelper::checkValue(ConfigHelper::getConfig('phpui.capitalize_customer_names', true));
         if ($result = $this->db->GetRow('SELECT c.*, '
-                . $this->db->Concat('UPPER(c.lastname)', "' '", 'c.name') . ' AS customername,
+                . $this->db->Concat($capitalize_customer_names ? 'UPPER(c.lastname)' : 'c.lastname', "' '", 'c.name') . ' AS customername,
 			d.shortname AS division, d.account
 			FROM customer' . (defined('LMS-UI') ? '' : 'address') . 'view c
 			LEFT JOIN divisions d ON (d.id = c.divisionid)
@@ -1086,10 +1089,12 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
             }
         }
 
+		$capitalize_customer_names = ConfigHelper::checkValue(ConfigHelper::getConfig('phpui.capitalize_customer_names', true));
+
         // UPDATE CUSTOMER FIELDS
         $res = $this->db->Execute('UPDATE customers SET extid=?, status=?, type=?,
                                ten=?, ssn=?, moddate=?NOW?, modid=?,
-                               info=?, notes=?, lastname=UPPER(?), name=?,
+                               info=?, notes=?, lastname=' . ($capitalize_customer_names ? 'UPPER(?)' : '?') . ', name=?,
                                deleted=0, message=?, pin=?, regon=?, icn=?, rbename=?, rbe=?,
                                cutoffstop=?, consentdate=?, einvoice=?, invoicenotice=?, mailingnotice=?,
                                divisionid=?, paytime=?, paytype=?
@@ -1273,9 +1278,9 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
                                           addr.state as location_state_name, addr.state_id as location_state,
                                           addr.city as location_city_name, addr.city_id as location_city,
                                           addr.street as location_street_name, addr.street_id as location_street,
-                                          addr.house as location_house, addr.zip as location_zip,
+                                          addr.house as location_house, addr.zip as location_zip, addr.postoffice AS location_postoffice,
                                           addr.country_id as location_country_id, addr.flat as location_flat,
-                                          ca.type as location_address_type, addr.location,
+                                          ca.type as location_address_type, addr.location, 0 as use_counter,
                                           (CASE WHEN addr.city_id is not null THEN 1 ELSE 0 END) as teryt
                                        FROM
                                           customers cv
@@ -1288,6 +1293,22 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 
         if ( !$data ) {
             return array();
+        }
+
+        $nd = $this->db->GetAll('SELECT address_id FROM netdevices WHERE ownerid = ?', array( $id ));
+        $n  = $this->db->GetAll('SELECT address_id FROM nodes WHERE ownerid = ?', array( $id ));
+
+        $tmp = array_merge(
+            $nd ? $nd : array(),
+            $n  ? $n  : array()
+        );
+
+        if ( $tmp ) {
+            foreach ( $tmp as $v ) {
+                if ( $v['address_id'] ) {
+                    $data[$v['address_id']]['use_counter'] += 1;
+                }
+            }
         }
 
         return $data;
@@ -1316,6 +1337,25 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 
         if ( isset($addresses[BILLING_ADDRESS]) ) {
             return $addresses[BILLING_ADDRESS]['location'];
+        }
+
+        return null;
+    }
+
+    public function getFullAddressForCustomerStuff( $customer_id ) {
+        $addresses = $this->db->GetAllByKey('SELECT
+                                                ca.address_id, ca.type, addr.location
+                                             FROM customer_addresses ca
+                                                LEFT JOIN vaddresses addr ON ca.address_id = addr.id
+                                             WHERE
+                                                ca.customer_id = ?', 'type', array($customer_id));
+
+        if ( isset($addresses[DEFAULT_LOCATION_ADDRESS]) ) {
+            return $addresses[DEFAULT_LOCATION_ADDRESS];
+        }
+
+        if ( isset($addresses[BILLING_ADDRESS]) ) {
+            return $addresses[BILLING_ADDRESS];
         }
 
         return null;

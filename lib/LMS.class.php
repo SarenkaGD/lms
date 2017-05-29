@@ -549,6 +549,12 @@ class LMS
         return $manager->getAddressForCustomerStuff( $customer_id );
     }
 
+    public function getFullAddressForCustomerStuff( $customer_id )
+    {
+        $manager = $this->getCustomerManager();
+        return $manager->getFullAddressForCustomerStuff( $customer_id );
+    }
+
     /*
      * Customer groups
      */
@@ -967,10 +973,10 @@ class LMS
         return $manager->GetTariff($id, $network);
     }
 
-    public function GetTariffs()
+    public function GetTariffs($forced_id = null)
     {
         $manager = $this->getFinanaceManager();
-        return $manager->GetTariffs();
+        return $manager->GetTariffs($forced_id);
     }
 
     public function TariffSet($id)

@@ -791,6 +791,11 @@ html .ui-button.ui-state-disabled:active {
 	background-color: @dark;
 }
 
+.ui-datepicker .ui-datepicker-buttonpane {
+	border-top: 1px solid black;
+	margin-top: 0;
+}
+
 .ui-tooltip.voipaccountinfo,
 .ui-tooltip.invoiceinfo,
 .ui-tooltip.docnumber,
@@ -993,6 +998,34 @@ table.dataTable {
 
 	&:hover {
 		cursor: pointer;
+	}
+}
+
+.lms-ui-address-select {
+	padding-left: 4px;
+	padding-right: 4px;
+
+	border: 1px solid #a9a9a9 !important;
+	background-color: #ebe4d6 !important;
+	box-shadow: none !important;
+	border-radius: 0 !important;
+	color: black !important;
+
+	&:hover {
+		cursor: default;
+	}
+
+	& .ui-selectmenu-icon.ui-icon {
+		background: url("1.png") !important;
+	}
+}
+
+.ui-menu-item {
+	background-color: #ebe4d6 !important;
+	.ui-state-active,
+	.ui-state-active:hover {
+		color: white;
+		background-color: #4a90d9 !important;
 	}
 }
 

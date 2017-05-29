@@ -57,7 +57,7 @@ $(function() {
         }
 
         $.ajax({
-            url: "?m=customeraddresses&action=getlocationboxhtml&prefix=" + $(this).attr('data-prefix') + "[addresses][" + counter + "]&default_type=1&clear_button=1",
+            url: "?m=customeraddresses&action=getlocationboxhtml&prefix=" + $(this).attr('data-prefix') + "[addresses][" + counter + "]&default_type=1&clear_button=1&show=1",
         }).done( function(data) {
             insertRow( _buttonrow, data );
         });
@@ -74,9 +74,17 @@ $(function() {
         var house  = box.find('[data-address="house"]').val();
         var flat   = box.find('[data-address="flat"]').val();
         var zip    = box.find('[data-address="zip"]').val();
+        var postoffice = box.find('[data-address="postoffice"]').val();
         var adtype = box.find('[data-address="address_type"]').val();
 
-        var location = location_str( city, street, house, flat, zip );
+        var location = location_str({
+            city: city,
+            street: street,
+            house: house,
+            flat: flat,
+            zip: zip,
+            postoffice: postoffice
+        });
         location = location.length > 0 ? location : '...';
 
         box.find('[data-address="location"]').val( location );
