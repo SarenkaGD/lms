@@ -321,7 +321,11 @@ switch($action)
 		$iid   = $invoice['id'];
 
 		$DB->BeginTrans();
-		$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions'));
+		if (ConfigHelper::getConfig('phpui.stock')) {//Added for lms-sstck by Sarenka = MAXCON
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions','stck_invoicecontentsassignments','stck_stock','stck_cashassignments'));
+		} else {
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions'));
+		}
 
 		$division = $DB->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
 			account, inv_header, inv_footer, inv_author, inv_cplace 
@@ -362,12 +366,11 @@ switch($action)
 			'paytype' => $invoice['paytype'],
 			SYSLOG::RES_CUST => $customer['id'],
 			'name' => $customer['customername'],
-			'address' => ($customer['postoffice'] && $customer['postoffice'] != $customer['city'] && $customer['street']
-				? $customer['postoffice'] . ', ' : '') . $customer['address'],
+			'address' => $customer['address'],
 			'ten' => $customer['ten'],
 			'ssn' => $customer['ssn'],
 			'zip' => $customer['zip'],
-			'city' => $customer['postoffice'] ? $customer['postoffice'] : $customer['city'],
+			'city' => $customer['city'],
 			SYSLOG::RES_DIV => $customer['divisionid'],
 			'div_name' => ($division['name'] ? $division['name'] : ''),
 			'div_shortname' => ($division['shortname'] ? $division['shortname'] : ''),
@@ -465,9 +468,11 @@ switch($action)
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array_values($args));
 
 				if (ConfigHelper::getConfig('phpui.stock')) {//Added for lms-stck by Sarenka - MAXCON
-					$DB->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
-						VALUES(?, ?, ?)', array($iid, $itemid, $item['stockid']));
-					$LMSST->StockSell($iid, $item['stockid'], str_replace(',', '.', $item['valuebrutto']), $cdate);
+					if ($item['stockid']) {
+						$DB->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
+							VALUES(?, ?, ?)', array($iid, $itemid, $item['stockid']));
+						$LMSST->StockSell($iid, $item['stockid'], str_replace(',', '.', $item['valuebrutto']), $cdate);
+					}
 				}
 
 				if ($SYSLOG) {
@@ -485,10 +490,12 @@ switch($action)
 						'docid' => $iid,
 						'itemid' => $itemid
 						));
-
+					
 					if (ConfigHelper::getConfig('phpui.stock')) {//Added for lms-sstck by Sarenka = MAXCON
-						$icid = $DB->GetLastInsertID('cash');
-						$DB->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stockid']));
+						if ($item['stockid']) {
+							$icid = $DB->GetLastInsertID('cash');
+							$DB->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stockid']));
+						}
 					}
 			}
 		} elseif ($invoice['doctype'] == DOC_INVOICE) {

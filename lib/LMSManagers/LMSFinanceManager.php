@@ -603,7 +603,8 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
             
 	    //Added for lms-stck by Sarenka - MAXCON
 	    if (ConfigHelper::getConfig('phpui.stock') && $type != DOC_INVOICE_PRO)
-	    	$this->db->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
+	    	if ($item['stckproductid'])
+			$this->db->Execute('INSERT INTO stck_invoicecontentsassignments(icdocid, icitemid, stockid)
 	    			VALUES(?, ?, ?)', array($iid, $itemid, $item['stckproductid']));
 
             if ($this->syslog) {
@@ -624,9 +625,11 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
 
 	    	//Added for lms-sstck by Sarenka = MAXCON
 	    	if (ConfigHelper::getConfig('phpui.stock')) {
-	    		$icid = $this->db->GetLastInsertID('cash');
-			$this->db->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stckproductid']));
-	    	}
+	    		if ($item['stckproductid']) {
+				$icid = $this->db->GetLastInsertID('cash');
+				$this->db->Execute('INSERT INTO stck_cashassignments (cashid, stockid) VALUES(?, ?)', array($icid, $item['stckproductid']));
+	    		}
+		}
 	    }
         }
 

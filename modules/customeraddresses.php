@@ -69,7 +69,7 @@ switch ( strtolower($_GET['action']) ) {
                                  state as location_state_name, state_id as location_state,
                                  city as location_city_name, city_id as location_city,
                                  street as location_street_name, street_id as location_street,
-                                 house as location_house, zip as location_zip, postoffice AS location_postoffice,
+                                 house as location_house, zip as location_zip,
                                  country_id as location_country_id, flat as location_flat,
                                  -1 as location_address_type
                              FROM addresses
@@ -81,16 +81,17 @@ switch ( strtolower($_GET['action']) ) {
         }
 
         foreach ( $addr as $k=>$v ) {
-            // generate address as single string
-            $location = location_str(array(
+            $tmp = array(
                 'city_name'      => $v['location_city_name'],
-                'postoffice'     => $v['location_postoffice'],
                 'street_name'    => $v['location_street_name'],
                 'location_house' => $v['location_house'],
                 'location_flat'  => $v['location_flat']
-            ));
+            );
 
-            if (strlen($location)) {
+            // generate address as single string
+            $location = location_str($tmp);
+
+            if ( strlen($location) > 0 ) {
                 $addr[$k]['location'] = $location;
             } else {
                 $addr[$k]['location'] = trans('undefined');
@@ -120,10 +121,6 @@ switch ( strtolower($_GET['action']) ) {
 
         if ( !empty($_GET['prefix']) ) {
             $params['data']['prefix'] = $_GET['prefix'];
-        }
-
-        if ( !empty($_GET['show']) ) {
-            $params['data']['show'] = 1;
         }
 
         if ( !empty($_GET['clear_button']) ) {

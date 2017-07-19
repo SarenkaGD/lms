@@ -50,7 +50,7 @@ $SESSION->restore('invoice', $invoice);
 $SESSION->restore('invoicenewerror', $error);
 
 $layout['pagetitle'] = !empty($invoice) && $invoice['proforma'] ? trans('New Pro Forma Invoice') : trans('New Invoice');
-
+print_r($invoice);
 $itemdata = r_trim($_POST);
 
 $action = isset($_GET['action']) ? $_GET['action'] : NULL;
@@ -432,10 +432,7 @@ switch($action)
 				'original' => !empty($_GET['original']) ? 1 : 0,
 				'copy' => !empty($_GET['copy']) ? 1 : 0));
 
-		if (isset($_POST['reuse']))
-			$SESSION->redirect('?m=invoicenew&action=init');
-		else
-			$SESSION->redirect('?' . $SESSION->get('backto'));
+		$SESSION->redirect('?m=invoicenew&action=init');
 	break;
 }
 

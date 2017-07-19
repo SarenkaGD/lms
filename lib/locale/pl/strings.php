@@ -136,7 +136,6 @@ $_LANG['Address/prefix:'] = 'Adres/prefiks:';
 $_LANG['Administration'] = 'Administracja';
 $_LANG['After'] = 'Po';
 $_LANG['After:'] = 'Po:';
-$_LANG['Agreement for an electronic invoice:'] = 'Zgoda na faktury elektroniczne:';
 $_LANG['Aliases'] = 'Aliasy';
 $_LANG['Aliases:'] = 'Aliasy:';
 $_LANG['Aliases List'] = 'Lista aliasów';
@@ -465,7 +464,6 @@ $_LANG['Network map display'] = 'Wyświetla mapę sieci ';
 $_LANG['Display this form again, when this account is saved'] = 'Po utworzeniu konta wyświetl ten formularz ponownie';
 $_LANG['Display this form again, when this alias is saved'] = 'Po utworzeniu aliasu wyświetl ten formularz ponownie';
 $_LANG['Display this form again, when this customer is saved'] = 'Po dodaniu klienta wyświetl ten formularz ponownie';
-$_LANG['Display this form again, when this invoice is saved'] = 'Po dodaniu faktury wyświetl ten formularz ponownie';
 $_LANG['Display this form again, when this domain is saved'] = 'Po dodaniu domeny wyświetl ten formularz ponownie';
 $_LANG['Display this form again, when this event is saved'] = 'Po utworzeniu zdarzenia wyświetl ten formularz ponownie';
 $_LANG['Display this form again, when this node is saved'] = 'Po dodaniu komputera wyświetl ten formularz ponownie';
@@ -957,7 +955,6 @@ $_LANG['MAC address'] = 'Adres MAC';
 $_LANG['MAC address:'] = 'Adres MAC:';
 $_LANG['MAC address is in use!'] = 'Adres MAC jest już używany!';
 $_LANG['used'] = 'używany';
-$_LANG['assigned to <b>$a</b> nodes'] = 'przypisany do <b>$a</b> komputerów';
 $_LANG['MAC address is required!'] = 'Adres MAC jest wymagany!';
 $_LANG['mail'] = 'mail';
 $_LANG['Mailing Lists Archive'] = 'Archiwum list mailingowych';
@@ -3659,7 +3656,5 @@ $_LANG['New message subject should not be empty if you set new message body!'] =
 
 $_LANG['Resolve ticket body should not be empty if you set resolve ticket subject!'] = 'Treść powiadomienia o zamknięciu zgłoszenia nie może być pusta w sytuacji, gdy ustawiono temat powiadomienia o zamknięciu zgłoszenia!';
 $_LANG['Resolve ticket subject should not be empty if you set resolve ticket body!'] = 'Temat powiadomienia o zamknięciu zgłoszenia nie może być pusty w sytuacji, gdy ustawiono treść powiadomienia o zamknięciu zgłoszenia!';
-
-$_LANG['Post office:'] = 'Poczta:';
 
 ?>

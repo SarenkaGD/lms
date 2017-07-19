@@ -705,10 +705,9 @@ switch($action)
 				SYSLOG::RES_CUST => $customer['id'],
 				SYSLOG::RES_USER => $AUTH->id,
 				'name' => $customer['customername'],
-				'address' => ($customer['postoffice'] && $customer['postoffice'] != $customer['city'] && $customer['street']
-					? $customer['city'] . ', ' : '') . $customer['address'],
+				'address' => $customer['address'],
 				'zip' => $customer['zip'],
-				'city' => $customer['postoffice'] ? $customer['postoffice'] : $customer['city'],
+				'city' => $customer['city'],
 				'fullnumber' => $fullnumber,
 			);
 			$DB->Execute('INSERT INTO documents (type, number, extnumber, numberplanid, cdate, customerid, userid, name, address, zip, city, closed,

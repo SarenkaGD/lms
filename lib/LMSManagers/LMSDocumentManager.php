@@ -244,8 +244,7 @@ class LMSDocumentManager extends LMSManager implements LMSDocumentManagerInterfa
             case CONTINUOUS:
                 $number = $this->db->GetOne('SELECT MAX(number) FROM documents 
 					WHERE type = ? AND numberplanid = ?'
-					. (!isset($numtemplate) || strpos($numtemplate, '%C') === false || empty($customerid)
-						? '' : ' AND customerid = ' . intval($customerid)),
+					. (empty($customerid) ? '' : ' AND customerid = ' . intval($customerid)),
 					array($doctype, $planid));
 
                 return $number ? ++$number : 1;

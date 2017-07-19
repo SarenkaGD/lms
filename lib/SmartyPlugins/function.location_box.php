@@ -47,7 +47,6 @@ function smarty_function_location_box( $params = array(), $template )
     $input_name_flat        = 'location_flat';
     $input_name_location    = 'location_name';
     $input_name_zip         = 'location_zip';
-    $input_name_postoffice  = 'location_postoffice';
     $input_name_teryt       = 'teryt';
     $input_name_def_address = 'location_def_address';
     $input_name_address_id  = 'address_id';
@@ -68,7 +67,6 @@ function smarty_function_location_box( $params = array(), $template )
         $input_name_flat        = $p . '[' . $input_name_flat        . ']';
         $input_name_location    = $p . '[' . $input_name_location    . ']';
         $input_name_zip         = $p . '[' . $input_name_zip         . ']';
-        $input_name_postoffice  = $p . '[' . $input_name_postoffice  . ']';
         $input_name_teryt       = $p . '[' . $input_name_teryt       . ']';
         $input_name_def_address = $p . '[' . $input_name_def_address . ']';
         $input_name_address_id  = $p . '[' . $input_name_address_id  . ']';
@@ -84,7 +82,7 @@ function smarty_function_location_box( $params = array(), $template )
 
     echo '<table>';
 
-    echo '<tr' . (isset($params['hide_name']) ? ' style="display: none;"' : '') . '>
+    echo '<tr>
               <td>' . trans('Name') . '</td>
               <td>
                   <input type="text"   value="' . (!empty($params['location_name']) ? $params['location_name'] : '' ) . '" name="' . $input_name_location . '" size="' . INPUT_SIZE . '" data-address="location-name">
@@ -163,11 +161,6 @@ function smarty_function_location_box( $params = array(), $template )
     echo '<tr>
               <td class="nobr">' . trans('Postcode:') . '</td>
               <td><input type="text"   value="' . (!empty($params['location_zip']) ? $params['location_zip'] : '' ) . '" name="' . $input_name_zip . '" data-address="zip" size="7" maxlength="10"></td>
-          </tr>';
-
-    echo '<tr>
-              <td class="nobr">' . trans('Post office:') . '</td>
-              <td><input type="text"   value="' . (!empty($params['location_postoffice']) ? $params['location_postoffice'] : '' ) . '" size="' . INPUT_SIZE . '" name="' . $input_name_postoffice . '" data-address="postoffice" maxlength="32"></td>
           </tr>';
 
     if ( empty($params['countryid']) ) {

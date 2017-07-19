@@ -220,7 +220,7 @@ function BodyVars(&$body, $data)
 
 $layout['pagetitle'] = trans('Message Add');
 
-if (isset($_POST['message']) && !isset($_GET['sent'])) {
+if (isset($_POST['message'])) {
 	$message = $_POST['message'];
 
 	if (!in_array($message['type'], array(MSG_MAIL, MSG_SMS, MSG_ANYSMS, MSG_WWW, MSG_USERPANEL)))
@@ -493,10 +493,6 @@ if (isset($_POST['message']) && !isset($_GET['sent'])) {
 						));
 			}
 		}
-
-		echo '<script type="text/javascript">';
-		echo "history.replaceState({}, '', location.href.replace(/&sent=1/gi, '') + '&sent=1');";
-		echo '</script>';
 
 		$SMARTY->display('footer.html');
 		$SESSION->close();
