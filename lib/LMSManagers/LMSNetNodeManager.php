@@ -28,7 +28,7 @@ class LMSNetNodeManager extends LMSManager implements LMSNetNodeManagerInterface
 
 	public function GetNetNode($id) {
 		return $this->db->GetRow("SELECT n.*, p.name AS projectname,
-				addr.name as location_name, addr.id as address_id,
+				addr.location, addr.name as location_name, addr.id as address_id,
 				addr.state as location_state_name, addr.state_id as location_state,
 				lb.name AS location_borough_name, lb.id AS location_borough, lb.type AS location_borough_type,
 				ld.name AS location_district_name, ld.id AS location_district,
@@ -38,7 +38,7 @@ class LMSNetNodeManager extends LMSManager implements LMSNetNodeManagerInterface
 				addr.house as location_house, addr.flat as location_flat,
 				d.shortname AS division
 			FROM netnodes n
-				LEFT JOIN addresses addr ON n.address_id = addr.id
+				LEFT JOIN vaddresses addr ON n.address_id = addr.id
 				LEFT JOIN invprojects p ON n.invprojectid = p.id
 				LEFT JOIN divisions d ON d.id = n.divisionid
 				LEFT JOIN location_cities lc ON lc.id = addr.city_id
@@ -100,7 +100,7 @@ class LMSNetNodeManager extends LMSManager implements LMSNetNodeManagerInterface
 			}
 		}
 
-		$nlist = $this->db->GetAll('SELECT n.id, n.name, n.type, n.status, n.invprojectid, p.name AS project,
+		$nlist = $this->db->GetAllByKey('SELECT n.id, n.name, n.type, n.status, n.invprojectid, n.info, p.name AS project,
 				n.divisionid,
 				lb.id AS location_borough, lb.name AS location_borough_name, lb.type AS location_borough_type,
 				ld.id AS location_district, ld.name AS location_district_name,
@@ -116,7 +116,8 @@ class LMSNetNodeManager extends LMSManager implements LMSNetNodeManagerInterface
 				LEFT JOIN location_boroughs lb  ON lb.id = lc.boroughid
 				LEFT JOIN location_districts ld ON ld.id = lb.districtid
 				LEFT JOIN location_states ls    ON ls.id = ld.stateid '
-			. (empty($where) ? '' : ' WHERE ' . implode(' AND ', $where)) . ' ' . $ostr . ' ' . $dir);
+			. (empty($where) ? '' : ' WHERE ' . implode(' AND ', $where)) . ' ' . $ostr . ' ' . $dir,
+			'id');
 
 		if ( $nlist ) {
 			foreach ($nlist as &$netnode)
@@ -154,6 +155,7 @@ class LMSNetNodeManager extends LMSManager implements LMSNetNodeManagerInterface
 			'divisionid'      => !empty($netnodedata['divisionid']) ? $netnodedata['divisionid'] : null,
 			'address_id'      => ($address_id >= 0 ? $address_id : null),
 			'invprojectid'    => intval($netnodedata['invprojectid']) > 0 ? $netnodedata['invprojectid'] : null,
+			'info'		  => $netnodedata['info'],
 			);
 
 		$this->db->Execute("INSERT INTO netnodes (" . implode(', ', array_keys($args))
@@ -191,6 +193,7 @@ class LMSNetNodeManager extends LMSManager implements LMSNetNodeManagerInterface
 			'miar'            => $netnodedata['miar'],
 			'divisionid'      => $netnodedata['divisionid'],
 			'invprojectid'    => intval($netnodedata['invprojectid']) > 0 ? $netnodedata['invprojectid'] : null,
+			'info'         	  => $netnodedata['info'],
 		);
 
 		// if address_id is set then update

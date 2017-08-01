@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2016 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -36,6 +36,9 @@ if(isset($_GET['ticketid']))
 	}
 
 	$note = $DB->GetRow('SELECT id AS ticketid, state, cause, queueid, owner FROM rttickets WHERE id = ?', array($note['ticketid']));
+	$reply = $LMS->GetFirstMessage($note['ticketid']);
+	$note['inreplyto'] = $reply['id'];
+	$note['references'] = implode(' ', $reply['references']);
 
         if(ConfigHelper::checkConfig('phpui.helpdesk_notify')){
             $note['notify'] = TRUE;
@@ -44,7 +47,7 @@ if(isset($_GET['ticketid']))
 elseif(isset($_POST['note']))
 {
 	$note = $_POST['note'];
-	$ticket = $DB->GetRow('SELECT id AS ticketid, state, cause, queueid, owner FROM rttickets WHERE id = ?', array($note['ticketid']));
+	$ticket = $DB->GetRow('SELECT id AS ticketid, state, cause, queueid, owner, address_id FROM rttickets WHERE id = ?', array($note['ticketid']));
 
 	if($note['body'] == '')
 		$error['body'] = trans('Note body not specified!');
@@ -60,30 +63,22 @@ elseif(isset($_POST['note']))
 
 	if(!$error)
 	{
-		$DB->Execute('INSERT INTO rtmessages (userid, ticketid, body, createtime, type)
-			    VALUES(?, ?, ?, ?NOW?, ?)',
-			    array($AUTH->id, $note['ticketid'], $note['body'], RTMESSAGE_NOTE));
+		$messageid = '<msg.' . $ticket['queueid'] . '.' . $note['ticketid'] . '.'  . time() . '@rtsystem.' . gethostname() . '>';
 
-		$mail_dir = ConfigHelper::getConfig('rt.mail_dir');
-		if (!empty($files) && !empty($mail_dir)) {
-			$id = $DB->GetLastInsertId('rtmessages');
-			$mail_dir_permission = intval(ConfigHelper::getConfig('rt.mail_dir_permission', '0700'), 8);
-			$dir = $mail_dir . DIRECTORY_SEPARATOR . sprintf('%06d' . DIRECTORY_SEPARATOR . '%06d', $note['ticketid'], $id);
-			@mkdir($mail_dir . DIRECTORY_SEPARATOR . sprintf('%06d', $note['ticketid']), $mail_dir_permission);
-			@mkdir($dir, $mail_dir_permission);
-			foreach ($files as $file) {
-				$newfile = $dir . DIRECTORY_SEPARATOR . $file['name'];
-				if (@rename($tmppath . DIRECTORY_SEPARATOR . $file['name'], $newfile))
-					$DB->Execute('INSERT INTO rtattachments (messageid, filename, contenttype)
-							VALUES (?, ?, ?)', array($id, $file['name'], $file['type']));
-			}
-			rrmdir($tmppath);
-		}
+		foreach ($files as &$file)
+			$file['name'] = $tmppath . DIRECTORY_SEPARATOR . $file['name'];
+		unset($file);
+		$msgid = $LMS->TicketMessageAdd(array(
+				'ticketid' => $note['ticketid'],
+				'messageid' => $messageid,
+				'body' => $note['body'],
+				'type' => RTMESSAGE_NOTE,
+			), $files);
 
 		// setting status and the ticket owner
 		$props = array(
-			'queueid' => $note['queueid'], 
-			'owner' => $note['owner'], 
+			'queueid' => $note['queueid'],
+			'owner' => $note['owner'],
 			'cause' => $note['cause'],
 			'state' => $note['state']
 		);
@@ -110,16 +105,45 @@ elseif(isset($_POST['note']))
 
 			$mailfrom = $user['email'] ? $user['email'] : $queue['email'];
 
-			$headers['From'] = $mailfname.' <'.$mailfrom.'>';
-			$headers['Subject'] = sprintf("[RT#%06d] %s", $note['ticketid'], $DB->GetOne('SELECT subject FROM rttickets WHERE id = ?', array($note['ticketid'])));
-			$headers['Reply-To'] = $headers['From'];
+			$ticketdata = $LMS->GetTicketContents($note['ticketid']);
+			foreach ($ticketdata[categories] as $tcat)
+				$tcatname = $tcatname . $tcat['name'] .' ; ';
 
-			$sms_body = $headers['Subject']."\n".$note['body'];
-			$body = $note['body']."\n\nhttp"
-				.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 's' : '').'://'
-				.$_SERVER['HTTP_HOST']
-				.substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '/') + 1)
-				.'?m=rtticketview&id='.$note['ticketid'];
+			$helpdesk_notification_mail_subject = ConfigHelper::getConfig('phpui.helpdesk_notification_mail_subject');
+			$helpdesk_notification_mail_subject = str_replace('%tid', sprintf("%06d",$note['ticketid']), $helpdesk_notification_mail_subject);
+			$helpdesk_notification_mail_subject = str_replace('%cid', sprintf("%04d",$ticketdata['customerid']), $helpdesk_notification_mail_subject);
+			$helpdesk_notification_mail_subject = str_replace('%status', $ticketdata['status'], $helpdesk_notification_mail_subject);
+			$helpdesk_notification_mail_subject = str_replace('%cat', $tcatname, $helpdesk_notification_mail_subject);
+
+			$headers['From'] = $mailfname.' <'.$mailfrom.'>';
+			$headers['Subject'] = $helpdesk_notification_mail_subject;
+			$headers['Reply-To'] = $headers['From'];
+			if ($note['references']) {
+				$headers['References'] = explode(' ', $note['references']);
+				$headers['In-Reply-To'] = array_pop(explode(' ', $note['references']));
+			}
+
+			$helpdesk_notification_mail_body = ConfigHelper::getConfig('phpui.helpdesk_notification_mail_body');
+			$helpdesk_notification_mail_body = str_replace('%tid', sprintf("%06d",$note['ticketid']), $helpdesk_notification_mail_body);
+			$helpdesk_notification_mail_body = str_replace('%cid', sprintf("%04d",$ticketdata['customerid']), $helpdesk_notification_mail_body);
+			$helpdesk_notification_mail_body = str_replace('%status', $ticketdata['status'], $helpdesk_notification_mail_body);
+			$helpdesk_notification_mail_body = str_replace('%cat', $tcatname, $helpdesk_notification_mail_body);
+			$url = 'http'
+					.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 's' : '').'://'
+							.$_SERVER['HTTP_HOST']
+							.substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '/') + 1)
+							.'?m=rtticketview&id=' . $note['ticketid'] . (isset($msgid) ? '#rtmessage-' . $msgid : '');
+			$helpdesk_notification_mail_body = str_replace('%url', $url, $helpdesk_notification_mail_body);
+
+			$body = $note['body']."\n\n".$helpdesk_notification_mail_body;
+
+			$helpdesk_notification_sms_body = ConfigHelper::getConfig('phpui.helpdesk_notification_sms_body');
+			$helpdesk_notification_sms_body = str_replace('%tid', sprintf("%06d",$note['ticketid']), $helpdesk_notification_sms_body);
+			$helpdesk_notification_sms_body = str_replace('%cid', sprintf("%04d",$ticketdata['customerid']), $helpdesk_notification_sms_body);
+			$helpdesk_notification_sms_body = str_replace('%status', $ticketdata['status'], $helpdesk_notification_sms_body);
+			$helpdesk_notification_sms_body = str_replace('%cat', $tcatname, $helpdesk_notification_sms_body);
+
+			$sms_body = $helpdesk_notification_sms_body."\n".$note['body'];
 
 			if (ConfigHelper::checkConfig('phpui.helpdesk_customerinfo')
 				&& ($cid = $DB->GetOne('SELECT customerid FROM rttickets WHERE id = ?', array($note['ticketid'])))) {
@@ -127,7 +151,6 @@ elseif(isset($_POST['note']))
 						address, zip, city FROM customeraddressview WHERE id = ?', array($cid));
 				$info['contacts'] = $DB->GetAll('SELECT contact, name, type FROM customercontacts
 					WHERE customerid = ?', array($cid));
-				$info['locations'] = $LMS->GetUniqueNodeLocations($cid);
 
 				$emails = array();
 				$phones = array();
@@ -140,22 +163,31 @@ elseif(isset($_POST['note']))
 							$phones[] = $target;
 					}
 
-				$body .= "\n\n-- \n";
-				$body .= trans('Customer:').' '.$info['customername']."\n";
-				$body .= trans('Address:') . ' ' . (empty($info['locations']) ? $info['address'] . ', ' . $info['zip'] . ' ' . $info['city']
-					: implode(', ', $info['locations'])) . "\n";
+				$locations = $LMS->getCustomerAddresses($cid);
+
+				$helpdesk_customerinfo_mail_body = ConfigHelper::getConfig('phpui.helpdesk_customerinfo_mail_body');
+				$helpdesk_customerinfo_mail_body = str_replace('%custname', $info['customername'], $helpdesk_customerinfo_mail_body);
+				$helpdesk_customerinfo_mail_body = str_replace('%cid', sprintf("%04d",$ticket['customerid']), $helpdesk_customerinfo_mail_body);
+				$helpdesk_customerinfo_mail_body = str_replace('%address', (empty($ticket['address_id']) ? $info['address'] . ', ' . $info['zip'] . ' ' . $info['city']
+						: $locations[$ticket['address_id']]['location']), $helpdesk_customerinfo_mail_body);
 				if (!empty($phones))
-					$body .= trans('Phone:').' ' . implode(', ', $phones) . "\n";
+				$helpdesk_customerinfo_mail_body = str_replace('%phone', implode(', ', $phones), $helpdesk_customerinfo_mail_body);
 				if (!empty($emails))
-					$body .= trans('E-mail:') . ' ' . implode(', ', $emails);
+				$helpdesk_customerinfo_mail_body = str_replace('%email', implode(', ', $emails), $helpdesk_customerinfo_mail_body);
+
+				$body .= "\n\n-- \n";
+				$body .= $helpdesk_customerinfo_mail_body;
+
+				$helpdesk_customerinfo_sms_body = ConfigHelper::getConfig('phpui.helpdesk_customerinfo_sms_body');
+				$helpdesk_customerinfo_sms_body = str_replace('%custname', $info['customername'], $helpdesk_customerinfo_sms_body);
+				$helpdesk_customerinfo_sms_body = str_replace('%cid', sprintf("%04d",$ticket['customerid']), $helpdesk_customerinfo_sms_body);
+				$helpdesk_customerinfo_sms_body = str_replace('%address', (empty($ticket['address_id']) ? $info['address'] . ', ' . $info['zip'] . ' ' . $info['city']
+						: $locations[$ticket['address_id']]['location']), $helpdesk_customerinfo_sms_body);
+				if (!empty($phones))
+					$helpdesk_customerinfo_sms_body = str_replace('%phone', preg_replace('/([0-9])[\s-]+([0-9])/', '\1\2', implode(',', $phones)), $helpdesk_customerinfo_sms_body);
 
 				$sms_body .= "\n";
-				$sms_body .= trans('Customer:').' '.$info['customername'];
-				$sms_body .= ' '.sprintf('(%04d)', $cid).'. ';
-				$sms_body .= (empty($info['locations']) ? $info['address'] . ', ' . $info['zip'] . ' ' . $info['city']
-					: implode(', ', $info['locations']));
-				if (!empty($phones))
-					$sms_body .= '. ' . trans('Phone:') . ' ' . preg_replace('/([0-9])[\s-]+([0-9])/', '\1\2', implode(',', $phones));
+				$sms_body .= $helpdesk_customerinfo_sms_body;
 			}
 
 			$notify_author = ConfigHelper::checkConfig('phpui.helpdesk_author_notify');
@@ -197,7 +229,7 @@ elseif(isset($_POST['note']))
 					$LMS->SendSMS($phone, $sms_body);
 		}
 
-		$SESSION->redirect('?m=rtticketview&id='.$note['ticketid']);
+		$SESSION->redirect('?m=rtticketview&id=' . $note['ticketid'] . (isset($msgid) ? '#rtmessage-' . $msgid : ''));
 	}
 }
 else

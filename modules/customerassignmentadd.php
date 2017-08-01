@@ -277,7 +277,7 @@ if (isset($_POST['assignment'])) {
 				$tariffid = $LMS->AddAssignment($copy_a);
 			}
 		} else {
-			$LMS->AddAssignment($a);
+			$tariffid =$LMS->AddAssignment($a);
 		}
 
         if ($a['tarifftype'] == TARIFF_PHONE && !empty($a['phones'])) {
@@ -400,6 +400,8 @@ if ($customernodes) {
 $SMARTY->assign('customernetdevnodes' , $netdevnodes);
 
 // -----
+
+$SMARTY->assign('tags', $LMS->TarifftagGetAll());
 
 $SMARTY->assign('assignment'          , $a);
 $SMARTY->assign('customernodes'       , $customernodes);

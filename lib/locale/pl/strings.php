@@ -187,6 +187,7 @@ $_LANG['Are you sure, you want to delete that connection?'] = 'Jesteś pewien, �
 $_LANG['Are you sure, you want to delete that device?'] = 'Jesteś pewien, że chcesz usunąć to urządzenie?';
 $_LANG['Are you sure, you want to delete that event?'] = 'Jesteś pewien, że chcesz usunąć ten wpis?';
 $_LANG['Are you sure, you want to delete that message?'] = 'Jesteś pewien, że chcesz usunąć tę wiadomość?';
+$_LANG['Are you sure, you want to restore that message?'] = 'Jesteś pewien, że chcesz przywrócić tę wiadomość?';
 $_LANG['Are you sure, you want to delete all selected messages?'] = 'Jesteś pewien, że chcesz usunąć wszystkie wybrane wiadomości?';
 $_LANG['Are you sure, you want to delete that network?'] = 'Jesteś pewien, że chcesz usunąć tę sieć?';
 $_LANG['Are you sure, you want to delete that payment?'] = 'Jesteś pewien, że chcesz usunąć tę płatność?';
@@ -214,10 +215,14 @@ $_LANG['Are you sure, you want to remove node \\\'$a\\\' from database?'] = 'Jes
 $_LANG['Are you sure, you want to remove network \\\'$a\\\' from database?'] = 'Jesteś pewien, że chcesz usunąć sieć \\\'$a\\\' z bazy danych?';
 $_LANG['Are you sure, you want to remove option \\\'$a\\\' from database?'] = 'Jesteś pewien, że chcesz usunąć opcję \\\'$a\\\' z bazy danych?';
 $_LANG['Are you sure, you want to remove queue \\\'$a\\\' and all assigned tickets and messages?'] = 'Jesteś pewien, że chcesz usunąć kolejkę \\\'$a\\\' oraz wszelkie zgłoszenia i wiadomości z nią skojarzone?';
+$_LANG['Are you sure, you want to premanently remove queue \\\'$a\\\' and all assigned tickets and messages?'] = 'Jesteś pewien, że chcesz trwale usunąć kolejkę \\\'$a\\\' oraz wszelkie zgłoszenia i wiadomości z nią skojarzone?';
+$_LANG['Are you sure, you want to restore queue \\\'$a\\\'?'] = 'Jesteś pewien, że chcesz przywrócić kolejkę \\\'$a\\\'?';
 $_LANG['Are you sure, you want to remove receipt \\\'$a\\\' from database?'] = 'Jesteś pewien, że chcesz usunąć dowód wpłaty nr \\\'$a\\\' z bazy danych?';
 $_LANG['Are you sure, you want to remove that customer from database?\\n\\nIf that customer have any computers, they will be automatically removed from database too, and information about them irreversible losed!'] = 'Czy na pewno chcesz usunąć tego klienta z bazy danych?\\n\\nJeśli klient ten posiada jakieś komputery, zostaną one usunięte, a dane o nich nieodwracalnie utracone!';
 $_LANG['Are you sure, you want to remove this group?'] = 'Jesteś pewien, że chcesz usunąć tę grupę?';
 $_LANG['Are you sure, you want to remove ticket $a?'] = 'Jesteś pewien, że chcesz usunąć zgłoszenie nr $a?';
+$_LANG['Are you sure, you want to permanently remove ticket $a?'] = 'Jesteś pewien, że chcesz trwale usunąć zgłoszenie nr $a?';
+$_LANG['Are you sure, you want to restore ticket $a?'] = 'Jesteś pewien, że chcesz przywrócić zgłoszenie nr $a?';
 $_LANG['Are you sure, you want to reorder that network?'] = 'Jesteś pewien, że chcesz uporządkować sieć?';
 $_LANG['Are you sure, you want to restore this database backup?'] = 'Jesteś pewien, że chcesz przywrócić tę kopię bazy danych?';
 $_LANG['ascending'] = 'rosnąco';
@@ -417,6 +422,7 @@ $_LANG['Price for one unit'] = 'Cena za jedną jednostkę taryfikacyjną';
 $_LANG['Number of units at a promotion price'] = 'Liczba jednostek w cenie promocyjnej';
 $_LANG['Unit size in seconds'] = 'Rozmiar jednostki w sekundach';
 $_LANG['Delete'] = 'Usuń';
+$_LANG['Delete permanently'] = 'Usuń trwale';
 $_LANG['delete'] = 'usuń';
 $_LANG['Delete connection'] = 'Usuń połączenie';
 $_LANG['Delete customer\'s liability'] = 'Usuń zobowiązanie klienta';
@@ -509,7 +515,8 @@ $_LANG['End:'] = 'Koniec:';
 $_LANG['End of DHCP range:'] = 'Koniec zakresu DHCP:';
 $_LANG['End of DHCP range has to be equal or greater than start!'] = 'Koniec zakresu DHCP musi być równy lub większy niż jego początek!';
 $_LANG['End time must not precede start time!'] = 'Czas zakończenia musi być późniejszy niż czas rozpoczęcia!';
-$_LANG['Enter 4 to 6 digits PIN number'] = 'Wprowadź 4 do 6-u cyfr numeru PIN';
+$_LANG['Enter $a characters PIN code'] = 'Wprowadź kod PIN o długości $a znaków';
+$_LANG['Enter $a to $b characters PIN code'] = 'Wprowadź kod PIN o długości od $a do $b znaków';
 $_LANG['Enter account quota in MB'] = 'Wprowadź limit dla konta w MB';
 $_LANG['Enter account name'] = 'Wprowadź nazwę konta';
 $_LANG['Enter additional information'] = 'Wprowadź dodatkowe informacje';
@@ -742,6 +749,7 @@ $_LANG['Helpdesk'] = 'Helpdesk';
 $_LANG['Helpdesk:'] = 'Helpdesk:';
 $_LANG['Helpdesk (RT) administration'] = 'administracja Helpdeskiem (RT)';
 $_LANG['Helpdesk (RT) operation'] = 'obsługa Helpdesku (RT)';
+$_LANG['Helpdesk (RT) advanced operation'] = 'zaawansowana obsługa Helpdesku (RT)';
 $_LANG['hide accounted<!plural>'] = 'ukryj rozliczone';
 $_LANG['High'] = 'Wysoki';
 $_LANG['Homedir:'] = 'Katalog domowy:';
@@ -1274,6 +1282,7 @@ $_LANG['resolved'] = 'rozwiązany';
 $_LANG['expand'] = 'rozwiń';
 $_LANG['Resolved:'] = 'Rozwiązane:';
 $_LANG['Restore'] = 'Odtwórz';
+$_LANG['Restore<!RT>'] = 'Przywróć';
 $_LANG['Romania'] = 'Rumunia';
 $_LANG['Sale date:'] = 'Data sprzedaży:';
 $_LANG['Sale date'] = 'Data sprzedaży';
@@ -1554,6 +1563,10 @@ $_LANG['weekly'] = 'tygodniowo';
 $_LANG['weekly ($a)'] = 'tygodniowo ($a)';
 $_LANG['Welcome to LMS'] = 'Witaj w LMS';
 $_LANG['When enabled, all messages in helpdesk system (except those sent to requester) will be sent to mail server corresponding queue address. lms-rtparser script should be running on server. Messages won\'t be written directly to database, but on solely responsibility of rtparser script. Default: disabled.'] = 'Kiedy włączona, wszystkie wiadomości w systemie Helpdesk (oprócz tych od zgłaszającego) będą wysyłane do serwera pocztowego na adres odpowiedniej kolejki. Skrypt lms-rtparser powinien być uruchomiony na serwerze. Wiadomości do bazy danych zostaną zapisane przez skrypt. Domyślnie: wyłączone.';
+$_LANG['Temaplate for user notice relevant to ticket in Helpdesk. %status - ticket status ; %cat - ticket categories ; %tid - ticket id ; %cid - customer id'] = 'Szablon tekstu dla powiadomień użytkowników o zgłoszeniach w Helpdesk. %status - status zgłoszenia ; %cat - kategorie zgłoszenia ; %tid - id zgłoszenia ; %cid - id klienta';
+$_LANG['Temaplate for user notice relevant to ticket in Helpdesk. %status - ticket status ; %cat - ticket categories ; %tid - ticket id ; %cid - customer id ; %url - ticket url'] = 'Szablon tekstu dla powiadomień użytkowników o zgłoszeniach w Helpdesk. %status - status zgłoszenia ; %cat - kategorie zgłoszenia ; %tid - id zgłoszenia ; %cid - id klienta ; %url - url zgłoszenia';
+$_LANG['Temaplate for user email notice relevant to customer info in ticket in Helpdesk. %custname - customer name ; %cid  - customer id ; %address - address ; %email - e-mail ; %phone - phones'] = 'Szablon dla powiadomień email użytkowników, odnoszący się do danych klienta w zgłoszeniach w Helpdesk. %custname - nazwa klienta ; %cid  - id klienta; %address - adres klienta ; %email - e-mail ; %phone - telefony';
+$_LANG['Temaplate for user sms notice relevant to customer info in ticket in Helpdesk. %custname - customer name ; %cid  - customer id ; %address - address ; %phone - phones'] = 'Szablon dla powiadomień email użytkowników, odnoszący się do danych klienta w zgłoszeniach w Helpdesk. %custname - nazwa klienta ; %cid  - id klienta; %address - adres klienta ; %phone - telefony';
 $_LANG['When enabled, system will sent notification to all users with rights for current queue after new ticket creation. Default: disabled.'] = 'Gdy włączona, system wyśle informacje o dodaniu nowego zgłoszenia do wszystkich użytkowników, którzy mają prawa do konkretnej kolejki. Domyślnie: wyłączona.';
 $_LANG['Why you should register? If you register, we will know who\'s using LMS. Also, you will be listed (your company name and url) on LMS website. It\'s free. We don\'t gather any e-mails, snails or other info. We just keep your company name, url, unique installation id and your LMS version (but only for statistical purposes - we can\'t track your version by your name or installation id). In future, we plan to make available something like \'Registered LMS site\'. Summary: we will be happy if you fill form below and send it to us.'] = 'Dlaczego powinieneś się zarejestrować? Jeśli to zrobisz będziemy wiedzieć kto używa LMS-a. Twoje dane (nazwa firmy i URL) znajdą się na stronie LMS-a. Rejestracja jest darmowa. Nie wysyłamy żadnych reklam, e-maili, ani żadnych innych informacji. Przechowujemy tylko nazwę, url, unikalny identyfikator instalacji i wersję LMS-a (wyłącznie do celów statystycznych - nie można rozpoznać wersji na podstawie nazwy lub identyfikatora instalacji). W przyszłości planujemy uruchomienie czegoś w stylu \'Strona Zarejestrowanych Użytkowników LMS-a\'. Podsumowanie: Będziemy wdzięczni, jeśli wypełnisz poniższy formularz i prześlesz do nas.';
 $_LANG['WINS server:'] = 'Serwer WINS:';
@@ -2757,6 +2770,7 @@ $_LANG['State'] = 'Województwo';
 $_LANG['Street'] = 'Ulica';
 $_LANG['street'] = 'ulica';
 $_LANG['TERRIT-DB'] = 'Baza TERYT';
+$_LANG['$a (TERRIT)'] = '$a (TERYT)';
 $_LANG['City has not been selected!'] = 'Nie wybrano miasta!';
 $_LANG['Flat number is too long (max. 8 characters)!'] = 'Numer mieszkania jest za długi (max. 8 znaków)!';
 $_LANG['Zip code is too long (max. 8 characters)!'] = 'Kod pocztowy jest za długi (max. 8 znaków)!';
@@ -3032,11 +3046,14 @@ $_LANG['no operation on message template'] = 'brak czynności na szablonie wiado
 
 $_LANG['Assign to me'] = 'Przypisz do mnie';
 $_LANG['Ticket has been assigned to user $a.'] = 'Zgłoszenie zostało przypisane do użytkownika $a.';
+$_LANG['Ticket\'s source has been changed from $a to $b.'] = 'Źródło zgłoszenia zostało zmienione z $a na $b.';
 $_LANG['Ticket has been moved from queue $a to queue $b.'] = 'Zgłoszenie zostało przeniesione z kolejki $a do kolejki $b.';
+$_LANG['Ticket\'s location has been changed from $a to $b.'] = 'Lokalizacja zgłoszenia została zmieniona z $a na $b.';
+$_LANG['Ticket\'s node has been changed from $a ($b) to $c ($d).'] = 'Komputer powiązany ze zgłoszeniem został zmieniony z $a ($b) na $c ($d).';
 
 $_LANG['www'] = 'www';
 $_LANG['any sms'] = 'dowolny sms';
-$_LANG['userpanel'] = 'panel abonencki';
+$_LANG['userpanel'] = 'Panel abonencki';
 $_LANG['userpanel urgent'] = 'panel abonencki (pilne)';
 $_LANG['I confirm reading'] = 'Zapoznałem się';
 $_LANG['Urgent'] = 'Pilna';
@@ -3047,7 +3064,6 @@ $_LANG['Was read on:'] = 'Przeczytana dnia:';
 $_LANG['Last read on:'] = 'Ostatnio czytana dnia:';
 $_LANG['Was confirm on:'] = 'Potwierdzona dnia:';
 $_LANG['only userpanel message'] = 'tylko wiadomości userpanel';
-
 
 $_LANG['New ticket customer notification subject:'] = 'Temat listu z powiadomieniem klienta o nowym zgłoszeniu:';
 $_LANG['New ticket customer notification body:'] = 'Treść listu z powiadomieniem klienta o nowym zgłoszeniu:';
@@ -3319,6 +3335,7 @@ $_LANG['Payment for liabilities'] = 'Wpłata na poczet należności';
 
 $_LANG['Check if sent electronic invoices on this email'] = 'Zaznacz jeśli na ten adres e-mail mają być wysyłane elektroniczne faktury';
 $_LANG['Not visible by the customer in electronic Customer Service Representative'] = 'Niewidoczny dla klienta w elektronicznym biurze obsługi klienta';
+$_LANG['eCSR'] = 'eBOK';
 $_LANG['If the customer wants to receive an electronic invoice must be checked e-mail address to which to send e-invoices'] = 'Jeśli klient chce otrzymywać fakturę elektroniczną musi zostać zaznaczony adres e-mail na który mają być wysyłane e-faktury';
 $_LANG['Cancellation of a traditional invoice (agreement on an electronic invoice):'] = 'Rezygnacja z faktury tradycyjnej (zgoda na fakturę elektroniczną):';
 $_LANG['Check if send notification'] = 'Zaznacz, jeżeli chcesz wysyłać powiadomienia';
@@ -3326,7 +3343,7 @@ $_LANG['Check if send technical notification'] = 'Zaznacz, jeżeli chcesz wysył
 $_LANG['notifications'] = 'powiadomienia';
 $_LANG['technical'] = 'informacje techniczne';
 
-$_LANG['Use customer location:'] = 'Użyj lokalizacji klienta:';
+$_LANG['- use customer location -'] = '- użyj lokalizacji klienta -';
 $_LANG['Ticket\'s state has been changed from $a to $b.'] = 'Status zgłoszenia został zmieniony z $a na $b.';
 $_LANG['Ticket\'s cause has been changed from $a to $b.'] = 'Przyczyna zgłoszenia została zmieniona z $a na $b.';
 $_LANG['Ticket\'s subject has been changed from $a to $b.'] = 'Temat zgłoszenia został zmieniony z $a na $b.';
@@ -3567,7 +3584,12 @@ $_LANG['without gps coords'] = 'bez współrzędnych gps';
 
 $_LANG['without invoice flag'] = 'bez flagi z fakturą';
 
+$_LANG['without building number'] = 'bez numeru budynku';
+$_LANG['without zip'] = 'bez kodu pocztowego';
+$_LANG['without city'] = 'bez miasta';
+
 $_LANG['Instant messengers'] = 'Komunikatory internetowe';
+$_LANG['Letter complaint'] = 'Pismo reklamacyjne';
 $_LANG['Enter IM uid (optional)'] = 'Podaj identyfikator użytkownika (opcjonalne)';
 $_LANG['Check if IM uid should be disabled'] = 'Oznacz, jeśli identyfikator użytkownika ma być wyłączony';
 $_LANG['IM uid is required!'] = 'Identyfikator użytkownika jest wymagany!';
@@ -3587,6 +3609,8 @@ $_LANG['Are you sure, you want to remove pro forma invoice \\\'$a\\\' from datab
 $_LANG['Pro Forma Invoice No. $a for $b'] = 'Faktura pro forma nr $a dla $b';
 $_LANG['Convert to invoice'] = 'Przekształć w fakturę';
 $_LANG['Conversion Pro Forma Invoice $a To Invoice'] = 'Przekształcanie faktury pro forma $a w fakturę';
+$_LANG['About pro forma invoice:'] = 'O fakturze pro forma:';
+$_LANG['About invoice:'] = 'O fakturze:';
 
 $_LANG['Change the format of presentation of the MAC address.'] = 'Zmień format prezentacji adresu MAC.';
 
@@ -3629,6 +3653,8 @@ $_LANG['duty'] = 'dyżur';
 $_LANG['If set to "true" then logout confirmation is required. Default "false"'] = 'Ustawienie opcji na "true" wymusza potwierdzenie wylogowania. Domyślnie wyłączone';
 
 $_LANG['SMS from $a'] = 'SMS od $a';
+$_LANG['Ticket source:'] = 'Źródło zgłoszenia:';
+$_LANG['Select request source'] = 'Wybierz źródło zgłoszenia';
 
 $_LANG['Add new request to Helpdesk'] = 'Dodaj nowe zgłoszenie do Helpdesk';
 $_LANG['Request Number'] = 'Nr zgłoszenia';
@@ -3656,5 +3682,36 @@ $_LANG['New message subject should not be empty if you set new message body!'] =
 
 $_LANG['Resolve ticket body should not be empty if you set resolve ticket subject!'] = 'Treść powiadomienia o zamknięciu zgłoszenia nie może być pusta w sytuacji, gdy ustawiono temat powiadomienia o zamknięciu zgłoszenia!';
 $_LANG['Resolve ticket subject should not be empty if you set resolve ticket body!'] = 'Temat powiadomienia o zamknięciu zgłoszenia nie może być pusty w sytuacji, gdy ustawiono treść powiadomienia o zamknięciu zgłoszenia!';
+
+$_LANG['Post office:'] = 'Poczta:';
+
+$_LANG['Determined gps coordinates are not precise.\nDo you still want to use them?'] = 'Wyznaczone współrzędne gps nie są precyzyjne. Czy mimo tego chcesz je użyć?';
+
+
+$_LANG['Removed:'] = 'Usunięte:';
+$_LANG['Remover:'] = 'Usuwający:';
+$_LANG['Remove date:'] = 'Data usunięcia:';
+$_LANG['Not removed'] = 'nieusunięte';
+$_LANG['Removed'] = 'usunięte';
+
+$_LANG['Default categories'] = 'Domyślne kategorie';
+
+$_LANG['Category $a has been added to ticket.'] = 'Kategoria $a została dodana do zgłoszenia.';
+$_LANG['Category $a has been removed from ticket.'] = 'Kategoria $a została usunięta ze zgłoszenia.';
+$_LANG['Add network node:'] = 'Dodaj węzeł sieciowy:';
+
+$_LANG['New device'] = 'Nowe urządzenie';
+
+$_LANG['Enter external customer ID fragment and press Enter'] = 'Podaj fragment identyfikatora kienta w systemie zewnętrznych i naciśnij Enter';
+
+$_LANG['Customer count'] = 'Liczba klientów';
+$_LANG['Assignment count'] = 'Liczba zobowiązań';
+$_LANG['Active assignment count'] = 'Liczba aktywnych zobowiązań';
+
+$_LANG['(from network node)'] = '(z węzła sieciowego)';
+
+$_LANG['Reverse charge:'] = 'Odwrócone obciążenie:';
+$_LANG['Check if reverse charge should be applied'] = 'Zaznacz, jeśli ma zostać zastosowane odrócone obciążenie';
+$_LANG['$a rc'] = '$a oo';
 
 ?>

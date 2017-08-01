@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2016 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -58,6 +58,8 @@ class LMS
     protected $massage_manager;
     protected $config_manager;
     protected $user_group_manager;
+
+	const db_dump_multi_record_limit = 500;
 
     public function __construct(&$DB, &$AUTH, &$SYSLOG)
     { // class variables setting
@@ -195,6 +197,8 @@ class LMS
 
     public function DBDump($filename = NULL, $gzipped = FALSE, $stats = FALSE)
     { // dump database to file
+        $dbtype = ConfigHelper::getConfig('database.type');
+
         if (!$filename)
             return FALSE;
 
@@ -206,13 +210,15 @@ class LMS
         if ($dumpfile) {
             $tables = $this->DB->ListTables();
 
-            switch (ConfigHelper::getConfig('database.type')) {
+            switch ($dbtype) {
                 case 'postgres':
                     fputs($dumpfile, "SET CONSTRAINTS ALL DEFERRED;\n");
+                    $value_prefix = 'E';
                     break;
                 case 'mysql':
                 case 'mysqli':
                     fputs($dumpfile, "SET foreign_key_checks = 0;\n");
+                    $value_prefix = '';
                     break;
             }
 
@@ -226,9 +232,18 @@ class LMS
 
             // Since we're using foreign keys, order of tables is important
             // Note: add all referenced tables to the list
-            $order = array('users', 'customers', 'customergroups', 'nodes', 'numberplans',
-                'assignments', 'rtqueues', 'rttickets', 'rtmessages', 'domains',
-                'cashsources', 'sourcefiles', 'ewx_channels', 'hosts');
+            $order = array('location_states', 'location_districts',
+                'location_boroughs', 'location_cities', 'location_street_types', 'location_streets',
+                'users', 'customers', 'customergroups', 'hosts', 'networks',
+                'nodes', 'numberplans', 'tariffs', 'tarifftags', 'promotions', 'promotionschemas',
+                'assignments', 'countries', 'addresses', 'customer_addresses',
+                'rtqueues', 'rttickets', 'rtmessages', 'domains',
+                'cashsources', 'sourcefiles', 'ewx_channels', 'countries',
+                'divisions', 'netdeviceproducers', 'netnodes', 'invprojects',
+                'netdevicemodels', 'netradiosectors', 'voip_rule_groups', 'voip_prefix_groups',
+                'voipaccounts', 'voip_rules', 'voip_tariffs', 'documents', 'rtattachments',
+                'rtcategories', 'netdevices', 'logtransactions', 'logmessages', 'usergroups',
+            );
 
             foreach ($tables as $idx => $table) {
                 if (in_array($table, $order)) {
@@ -243,26 +258,36 @@ class LMS
                 if ($tablename == 'sessions' || ($tablename == 'stats' && $stats == FALSE))
                     continue;
 
+                $record = $this->DB->GetRow('SELECT * FROM ' . $tablename . ' LIMIT 1');
+                if (empty($record))
+                    continue;
+                $fields = array_keys($record);
+
+                $query = 'INSERT INTO ' . $tablename . ' (' . implode(',', $fields) . ') VALUES ';
+                $record_limit = self::db_dump_multi_record_limit;
+                $records = array();
                 $this->DB->Execute('SELECT * FROM ' . $tablename);
                 while ($row = $this->DB->_driver_fetchrow_assoc()) {
-                    fputs($dumpfile, "INSERT INTO $tablename (");
-                    foreach ($row as $field => $value) {
-                        $fields[] = $field;
+                    $values = array();
+                    foreach ($row as $value) {
                         if (isset($value))
-                            $values[] = "'" . addcslashes($value, "\r\n\'\"\\") . "'";
+                            $values[] = $value_prefix . "'" . addcslashes($value, "\r\n\'\"\\") . "'";
                         else
                             $values[] = 'NULL';
                     }
-                    fputs($dumpfile, implode(', ', $fields));
-                    fputs($dumpfile, ') VALUES (');
-                    fputs($dumpfile, implode(', ', $values));
-                    fputs($dumpfile, ");\n");
-                    unset($fields);
-                    unset($values);
+                    $records[] = '(' . implode(', ', $values) . ')';
+                    $record_limit--;
+                    if (!$record_limit) {
+                        fputs($dumpfile, $query . implode(',', $records) . ";\n");
+                        $records = array();
+                        $record_limit = self::db_dump_multi_record_limit;
+                    }
                 }
+                if ($record_limit < self::db_dump_multi_record_limit)
+                    fputs($dumpfile, $query . implode(',', $records) . ";\n");
             }
 
-            if (preg_match('/^mysqli?$/', ConfigHelper::getConfig('database.type')))
+            if (preg_match('/^mysqli?$/', $dbtype))
                 fputs($dumpfile, "SET foreign_key_checks = 1;\n");
 
             if ($gzipped && extension_loaded('zlib'))
@@ -879,6 +904,11 @@ class LMS
         return $manager->GetUniqueNodeLocations( $customerid );
     }
 
+	public function GetNodeLocations($customerid, $address_id = null) {
+		$manager = $this->getNodeManager();
+		return $manager->GetNodeLocations($customerid, $address_id);
+	}
+
     /*
      *  Tarrifs and finances
      */
@@ -1354,10 +1384,10 @@ class LMS
         return $manager->GetQueue($id);
     }
 
-    public function GetQueueContents($ids, $order = 'createtime,desc', $state = NULL, $owner = 0, $catids = NULL)
+    public function GetQueueContents($ids, $order = 'createtime,desc', $state = NULL, $owner = 0, $catids = NULL, $removed = NULL)
     {
         $manager = $this->getHelpdeskManager();
-        return $manager->GetQueueContents($ids, $order, $state, $owner, $catids);
+        return $manager->GetQueueContents($ids, $order, $state, $owner, $catids, $removed);
     }
 
     public function GetUserRightsRT($user, $queue, $ticket = NULL)
@@ -1474,11 +1504,28 @@ class LMS
         return $manager->TicketExists($id);
     }
 
+/*
+	public function SaveTicketMessageAttachments($ticketid, $messageid, $files, $cleanup = false) {
+		$manager = $this->getHelpdeskManager();
+		return $manager->SaveTicketMessageAttachments($ticketid, $messageid, $files, $cleanup);
+	}
+*/
+
+	public function TicketMessageAdd($message, $files = null) {
+		$manager = $this->getHelpdeskManager();
+		return $manager->TicketMessageAdd($message, $files);
+	}
+
     public function TicketAdd($ticket, $files = NULL)
     {
         $manager = $this->getHelpdeskManager();
         return $manager->TicketAdd($ticket, $files);
     }
+
+	public function GetLastMessageID() {
+		$manager = $this->getHelpdeskManager();
+		return $manager->GetLastMessageID();
+	}
 
     public function GetTicketContents($id)
     {
@@ -1492,11 +1539,27 @@ class LMS
         return $manager->TicketChange($ticketid, $props);
     }
 
+    public function GetQueueCategories($queueid)
+    {
+        $manager = $this->getHelpdeskManager();
+        return $manager->GetQueueCategories($queueid);
+    }
+
     public function GetMessage($id)
     {
         $manager = $this->getHelpdeskManager();
         return $manager->GetMessage($id);
     }
+
+	public function GetFirstMessage($ticketid) {
+		$manager = $this->getHelpdeskManager();
+		return $manager->GetFirstMessage($ticketid);
+	}
+
+	public function GetLastMessage($ticketid) {
+		$manager = $this->getHelpdeskManager();
+		return $manager->GetLastMessage($ticketid);
+	}
 
     /*
      *  LMS-UI configuration
@@ -1732,7 +1795,7 @@ class LMS
 				$buf .= "Content-Type: text/" . ($headers['X-LMS-Format'] == 'html' ? "html" : "plain") . "; charset=UTF-8\n\n";
 				$buf .= $body . "\n";
 				if ($files)
-					while (list(, $chunk) = each($files)) {
+					foreach ($files as $chunk) {
 						$buf .= '--' . $boundary . "\n";
 						$buf .= "Content-Transfer-Encoding: base64\n";
 						$buf .= "Content-Type: " . $chunk['content_type'] . "; name=\"" . $chunk['filename'] . "\"\n";
@@ -1794,7 +1857,7 @@ class LMS
 			if (isset($_SERVER['HTTP_USER_AGENT']))
 				$this->mail_object->addCustomHeader('X-HTTP-User-Agent: '.$_SERVER['HTTP_USER_AGENT']);
 
-			foreach (array('X-LMS-Message-Item-id', 'References', 'In-Reply-To', 'Message-ID') as $header_name)
+			foreach (array('X-LMS-Message-Item-Id', 'References', 'In-Reply-To', 'Message-ID') as $header_name)
 				if (isset($headers[$header_name]))
 					if ($header_name == 'Message-ID')
 						$this->mail_object->MessageID = $headers[$header_name];
@@ -1824,7 +1887,7 @@ class LMS
 				$headers['Date'] = date('r');
 
 			if ($files)
-				while (list(, $chunk) = each($files))
+				foreach ($files as $chunk)
 					$this->mail_object->AddStringAttachment($chunk['data'],$chunk['filename'],'base64',$chunk['content_type']);
 
 			if ($headers['X-LMS-Format'] == 'html') {
@@ -2195,6 +2258,28 @@ class LMS
         $manager = $this->getFinanaceManager();
         return $manager->GetTaxes($from, $to);
     }
+
+    public function EventAdd($event)
+    {
+        $manager = $this->getEventManager();
+        return $manager->EventAdd($event);
+    }
+
+    public function EventUpdate($event)
+    {
+        $manager = $this->getEventManager();
+        return $manager->EventUpdate($event);
+    }
+
+	public function EventDelete($id) {
+		$manager = $this->getEventManager();
+		return $manager->EventDelete($id);
+	}
+
+	public function GetEvent($id) {
+		$manager = $this->getEventManager();
+		return $manager->GetEvent($id);
+	}
 
     public function EventSearch($search, $order = 'date,asc', $simple = false)
     {
@@ -3090,6 +3175,58 @@ class LMS
         return $manager->TarifftagGetAll();
     }
 
+	public function GetFinancialDocument($doc, $SMARTY) {
+		if ($doc['doctype'] == DOC_DNOTE) {
+			$type = ConfigHelper::getConfig('notes.type', '');
+			if ($type == 'pdf')
+				$document = new LMSTcpdfDebitNote(trans('Notes'));
+			else
+				$document = new LMSHtmlDebitNote($SMARTY);
+
+			$filename = ConfigHelper::getConfig('sendinvoices.debitnote_filename', 'dnote_%docid');
+
+			$data = $this->GetNoteContent($doc['id']);
+		} else {
+			$type = ConfigHelper::getConfig('invoices.type', '');
+			if ($type == 'pdf') {
+				$pdf_type = ConfigHelper::getConfig('invoices.pdf_type', 'tcpdf');
+				$pdf_type = ucwords($pdf_type);
+				$classname = 'LMS' . $pdf_type . 'Invoice';
+				$document = new $classname(trans('Invoices'));
+			} else
+				$document = new LMSHtmlInvoice($SMARTY);
+
+			$filename = ConfigHelper::getConfig('sendinvoices.invoice_filename', 'invoice_%docid');
+
+			$data = $this->GetInvoiceContent($doc['id']);
+		}
+
+		if ($type == 'pdf')
+			$fext = 'pdf';
+		else
+			$fext = 'html';
+
+		$document_number = (!empty($doc['template']) ? $doc['template'] : '%N/LMS/%Y');
+		$document_number = docnumber(array(
+			'number' => $doc['number'],
+			'template' => $document_number,
+			'cdate' => $doc['cdate'] + date('Z'),
+			'customerid' => $doc['customerid'],
+		));
+
+		$filename = preg_replace('/%docid/', $doc['id'], $filename);
+		$filename = str_replace('%number', $document_number, $filename);
+		$filename = preg_replace('/[^[:alnum:]_\.]/i', '_', $filename);
+
+		$data['type'] = trans('ORIGINAL');
+		$document->Draw($data);
+
+		return array(
+			'filename' => $filename . '.' . $fext,
+			'data' => $document->WriteToString(),
+		);
+	}
+
 	public function SendInvoices($docs, $type, $params) {
 		extract($params);
 
@@ -3102,65 +3239,23 @@ class LMS
 		$day = sprintf('%02d', intval(date('d', $currtime)));
 		$year = sprintf('%04d', intval(date('Y', $currtime)));
 
-		if ($invoice_filetype == 'pdf') {
+		if ($invoice_filetype == 'pdf')
 			$invoice_ftype = 'application/pdf';
-			$invoice_fext = 'pdf';
-
-			$pdf_type = ConfigHelper::getConfig('invoices.pdf_type', 'tcpdf');
-			$pdf_type = ucwords($pdf_type);
-			$invoice_classname = 'LMS' . $pdf_type . 'Invoice';
-		} else {
+		else
 			$invoice_ftype = 'text/html';
-			$invoice_fext = 'html';
 
-			$invoice_classname = 'LMSHtmlInvoice';
-		}
-
-		if ($dnote_filetype == 'pdf') {
+		if ($dnote_filetype == 'pdf')
 			$dnote_ftype = 'application/pdf';
-			$dnote_fext = 'pdf';
-
-			$dnote_classname = 'LMSTcpdfDebitNote';
-		} else {
+		else
 			$dnote_ftype = 'text/html';
-			$dnote_fext = 'html';
-
-			$dnote_classname = 'LMSHtmlDebitNote';
-		}
 
 		$from = $sender_email;
 
 		if (!empty($sender_name))
 			$from = "$sender_name <$from>";
 
-		if (!isset($which) || empty($which))
-			$which = array(trans('ORIGINAL'));
-		$count = count($which);
-
 		foreach ($docs as $doc) {
-			if ($doc['doctype'] == DOC_DNOTE) {
-				if ($dnote_filetype == 'pdf')
-					$document = new $dnote_classname(trans('Notes'));
-				else
-					$document = new $dnote_classname($SMARTY);
-				$invoice = $this->GetNoteContent($doc['id']);
-			} else {
-				if ($invoice_filetype == 'pdf')
-					$document = new $invoice_classname(trans('Invoices'));
-				else
-					$document = new $invoice_classname($SMARTY);
-				$invoice = $this->GetInvoiceContent($doc['id']);
-			}
-
-			$i = 0;
-			foreach ($which as $doctype) {
-				$i++;
-				$invoice['type'] = $doctype;
-				$document->Draw($invoice);
-				if ($i < $count)
-					$document->NewPage();
-			}
-			$res = $document->WriteToString();
+			$document = $this->GetFinancialDocument($doc, $SMARTY);
 
 			$custemail = (!empty($debug_email) ? $debug_email : $doc['email']);
 			$invoice_number = (!empty($doc['template']) ? $doc['template'] : '%N/LMS/%Y');
@@ -3182,9 +3277,7 @@ class LMS
 			$body = preg_replace('/%today/', $year . '-' . $month . '-' . $day, $body);
 			$body = str_replace('\n', "\n", $body);
 			$subject = preg_replace('/%invoice/', $invoice_number, $subject);
-			$filename = preg_replace('/%docid/', $doc['id'], $doc['doctype'] == DOC_DNOTE ? $dnote_filename : $invoice_filename);
-			$filename = str_replace('%number', $invoice_number, $filename);
-			$filename = preg_replace('/[^[:alnum:]_\.]/i', '_', $filename);
+			$filename = $document['filename'];
 			$doc['name'] = '"' . $doc['name'] . '"';
 
 			$mailto = array();
@@ -3223,8 +3316,8 @@ class LMS
 				$files = array();
 				$files[] = array(
 					'content_type' => $doc['doctype'] == DOC_DNOTE ? $dnote_ftype : $invoice_ftype,
-					'filename' => $filename . '.' . ($doc['doctype'] == DOC_DNOTE ? $dnote_fext : $invoice_fext),
-					'data' => $res
+					'filename' => $filename,
+					'data' => $document['data'],
 				);
 
 				if ($extrafile) {
@@ -3246,6 +3339,9 @@ class LMS
 					$headers['Return-Receipt-To'] = $mdn_email;
 					$headers['Disposition-Notification-To'] = $mdn_email;
 				}
+
+				if (!empty($dsn_email))
+					$headers['Delivery-Status-Notification-To'] = $dsn_email;
 
 				if (!empty($notify_email))
 					$headers['Cc'] = $notify_email;
@@ -3271,8 +3367,8 @@ class LMS
 
 				foreach (explode(',', $custemail) as $email) {
 					if ($add_message && (!empty($dsn_email) || !empty($mdn_email))) {
-						if (!empty($dsn_email))
 						$headers['X-LMS-Message-Item-Id'] = $msgitems[$doc['customerid']][$email];
+						$headers['Message-ID'] = '<messageitem-' . $headers['X-LMS-Message-Item-Id'] . '@rtsystem.' . gethostname() . '>';
 					}
 
 					$res = $this->SendMail($email . ',' . $notify_email, $headers, $body,

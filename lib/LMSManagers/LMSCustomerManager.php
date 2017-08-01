@@ -220,7 +220,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
         $result = array();
 
         $result['list'] = $this->db->GetAll(
-            'SELECT cash.id AS id, time, cash.type AS type,
+            '(SELECT cash.id AS id, time, cash.type AS type,
                 cash.value AS value, taxes.label AS tax, cash.customerid AS customerid,
                 comment, docid, vusers.name AS username,
                 documents.type AS doctype, documents.closed AS closed,
@@ -230,9 +230,21 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
             LEFT JOIN documents ON documents.id = docid
             LEFT JOIN taxes ON cash.taxid = taxes.id
             WHERE cash.customerid = ?'
-            . ($totime ? ' AND time <= ' . intval($totime) : '')
-            . ' ORDER BY time ' . $direction . ', cash.id',
-            array($id)
+            . ($totime ? ' AND time <= ' . intval($totime) : '') . ')
+            UNION
+            (SELECT ic.itemid AS id, d.cdate AS time, 0 AS type,
+            		-ic.value, NULL AS tax, d.customerid,
+            		ic.description AS comment, d.id AS docid, vusers.name AS username,
+            		d.type AS doctype, d.closed AS closed,
+            		d.published, NULL AS importid
+            	FROM documents d
+            	JOIN invoicecontents ic ON ic.docid = d.id
+            	LEFT JOIN vusers ON vusers.id = d.userid
+            	WHERE ' . (ConfigHelper::checkConfig('phpui.proforma_invoice_generates_commitment') ? '1=0 AND' : '')
+            	. ' d.customerid = ? AND d.type = ?'
+            	. ($totime ? ' AND d.cdate <= ' . intval($totime) : '') . ')
+            ORDER BY time ' . $direction . ', id',
+            array($id, $id, DOC_INVOICE_PRO)
         );
 
         if (!empty($result['list'])) {
@@ -241,8 +253,12 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 
             foreach ($result['list'] as &$row) {
                 $row['customlinks'] = array();
-                $row['after'] = round($result['balance'] + $row['value'], 2);
-                $result['balance'] += $row['value'];
+				if ($row['doctype'] == DOC_INVOICE_PRO && !ConfigHelper::checkConfig('phpui.proforma_invoice_generates_commitment'))
+					$row['after'] = $result['balance'];
+				else {
+					$row['after'] = round($result['balance'] + $row['value'], 2);
+					$result['balance'] += $row['value'];
+				}
                 $row['date'] = date('Y/m/d H:i', $row['time']);
             }
 
@@ -471,6 +487,15 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
             case 66:
             		$withoutinvoiceflag =1;
             		break;
+            case 67:
+                    $withoutbuildingnumber =1;
+                    break;
+            case 68:
+                    $withoutzip =1;
+                    break;
+            case 69:
+                    $withoutcity =1;
+                    break;
         }
 
         switch($as){
@@ -617,7 +642,7 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
             	SUM(CASE WHEN b.value < 0 THEN b.value ELSE 0 END) AS below ';
         } else {
             $sql .= 'SELECT c.id AS id, ' . $this->db->Concat('UPPER(lastname)', "' '", 'c.name') . ' AS customername,
-                status, address, zip, city, countryid, countries.name AS country, cc.email, ten, ssn, c.info AS info,
+                status, address, zip, city, countryid, countries.name AS country, cc.email, ccp.phone, ten, ssn, c.info AS info,
                 message, c.divisionid, c.paytime AS paytime, COALESCE(b.value, 0) AS balance,
                 COALESCE(t.value, 0) AS tariffvalue, s.account, s.warncount, s.online,
                 (CASE WHEN s.account = s.acsum THEN 1
@@ -628,7 +653,9 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
 
         $sql .= 'FROM customerview c
             LEFT JOIN (SELECT customerid, (' . $this->db->GroupConcat('contact') . ') AS email
-            FROM customercontacts WHERE (type & ' . CONTACT_EMAIL .' = '. CONTACT_EMAIL .') GROUP BY customerid) cc ON cc.customerid = c.id
+            FROM customercontacts WHERE (type & ' . CONTACT_EMAIL .' > 0) GROUP BY customerid) cc ON cc.customerid = c.id
+            LEFT JOIN (SELECT customerid, (' . $this->db->GroupConcat('contact') . ') AS phone
+            FROM customercontacts WHERE (type & ' . (CONTACT_MOBILE | CONTACT_LANDLINE) .' > 0) GROUP BY customerid) ccp ON ccp.customerid = c.id
             LEFT JOIN countries ON (c.countryid = countries.id) '
             . ($customergroup ? 'LEFT JOIN (SELECT customerassignments.customerid, COUNT(*) AS gcount
             	FROM customerassignments '
@@ -707,6 +734,9 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
                 . ($withnodes ? ' AND EXISTS (SELECT 1 FROM nodes WHERE ownerid = c.id)' : '')
                 . ($withoutnodes ? ' AND NOT EXISTS (SELECT 1 FROM nodes WHERE ownerid = c.id)' : '')
                 . ($withoutinvoiceflag ? ' AND c.id IN (SELECT DISTINCT customerid FROM assignments WHERE invoice = 0)' : '')
+                . ($withoutbuildingnumber ? ' AND c.building IS NULL' : '')
+                . ($withoutzip ? ' AND c.zip IS NULL' : '')
+                . ($withoutcity ? ' AND c.city IS NULL' : '')
                 . ($contracts == 1 ? ' AND d.customerid IS NULL' : '')
                 . ($assigment ? ' AND c.id IN ('.$assigment.')' : '')
                 . ($disabled ? ' AND s.ownerid IS NOT null AND s.account > s.acsum' : '')
@@ -1269,7 +1299,8 @@ class LMSCustomerManager extends LMSManager implements LMSCustomerManagerInterfa
     public function getCustomerAddresses($id, $hide_deleted = false ) {
 
         $data = $this->db->GetAllByKey('SELECT
-                                          addr.id as address_id, addr.name as location_name,
+                                          addr.id AS address_id, ca.id AS customer_address_id,
+                                          addr.name as location_name,
                                           addr.state as location_state_name, addr.state_id as location_state,
                                           addr.city as location_city_name, addr.city_id as location_city,
                                           addr.street as location_street_name, addr.street_id as location_street,

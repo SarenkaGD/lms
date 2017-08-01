@@ -788,7 +788,7 @@ class LMSNodeManager extends LMSManager implements LMSNodeManagerInterface
         }
 
         if ( !$error_msg ) {
-            $this->db->Execute('UPDATE nodes SET ' . $field . ' = ? WHERE id = ?;', array($value, $nodeid));
+            $this->db->Execute('UPDATE nodes SET ' . $field . ' = ? WHERE id = ?', array($value, $nodeid));
         } else {
             return $error_msg;
         }
@@ -810,5 +810,30 @@ class LMSNodeManager extends LMSManager implements LMSNodeManagerInterface
 			} else
 				$locations[] = $node['location'];
 		return array_unique($locations);
+	}
+
+	public function GetNodeLocations($customerid, $address_id = null) {
+		$nodes = $this->db->GetAllByKey('SELECT n.id, n.name, location, address_id FROM vnodes n
+			WHERE ownerid = ?' . (empty($address_id) ? '' : ' AND (address_id IS NULL OR address_id = ' . intval($address_id) . ')')
+			. ' ORDER BY n.name ASC', 'id', array($customerid));
+		if (empty($nodes))
+			return null;
+
+		foreach ($nodes as $idx => &$node)
+			if (empty($node['address_id'])) {
+				if (!isset($default_address)) {
+					$customer_manager = new LMSCustomerManager($this->db, $this->auth, $this->cache, $this->syslog);
+					$default_address = $customer_manager->getFullAddressForCustomerStuff($customerid);
+				}
+				if (!empty($address_id) && $address_id != $default_address['address_id']) {
+					unset($nodes[$idx]);
+					continue;
+				}
+				$node['address_id'] = $default_address['address_id'];
+				$node['location'] = $default_address['location'];
+			}
+		unset($node);
+
+		return $nodes;
 	}
 }

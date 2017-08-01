@@ -75,6 +75,7 @@ switch($action)
 		if(!empty($_GET['customerid']) && $LMS->CustomerExists($_GET['customerid']))
 		{
 			$customer = $LMS->GetCustomer($_GET['customerid'], true);
+			$invoice['customerid'] = $_GET['customerid'];
 
 			$invoice['numberplanid'] = $DB->GetOne('SELECT n.id FROM numberplans n
 				JOIN numberplanassignments a ON (n.id = a.planid)
@@ -340,7 +341,7 @@ switch($action)
 		$DB->BeginTrans();
 		
 		if (ConfigHelper::getConfig('phpui.stock'))//Added if/else (clean) for STCK by Sarenka MAXCON
-			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions','stck_cashassignments','stck_invoicecontentsassignments','stck_stock'));
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions', 'vdivisions','stck_cashassignments','stck_invoicecontentsassignments','stck_stock'));
 		else
 			 $DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions'));
 		//END STCK

@@ -1044,6 +1044,14 @@ function generate_random_string($length = 10, $characters = '0123456789abcdefghi
 	return $randomString;
 }
 
+function validate_random_string($string, $min_size, $max_size, $characters) {
+	if (strlen($string) < $min_size || strlen($string) > $max_size)
+		return false;
+	for ($i = 0; $i < strlen($characters); $i++)
+		$string = str_replace($characters[$i], '', $string);
+	return !strlen($string);
+}
+
 function trans()
 {
 	global $_LANG;

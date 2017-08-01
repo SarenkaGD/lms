@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2013 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -88,6 +88,19 @@ function RTSearch($search, $order='createtime,desc')
 	if(isset($search['catids']))
 		$where[] = 'tc.categoryid IN ('.implode(',', $search['catids']).')';
 
+		if(!ConfigHelper::checkPrivilege('helpdesk_advanced_operations'))
+		$where[] = 't.deleted = 0';
+	else
+	{
+		if(!empty($search['removed']))
+		{
+			if($search['removed'] == '-1')
+				$where[] = 't.deleted = 0';
+				else
+					$where[] = 't.deleted = 1';
+		}
+	}
+
 	if(isset($where))
 		$where = ' WHERE '.implode($op, $where);
 
@@ -95,7 +108,7 @@ function RTSearch($search, $order='createtime,desc')
 			vusers.name AS ownername, CASE WHEN customerid = 0 THEN t.requestor ELSE '
 			.$DB->Concat('UPPER(customers.lastname)',"' '",'customers.name').'
 			END AS requestor, t.requestor AS req, t.createtime,
-			(CASE WHEN m.lastmodified IS NULL THEN 0 ELSE m.lastmodified END) AS lastmodified
+			(CASE WHEN m.lastmodified IS NULL THEN 0 ELSE m.lastmodified END) AS lastmodified, t.deleted, t.deltime
 			FROM rttickets t
 			LEFT JOIN (SELECT MAX(createtime) AS lastmodified, ticketid FROM rtmessages GROUP BY ticketid) m ON m.ticketid = t.id
 			LEFT JOIN rtticketcategories tc ON t.id = tc.ticketid
@@ -106,6 +119,7 @@ function RTSearch($search, $order='createtime,desc')
 	{
 		foreach($result as $idx => $ticket)
 		{
+			$ticket['delcount'] = $DB->GetOne('SELECT COUNT(id) FROM rtmessages m WHERE m.ticketid = ? AND m.deleted = 1', array($ticket['id']));
 			if(!$ticket['custid'])
 				list($ticket['requestor'], $ticket['requestoremail']) = sscanf($ticket['req'], "%[^<]<%[^>]");
 			else
@@ -122,7 +136,7 @@ function RTSearch($search, $order='createtime,desc')
 	return $result;
 }
 
-$categories = $LMS->GetCategoryListByUser($AUTH->id);
+$categories = $LMS->GetCategoryListByUser(Auth::GetCurrentUser());
 
 $layout['pagetitle'] = trans('Ticket Search');
 
@@ -134,8 +148,7 @@ elseif(isset($_GET['s']))
 if(isset($_GET['id']))
 	$search['custid'] = $_GET['id'];
 
-if(isset($_GET['state']))
-{
+if (isset($_GET['state']))
 	$search = array(
 		'state' => $_GET['state'],
 		'subject' => '',
@@ -146,8 +159,7 @@ if(isset($_GET['state']))
 		'queue' => '0',
 		'uptime' => '',
 		'catids' => NULL
-		);
-}
+	);
 
 if(!isset($_GET['o']))
 	$SESSION->restore('rto', $o);
@@ -164,7 +176,7 @@ if(isset($search) || isset($_GET['s']))
 	if(!isset($search['queue']) || $search['queue'] == 0)
 	{
 		// if user hasn't got rights for all queues...
-		$queues = $DB->GetCol('SELECT queueid FROM rtrights WHERE userid=?', array($AUTH->id));
+		$queues = $DB->GetCol('SELECT queueid FROM rtrights WHERE userid=?', array(Auth::GetCurrentUser()));
 		if(sizeof($queues) != $DB->GetOne('SELECT COUNT(*) FROM rtqueues'))
 			$search['queue'] = $queues;
 	}
@@ -172,11 +184,11 @@ if(isset($search) || isset($_GET['s']))
 		if (is_array($search['queue']))
 			foreach($search['queue'] as $queue)
 			{
-				if(!$LMS->GetUserRightsRT($AUTH->id, $queue))
+				if(!$LMS->GetUserRightsRT(Auth::GetCurrentUser(), $queue))
 					$error['queue'] = trans('You have no privileges to review this queue!');
 			}
 		else
-			if(!$LMS->GetUserRightsRT($AUTH->id, $search['queue']))
+			if(!$LMS->GetUserRightsRT(Auth::GetCurrentUser(), $search['queue']))
 				$error['queue'] = trans('You have no privileges to review this queue!');
 
 	if(!isset($search['categories']))

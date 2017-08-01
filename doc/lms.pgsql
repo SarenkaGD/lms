@@ -63,7 +63,7 @@ CREATE TABLE customers (
 	modid integer 		DEFAULT 0 NOT NULL,
 	deleted smallint 	DEFAULT 0 NOT NULL,
 	message text		DEFAULT '' NOT NULL,
-	pin varchar(6)		DEFAULT 0 NOT NULL,
+	pin varchar(255)		DEFAULT 0 NOT NULL,
 	cutoffstop integer	DEFAULT 0 NOT NULL,
 	consentdate integer	DEFAULT 0 NOT NULL,
 	einvoice smallint 	DEFAULT NULL,
@@ -524,6 +524,7 @@ CREATE TABLE netnodes (
 		REFERENCES divisions (id) ON DELETE SET NULL ON UPDATE CASCADE,
 	address_id integer
 		REFERENCES addresses (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	info text DEFAULT NULL,
 	PRIMARY KEY(id)
 );
 
@@ -1133,6 +1134,7 @@ CREATE TABLE taxes (
     label varchar(16) DEFAULT '' NOT NULL,
     validfrom integer DEFAULT 0 NOT NULL,
     validto integer DEFAULT 0 NOT NULL,
+	reversecharge smallint DEFAULT 0 NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -1437,6 +1439,9 @@ CREATE TABLE rtqueues (
   newmessagebody text NOT NULL DEFAULT '',
   resolveticketsubject varchar(255) NOT NULL DEFAULT '',
   resolveticketbody text NOT NULL DEFAULT '',
+  deleted smallint	DEFAULT 0 NOT NULL,
+  deltime integer	DEFAULT 0 NOT NULL,
+  deluserid integer	DEFAULT 0 NOT NULL,
   PRIMARY KEY (id),
   UNIQUE (name)
 );
@@ -1457,6 +1462,14 @@ CREATE TABLE rttickets (
   creatorid integer 	DEFAULT 0 NOT NULL,
   createtime integer 	DEFAULT 0 NOT NULL,
   resolvetime integer 	DEFAULT 0 NOT NULL,
+  source smallint	DEFAULT 0 NOT NULL,
+  deleted smallint	DEFAULT 0 NOT NULL,
+  deltime integer	DEFAULT 0 NOT NULL,
+  deluserid integer	DEFAULT 0 NOT NULL,
+  address_id integer	DEFAULT NULL
+    CONSTRAINT rttickets_address_id_fk REFERENCES addresses (id) ON UPDATE CASCADE ON DELETE CASCADE,
+  nodeid integer	DEFAULT NULL
+    CONSTRAINT rttickets_nodeid_fk REFERENCES nodes (id) ON UPDATE CASCADE ON DELETE CASCADE,
   PRIMARY KEY (id)
 );
 
@@ -1483,7 +1496,10 @@ CREATE TABLE rtmessages (
   headers text 		DEFAULT '' NOT NULL,
   body text		DEFAULT '' NOT NULL,
   createtime integer	DEFAULT 0 NOT NULL,
-  type smallint			DEFAULT 0 NOT NULL,
+  type smallint		DEFAULT 0 NOT NULL,
+  deleted smallint	DEFAULT 0 NOT NULL,
+  deltime integer	DEFAULT 0 NOT NULL,
+  deluserid integer	DEFAULT 0 NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -1548,6 +1564,16 @@ CREATE TABLE rtticketcategories (
 		REFERENCES rtcategories (id) ON DELETE CASCADE ON UPDATE CASCADE,
 	PRIMARY KEY (id),
 	CONSTRAINT rtticketcategories_ticketid_key UNIQUE (ticketid, categoryid)
+);
+
+DROP SEQUENCE IF EXISTS rtqueuecategories_id_seq;
+CREATE SEQUENCE rtqueuecategories_id_seq;
+DROP TABLE IF EXISTS rtqueuecategories CASCADE;
+CREATE TABLE rtqueuecategories (
+	id integer DEFAULT nextval('rtqueuecategories_id_seq'::text) NOT NULL,
+	queueid integer NOT NULL REFERENCES rtqueues (id) ON DELETE CASCADE ON UPDATE CASCADE,
+	categoryid integer NOT NULL REFERENCES rtcategories (id) ON DELETE CASCADE ON UPDATE CASCADE,
+	PRIMARY KEY (id)
 );
 
 /* ---------------------------------------------------
@@ -1728,7 +1754,9 @@ CREATE TABLE events (
 	moduserid	integer		DEFAULT 0 NOT NULL,
 	type		smallint	DEFAULT 1 NOT NULL,
 	nodeid		integer		DEFAULT NULL
-	    REFERENCES nodes (id) ON DELETE SET NULL ON UPDATE CASCADE,
+		REFERENCES nodes (id) ON DELETE SET NULL ON UPDATE CASCADE,
+	address_id integer DEFAULT NULL
+		CONSTRAINT events_address_id_fk REFERENCES addresses (id) ON UPDATE CASCADE ON DELETE CASCADE,
 	ticketid integer DEFAULT NULL,
 	PRIMARY KEY (id),
 	CONSTRAINT event_ticketid_rttickets_id_fk
@@ -2364,7 +2392,7 @@ CREATE VIEW customeraddressview AS
     SELECT c.*,
         a1.country_id as countryid, a1.zip as zip, a1.city as city, a1.street as street,
         a1.house as building, a1.flat as apartment, a2.country_id as post_countryid,
-        a2.zip as post_zip, a1.city as post_city, a2.street as post_street,
+        a2.zip as post_zip, a2.city as post_city, a2.street as post_street,
         a2.house as post_building, a2.flat as post_apartment, a2.name as post_name,
         a1.address as address, a1.location AS full_address,
         a1.postoffice AS postoffice,
@@ -2536,9 +2564,14 @@ INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
 ('phpui', 'short_pagescroller', 'false', '', 0),
 ('phpui', 'helpdesk_stats', 'true', '', 0),
 ('phpui', 'helpdesk_customerinfo', 'true', '', 0),
+('phpui', 'helpdesk_customerinfo_mail_body', 'Klient: %custname ID: %cid Adres: %address E-mail: %email Telefon: %phone', '', 0),
+('phpui', 'helpdesk_customerinfo_sms_body', 'Klient: %custname ID: %cid Adres: %address Telefon: %phone', '', 0),
 ('phpui', 'helpdesk_backend_mode', 'false', '', 0),
 ('phpui', 'helpdesk_sender_name', '', '', 0),
 ('phpui', 'helpdesk_reply_body', 'false', '', 0),
+('phpui', 'helpdesk_notification_mail_subject', '[RT#%tid]', '', 0),
+('phpui', 'helpdesk_notification_mail_body', 'URL: %url', '', 0),
+('phpui', 'helpdesk_notification_sms_body', '[RT#%tid]', '', 0),
 ('phpui', 'use_invoices', 'false', '', 0),
 ('phpui', 'ticket_template_file', 'rtticketprint.html', '', 0),
 ('phpui', 'use_current_payday', 'false', '', 0),
@@ -2622,6 +2655,7 @@ INSERT INTO uiconfig (section, var, value, description, disabled) VALUES
 ('userpanel', 'auth_type', '1', '', 0),
 ('userpanel', 'show_confirmed_documents_only', 'false', '', 0),
 ('userpanel', 'module_order', '', '', 0),
+('userpanel', 'visible_ticket_sources', '0;1;2;3;4;5;6;7', '', 0),
 ('directories', 'userpanel_dir', 'userpanel', '', 0);
 
 INSERT INTO netdeviceproducers (id, name) VALUES
@@ -2951,6 +2985,6 @@ INSERT INTO netdevicemodels (name, alternative_name, netdeviceproducerid) VALUES
 ('XR7', 'XR7 MINI PCI PCBA', 2),
 ('XR9', 'MINI PCI 600MW 900MHZ', 2);
 
-INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2017051201');
+INSERT INTO dbinfo (keytype, keyvalue) VALUES ('dbversion', '2017072100');
 
 COMMIT;

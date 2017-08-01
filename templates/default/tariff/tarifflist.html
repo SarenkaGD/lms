@@ -3,9 +3,6 @@
 {block name=module_content}
 <!--// $Id$ //-->
 <style>
-.multiselect {
-	float: left;
-}
 .tag-bar {
 	padding: 2px;
 }
@@ -53,7 +50,6 @@
 				<INPUT type="submit" class="hiddenbtn">
 				<INPUT TYPE="HIDDEN" NAME="m" VALUE="tarifflist">
 				{*<INPUT TYPE="HIDDEN" NAME="page" VALUE="1">*}
-				<div style="float: left;">
 				<span class="bold">{trans("Filter:")}</span>
 				{trans("Type:")}
 				<SELECT SIZE="1" NAME="t" ONCHANGE="document.choosefilter.submit();">
@@ -75,7 +71,6 @@
 					<OPTION value="1"{if $listdata.state == 1} SELECTED{/if}>{trans("enabled")}</OPTION>
 					<OPTION value="2"{if $listdata.state == 2} SELECTED{/if}>{trans("disabled")}</OPTION>
 				</SELECT>
-
 				{if count($customergroups) > 0}
 					{trans("Group:")}
 					<SELECT SIZE="1" NAME="g" ONCHANGE="document.choosefilter.submit();">
@@ -87,11 +82,9 @@
 				{else}
 					<input type="hidden" name="g" value="">
 				{/if}
-
 				{if count($tags) > 0}
 					{trans("Tags:")}
-					</div>
-					<SELECT size="5" name="tg[]" class="lms-ui-multiselect" onchange="document.choosefilter.submit();" {tip text="Select tariff tags"} multiple>
+					<SELECT size="5" name="tg[]" class="lms-ui-multiselect" onchange="document.choosefilter.submit();" {tip text="Select tariff tags"} multiple data-default-value="{trans("- all -")}">
 						{foreach $tags as $tag}
 						<OPTION value="{$tag.id}"{if !empty($listdata.tags) && in_array($tag.id, $listdata.tags)} selected{/if}>{$tag.name}</OPTION>
 						{/foreach}
@@ -145,8 +138,9 @@
 			{$tariff.tax}
 		</TD>
 		<TD WIDTH="1%" align="right" onClick="return self.location.href='?m=tariffinfo&amp;id={$tariff.id}';" NOWRAP>
-			{$tariff.customerscount|default:0}
-			({$tariff.count|default:0},{$tariff.activecount|default:0})
+			<span title="<span class=&quot;bold&quot;</span>{trans("Customer count")}">{$tariff.customerscount|default:0}</span>
+			(<span title="<span class=&quot;bold&quot;</span>{trans("Assignment count")}">{$tariff.count|default:0}</span>,
+			<span title="<span class=&quot;bold&quot;>{trans("Active assignment count")}</span>">{$tariff.activecount|default:0}</span>)
 		</TD>
 		<TD WIDTH="1%" align="right" onClick="return self.location.href='?m=tariffinfo&amp;id={$tariff.id}';">
 			{if ConfigHelper::checkConfig('privileges.superuser') || !ConfigHelper::checkConfig('privileges.hide_summaries')}

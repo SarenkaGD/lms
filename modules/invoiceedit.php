@@ -295,17 +295,17 @@ switch($action)
 		$SESSION->restore('invoiceid', $invoice['id']);
 		$invoice['type'] = $invoice['doctype'];
 
-		$prev_rec_addr = $DB->GetOne('SELECT recipient_address_id FROM documents WHERE id = ?;', array($invoice['id']));
+		$prev_rec_addr = $DB->GetOne('SELECT recipient_address_id FROM documents WHERE id = ?', array($invoice['id']));
 		if (empty($prev_rec_addr))
 			$prev_rec_addr = -1;
 
 		if ( $prev_rec_addr != $invoice['recipient_address_id'] ) {
 			if ( $prev_rec_addr > 0) {
-				$DB->Execute('DELETE FROM addresses WHERE id = ?;', array($prev_rec_addr));
+				$DB->Execute('DELETE FROM addresses WHERE id = ?', array($prev_rec_addr));
 			}
 
 			if ($invoice['recipient_address_id'] > 0) {
-				$DB->Execute('UPDATE documents SET recipient_address_id = ? WHERE id = ?;',
+				$DB->Execute('UPDATE documents SET recipient_address_id = ? WHERE id = ?',
 							array(
 								$LMS->CopyAddress($invoice['recipient_address_id']),
 								$invoice['id']
@@ -321,15 +321,16 @@ switch($action)
 		$iid   = $invoice['id'];
 
 		$DB->BeginTrans();
+		
 		if (ConfigHelper::getConfig('phpui.stock')) {//Added for lms-sstck by Sarenka = MAXCON
-			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions','stck_invoicecontentsassignments','stck_stock','stck_cashassignments'));
+			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'divisions', 'vdivisions','stck_invoicecontentsassignments','stck_stock','stck_cashassignments'));
 		} else {
 			$DB->LockTables(array('documents', 'cash', 'invoicecontents', 'numberplans', 'vdivisions'));
 		}
 
 		$division = $DB->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
 			account, inv_header, inv_footer, inv_author, inv_cplace 
-			FROM vdivisions WHERE id = ? ;',array($customer['divisionid']));
+			FROM vdivisions WHERE id = ?',array($customer['divisionid']));
 
 		if (!$invoice['number'])
 			$invoice['number'] = $LMS->GetNewDocumentNumber(array(
@@ -443,8 +444,7 @@ switch($action)
 				}
 			}
 			$DB->Execute('DELETE FROM invoicecontents WHERE docid = ?', array($iid));
-			if ($invoice['doctype'] == DOC_INVOICE)
-				$DB->Execute('DELETE FROM cash WHERE docid = ?', array($iid));
+			$DB->Execute('DELETE FROM cash WHERE docid = ?', array($iid));
 
 			$itemid=0;
 			foreach ($contents as $idx => $item) {
@@ -480,7 +480,8 @@ switch($action)
 					$SYSLOG->AddMessage(SYSLOG::RES_INVOICECONT, SYSLOG::OPER_ADD, $args);
 				}
 
-				if ($invoice['doctype'] == DOC_INVOICE || $invoice['proforma'] == 'convert')
+				if ($invoice['doctype'] == DOC_INVOICE || ConfigHelper::checkConfig('phpui.proforma_invoice_generates_commitment')
+					|| $invoice['proforma'] == 'convert')
 					$LMS->AddBalance(array(
 						'time' => $cdate,
 						'value' => $item['valuebrutto']*$item['count']*-1,
@@ -498,7 +499,7 @@ switch($action)
 						}
 					}
 			}
-		} elseif ($invoice['doctype'] == DOC_INVOICE) {
+		} elseif ($invoice['doctype'] == DOC_INVOICE || ConfigHelper::checkConfig('phpui.proforma_invoice_generates_commitment')) {
 			if ($SYSLOG) {
 				$cashids = $DB->GetCol('SELECT id FROM cash WHERE docid = ?', array($iid));
 				foreach ($cashids as $cashid) {

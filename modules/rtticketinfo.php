@@ -3,7 +3,7 @@
 /*
  * LMS version 1.11-git
  *
- *  (C) Copyright 2001-2013 LMS Developers
+ *  (C) Copyright 2001-2017 LMS Developers
  *
  *  Please, see the doc/AUTHORS for more information about authors!
  *
@@ -40,7 +40,7 @@ if(!$rights || !$catrights)
 	die;
 }
 
-$ticket = $DB->GetRow('SELECT t.id, t.cause, t.creatorid, c.name AS creator, 
+$ticket = $DB->GetRow('SELECT t.id, t.cause, t.creatorid, c.name AS creator, t.source,
 		    t.createtime, t.resolvetime
 		    FROM rttickets t
 		    LEFT JOIN vusers c ON (t.creatorid = c.id)

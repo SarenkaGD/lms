@@ -70,10 +70,9 @@
 			{trans("Queue:")}
 		</TD>
 		<TD>
-			<SELECT size="1" name="search[queue]" {tip text="Select queue" trigger="queue"}>
-				<OPTION value="0" SELECTED>{trans("- all -")}</OPTION>
+			<SELECT size="1" name="search[queue][]" {tip text="Select queue" class="lms-ui-multiselect" trigger="queue"} multiple data-default-value="{trans("- all -")}">
 				{foreach $queuelist as $item}
-				<OPTION value="{$item.id}" {if $item.id == $search.queue}SELECTED{/if}>{$item.name}</OPTION>
+				<OPTION value="{$item.id}" {if is_array($search.queue) && in_array($item.id, $search.queue)}SELECTED{/if}>{$item.name}</OPTION>
 				{/foreach}
 			</SELECT>
 		</TD>
@@ -116,12 +115,28 @@
 		<TD class="nobr">
 			{foreach $categories as $category}
 			<label>
-				{$category.name}<BR>
 				<INPUT type="checkbox" name="search[categories][{$category.id}]" value="1"{if $category.checked > 0} checked{/if}>
+				{$category.name}
 			</label>
+			{if !$category@last}<br>{/if}
 			{/foreach}
 		</TD>
 	</TR>
+	{if ConfigHelper::checkPrivilege('helpdesk_advanced_operations')}
+	<TR>
+		<TD class="bold nobr">
+			<IMG src="img/dead.gif" alt="">
+			{trans("Removed:")}
+		</TD>
+		<TD>
+			<SELECT SIZE="1" name="search[removed]" {tip text="Select ticket status"}>
+				<OPTION value="" {if $search.remove==""}SELECTED{/if}>{trans("- all -")}</OPTION>
+				<OPTION value="-1" {if $search.remove=="-1"}SELECTED{/if}>{trans("Not removed")}</OPTION>
+				<OPTION value="1" {if $search.remove=="1"}SELECTED{/if}>{trans("Removed")}</OPTION>
+			</SELECT>
+		</TD>
+	</TR>
+	{/if}
 	<TR>
 		<TD class="buttons" colspan="2">
 			<A href="javascript:document.search.submit();" accesskey="s"><IMG src="img/search.gif" alt=""> {trans("Search")}</A>

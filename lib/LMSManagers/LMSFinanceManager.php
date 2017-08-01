@@ -515,7 +515,7 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
 
         $division = $this->db->GetRow('SELECT name, shortname, address, city, zip, countryid, ten, regon,
 				account, inv_header, inv_footer, inv_author, inv_cplace
-				FROM vdivisions WHERE id = ? ;', array($invoice['customer']['divisionid']));
+				FROM vdivisions WHERE id = ?', array($invoice['customer']['divisionid']));
 
 		if ($invoice['invoice']['recipient_address_id'] > 0) {
 			global $LMS;
@@ -612,7 +612,7 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                 $this->syslog->AddMessage(SYSLOG::RES_INVOICECONT, SYSLOG::OPER_ADD, $args);
             }
 		
-	    if ($type != DOC_INVOICE_PRO) {//Added bracket for lms-sstck by Sarenka = MAXCON
+	    if ($type != DOC_INVOICE_PRO || ConfigHelper::checkConfig('phpui.proforma_invoice_generates_commitment')) {//Added bracket for lms-sstck by Sarenka = MAXCON
 	    	$this->AddBalance(array(
             	    'time' => $cdate,
             	    'value' => $item['valuebrutto'] * $item['count'] * -1,
@@ -783,13 +783,15 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                         . ($result['division_ten'] != '' ? "\n" . trans('TEN') . ' ' . $result['division_ten'] : '');
             }
 
-            if ($result['content'] = $this->db->GetAll('SELECT invoicecontents.value AS value, 
-						itemid, taxid, (CASE WHEN taxes.taxed = 0 THEN -1 ELSE taxes.value END) AS taxvalue, taxes.label AS taxlabel, 
-						prodid, content, count, invoicecontents.description AS description, 
-						tariffid, itemid, pdiscount, vdiscount 
-						FROM invoicecontents 
-						LEFT JOIN taxes ON taxid = taxes.id 
-						WHERE docid=? 
+            if ($result['content'] = $this->db->GetAll('SELECT invoicecontents.value AS value,
+						itemid, taxid, (CASE WHEN taxes.reversecharge = 1 THEN -2 ELSE (
+								CASE WHEN taxes.taxed = 0 THEN -1 ELSE taxes.value END
+							) END) AS taxvalue, taxes.label AS taxlabel,
+						prodid, content, count, invoicecontents.description AS description,
+						tariffid, itemid, pdiscount, vdiscount
+						FROM invoicecontents
+						LEFT JOIN taxes ON taxid = taxes.id
+						WHERE docid=?
 						ORDER BY itemid', array($invoiceid))
             )
                 foreach ($result['content'] as $idx => $row) {
@@ -798,11 +800,12 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
                         $row['count'] += $result['invoice']['content'][$idx]['count'];
                     }
 
-		                       if ($row['taxvalue'] == -1)
-                                               $taxvalue = 0;
-                                       else
-                                               $taxvalue = $row['taxvalue'];
-		    $result['content'][$idx]['basevalue'] = round(($row['value'] / (100 + $taxvalue) * 100), 2);
+		if ($row['taxvalue'] < 0)
+			$taxvalue = 0;
+		else
+			$taxvalue = $row['taxvalue'];
+
+                    $result['content'][$idx]['basevalue'] = round(($row['value'] / (100 + $taxvalue) * 100), 2);
                     $result['content'][$idx]['total'] = round($row['value'] * $row['count'], 2);
                     $result['content'][$idx]['totalbase'] = round($result['content'][$idx]['total'] / (100 + $taxvalue) * 100, 2);
                     $result['content'][$idx]['totaltax'] = round($result['content'][$idx]['total'] - $result['content'][$idx]['totalbase'], 2);
@@ -1170,10 +1173,13 @@ class LMSFinanceManager extends LMSManager implements LMSFinanceManagerInterface
         return $this->db->GetAllByKey('SELECT t.id, t.name, t.value, uprate, taxid,
 				datefrom, dateto, (CASE WHEN datefrom < ?NOW? AND (dateto = 0 OR dateto > ?NOW?) THEN 1 ELSE 0 END) AS valid,
 				prodid, downrate, upceil, downceil, climit, plimit, taxes.value AS taxvalue,
-				taxes.label AS tax, t.period, t.type AS tarifftype
+				taxes.label AS tax, t.period, t.type AS tarifftype, ' . $this->db->GroupConcat('ta.tarifftagid') . ' AS tags
 				FROM tariffs t
+				LEFT JOIN tariffassignments ta ON ta.tariffid = t.id
 				LEFT JOIN taxes ON t.taxid = taxes.id
-				WHERE t.disabled = 0
+				WHERE t.disabled = 0' . (empty($forced_id) ? '' : ' OR t.id = ' . intval($forced_id)) . '
+				GROUP BY t.id, t.name, t.value, uprate, taxid, datefrom, dateto, prodid, downrate, upceil, downceil, climit, plimit,
+					taxes.value, taxes.label, t.period, t.type
 				ORDER BY t.name, t.value DESC', 'id');
     }
 

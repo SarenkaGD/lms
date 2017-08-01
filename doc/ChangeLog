@@ -2,6 +2,64 @@ $Id$
 
 version ?.??.?? (????-??-??):
 
+  - improvement: create db dumps with multi records inserts statements which
+    dramatically reduces db restore time [chilan]
+  - enhancement: allow to backup all financial documents issued a given day
+    in selected output directory (--backup and --output-directory parameters
+    were introduced for lms-sendinvoices.php) [chilan]
+  - enhancement: added payments.check_invoices ('false' by default) configuration
+    variable support and its behavior is the same as deprecated daemon payments
+    module configuration variable [chilan]
+  - enhancement: added support for default queue categories used during new ticket
+    creation [chilan]
+  - improvement: pdf ticket and document attachments are displayed in popup window
+    instead of forcing writing them to disk [chilan]
+  - improvement: phpui.pin_min_size, phpui.pin_max_size and phpui.pin_allowed_characters
+    configurtion variables control customer pin constraints (by default: 4, 6 and
+    '0123456789' respectively) [chilan]
+  - improvement: suppport for teryt locations where city consists of many sections/districts
+    [chilan]
+  - improvement: phpui.category_adjustments_in_ticketedit (false by default) controls if selected
+    categories in ticket edit form are automatically adjusted with queue change [chilan]
+  - improvement: pdf and html unification of receipts.default_printpage ('original,copy' by
+    default) configuration variable support which controls how many receipts are printed [chilan]
+  - enhancement: log ticket category changes [chilan]
+  - enhancement: implemented helpdesk notification mail threading compatible with RFC5322 [chilan]
+  - enhancement: added ticket source information [interduo]
+  - enhancement: allow to define ticket with which sources are visible in userpanel helpdesk
+    module [chilan]
+  - enhancement: Fake delete operations in helpdesk to regular users. After deleting queue,
+    ticket or message regular user can't see deleted items, only superuser can see
+    deleted items [ravvar/chilan]
+  - enhancement: added support for array parameter to LMSDB class [kosa/chilan]
+  - improvement: allow to add new network device directly from customer box [chilan]
+  - enhancement: allow to quick search by external customer id fragment [chilan]
+  - improvement: all url in helpdesk notifications open ticket immediately
+    on comment added before the moment [chilan]
+  - enhancement: helpdesk ticket <-> customer locations (this allows to assign locations
+    to tickets) [chilan]
+  - enhancement: helpdesk ticket <-> customer nodes (only customer nodes which have the same
+    location as selected ticket customer location are displayed) [chilan]
+  - enhancement: added support for event <-> customer location assignment [chilan]
+  - enhancement: allow to filter tariffs by tags in customer assignment forms [chilan]
+  - improvement: added support for named state list in lms-teryt.php [chilan]
+  - improvement: added special user privilege which controls if helpdesk queues, tickets,
+    messages, notes are only archived (with permanent remove option) instead of removing
+    them [ravvar/chilan]
+  - enhancement: tax rate reverse charge flag support added (JPK generators use it) [chilan]
+  - improvement: show invoice pro forma items in customer balance box [chilan]
+  - enhancement: phpui.proforma_invoice_generates_commitment configuration variable
+    ('false' by default) controls if related cash records are created for proforma
+    invoices [chilan]
+  - enhancement: allow to view and search tickets from many queues and categories [chilan]
+  - enhancement: allow to view and search events selecting many types and owners [chilan]
+  - improvement: helpdesk_notification_mail_subject, helpdesk_notification_mail_body
+    helpdesk_notification_sms_body, helpdesk_customerinfo_email_body and
+    helpdesk_customerinfo_sms_body configurtion variables control additional information
+    in helpdesk ticket notice via templates [ravvar/chilan]
+
+version 1.11.22 (2017-06-08):
+
   - userpanel enhancement: show confirmed documents only checkbox decides if confirmed
     documents are only shown for customer [chilan]
   - documentview enhancement: allow to view many pdf documents as single pdf file [chilan]
@@ -130,6 +188,8 @@ version ?.??.?? (????-??-??):
     agreement for an electronic invoice [chilan]
   - improvement: phpui.capitalize_customer_names configuration variable settings decides
     if customer last names are automatically capitalized ('true' by default) [chilan]
+  - improvement: if gps coordinates determined by google api are not precise we show
+    javascript popup which allows user to decide if they should stored beside of this [chilan]
 
 version 1.11.21 (2016-10-14):
 

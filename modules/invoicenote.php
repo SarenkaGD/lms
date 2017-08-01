@@ -269,7 +269,7 @@ switch($action)
 		$cnote['paytime'] = round(($cnote['deadline'] - $cnote['cdate']) / 86400);
 
 		$DB->BeginTrans();
-		$DB->LockTables(array('documents', 'numberplans', 'vdivisions'));
+		$DB->LockTables(array('documents', 'numberplans', 'divisions', 'vdivisions'));
 
 		if(!isset($cnote['number']) || !$cnote['number'])
 			$cnote['number'] = $LMS->GetNewDocumentNumber(array(
@@ -315,9 +315,9 @@ switch($action)
 			$fullnumber = null;
 
 		if ( !empty($invoice['recipient_address_id']) ) {
-			$invocie['recipient_address_id'] = $LMS->CopyAddress($invoice['recipient_address_id']);
+			$invoice['recipient_address_id'] = $LMS->CopyAddress($invoice['recipient_address_id']);
 		} else {
-			$invocie['recipient_address_id'] = null;
+			$invoice['recipient_address_id'] = null;
 		}
 
 		$args = array(
