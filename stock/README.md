@@ -18,8 +18,12 @@ Znane problemy:
 - brak obs³ugi pozycji o krotno¶ci > 1 w ramach jedenej pozycji magazynowej
 
 TODO:
-- przy w³±czonym wy¶wietlaniu listy pozycji sprzedanych wy¶wietlanie informacji dot. dokumentu sprzeda¿y (dane dokumentu - numer + data, dane klienta - nazwa + id)
 - kompletacja!
 
 Plany na przysz³o¶æ:
 - wsparcie dla drukarek fiskalnych
+
+Changelog:
+20180307 - [BUGFIX] - poprawiono b³±d przy dodawaniu do dokumentu przyjêcia pozycji o warto¶ci < 1
+20180220 - [FEATURE] - dodano raport zakupów w podziale na kontrahenta (Magazyn -> Raporty)
+201801?? - [FEATURE] - dodano wy¶wiertlanie numeru dokumentu dla pozycji sprzedanych

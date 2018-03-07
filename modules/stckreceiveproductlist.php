@@ -37,17 +37,21 @@ if (isset($_POST['receivenote']['product']) && !isset($_GET['action'])) {
 
 	if (!preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $itemdata['price']['net']) && !preg_match('/^\d+[,.]{0,1}\d{0,2}$/i', $itemdata['price']['gross']))
 		$error['price'] = trans('Wrong or missing price!');
+	else {
+		$itemdata['price']['net'] = f_round($itemdata['price']['net']);
+		$itemdata['price']['gross'] = f_round($itemdata['price']['gross']);
+	}
 	
 	$itemdata['price']['tax'] = isset($itemdata['price']['taxid']) ? $taxeslist[$itemdata['price']['taxid']]['label'] : '';
 
 	if (!$error) {
 		$taxvalue = isset($itemdata['price']['taxid']) ? $taxeslist[$itemdata['price']['taxid']]['value'] : 0;
-		if ($itemdata['price']['net'] != 0) {
-			$itemdata['price']['net'] = f_round($itemdata['price']['net']);
+		if ((float)$itemdata['price']['net'] > 0) {
+			//$itemdata['price']['net'] = f_round($itemdata['price']['net']);
 			$itemdata['price']['gross'] = f_round($itemdata['price']['net'] * ($taxvalue / 100 + 1),2);
 			$itemdata['price']['net'] = f_round($itemdata['price']['gross'] / ($taxvalue / 100 + 1),2);
-		} elseif ($itemdata['price']['gross'] != 0) {
-			$itemdata['price']['gross'] = f_round($itemdata['price']['gross'], 2);
+		} elseif ((float)$itemdata['price']['gross'] > 0) {
+			//$itemdata['price']['gross'] = f_round($itemdata['price']['gross'], 2);
 			$itemdata['price']['net'] = f_round($itemdata['price']['gross'] / ($taxvalue / 100 + 1),2);
 		}
 		 
